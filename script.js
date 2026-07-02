@@ -1,5 +1,5 @@
 /*
-  Course 1 Study Reader - v5
+  Course 1 Study Reader - v7
   --------------------------
   UI shell is intentionally independent from the course corpus. Text lives in lazy
   module chunks, semantic tables and cropped exhibits remain separate lazy files.
@@ -1151,6 +1151,16 @@ function highlightSnippet(text, query) {
   return safe.replace(regex, "<em>$1</em>");
 }
 
+function closeCourseSearch({ clear = false } = {}) {
+  const box = $("#searchBox");
+  const panel = $("#searchResults");
+  const input = $("#courseSearch");
+  box.classList.remove("is-open");
+  panel.hidden = true;
+  panel.innerHTML = "";
+  if (clear) input.value = "";
+}
+
 async function searchCourse(query) {
   const clean = normalize(query);
   const panel = $("#searchResults");
@@ -1220,12 +1230,15 @@ function bindEvents() {
   $("#mobileSearchButton").addEventListener("click", () => {
     const box = $("#searchBox");
     const open = !box.classList.contains("is-open");
-    box.classList.toggle("is-open", open);
-    if (open) window.setTimeout(() => $("#courseSearch").focus(), 40);
+    if (!open) {
+      closeCourseSearch();
+      return;
+    }
+    box.classList.add("is-open");
+    window.setTimeout(() => $("#courseSearch").focus(), 40);
   });
   document.addEventListener("click", (event) => {
-    const box = $("#searchBox");
-    if (!event.target.closest("#searchBox")) box.classList.remove("is-open");
+    if (!event.target.closest("#searchBox")) closeCourseSearch();
   });
 
   $("#continueButton").addEventListener("click", () => setPage(Number(state.currentPage) || FIRST_READING_PAGE, { view: "reader" }));
@@ -1382,12 +1395,13 @@ function bindEvents() {
     clearTimeout(searchTimer);
     searchTimer = window.setTimeout(() => void searchCourse(event.target.value), 180);
   });
+  $("#courseSearch").addEventListener("focus", (event) => {
+    if (normalize(event.target.value).length >= 2) void searchCourse(event.target.value);
+  });
   $("#searchResults").addEventListener("click", (event) => {
     const button = event.target.closest("[data-search-page]");
     if (!button) return;
-    $("#courseSearch").value = "";
-    $("#searchResults").hidden = true;
-    $("#searchBox").classList.remove("is-open");
+    closeCourseSearch({ clear: true });
     setPage(Number(button.dataset.searchPage), { view: "reader" });
   });
 
@@ -1395,8 +1409,7 @@ function bindEvents() {
     if (event.key === "Escape") {
       hideSelectionToolbar();
       setSidebarOpen(false);
-      $("#searchBox").classList.remove("is-open");
-      $("#searchResults").hidden = true;
+      closeCourseSearch();
     }
     if (event.key === "ArrowRight" && ui.view === "practice" && !event.target.matches("input, textarea, select")) movePractice(1);
     if (event.key === "ArrowLeft" && ui.view === "practice" && !event.target.matches("input, textarea, select")) movePractice(-1);

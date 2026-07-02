@@ -1,6 +1,6 @@
-# Course 1 Study Reader — Pro v6
+# Course 1 Study Reader — Pro v7
 
-**Diseño editorial premium y responsive (v6).** Esta entrega conserva el contenido y los recursos visuales de v5; cambia la capa de experiencia: sistema visual más sobrio, lectura más legible y tamaños/espaciados recalibrados para móvil, tablet y escritorio.
+**Diseño editorial premium y responsive (v7).** Esta entrega conserva el contenido y los recursos visuales de v6; cambia la capa de experiencia: sistema visual más sobrio, lectura más legible y tamaños/espaciados recalibrados para móvil, tablet y escritorio.
 
 Cambios de interfaz: paleta verde bosque y crema, contornos rectos y discretos, jerarquía tipográfica editorial, layout de escritorio sin columnas comprimidas y controles táctiles recalibrados para móviles.
 
@@ -69,3 +69,11 @@ Estos datos no se sincronizan entre dispositivos. Puedes limpiarlos desde **Rest
 ## Contenido y privacidad
 
 La herramienta usa exclusivamente el texto y los visuales necesarios de los documentos proporcionados para estudio personal. Los recursos se mantienen locales y no deben publicarse de forma abierta si el material tiene restricciones de uso.
+
+
+## Ajustes de interfaz de v7
+
+- El panel de resultados de búsqueda permanece oculto hasta que haya una búsqueda válida.
+- Los títulos y el texto de lectura se alinean al borde de lectura, sin centrado interno.
+- Los controles de tamaño de texto, navegación Anterior/Siguiente e índice por páginas se ajustaron para una alineación más consistente.
+- El modo oscuro ahora usa superficies y acentos específicos en tablas, notas, visuales y controles.

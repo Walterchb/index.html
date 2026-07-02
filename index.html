@@ -67,11 +67,11 @@
             <button id="mobileSearchButton" class="mobile-search-trigger" type="button" aria-label="Abrir buscador"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
             <label class="sr-only" for="courseSearch">Buscar en el contenido</label>
             <input id="courseSearch" type="search" autocomplete="off" placeholder="Buscar en el curso" />
-            <div id="searchResults" class="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
+            <div id="searchResults" class="search-results" role="listbox" aria-label="Resultados de búsqueda" hidden></div>
           </div>
           <span id="topPageChip" class="top-page-chip" aria-label="Página actual">p. 5 / 157</span>
-          <button id="fontDecreaseButton" class="icon-button desktop-tool" type="button" title="Reducir tamaño de lectura" aria-label="Reducir tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><i class="fa-solid fa-minus mini-icon" aria-hidden="true"></i></button>
-          <button id="fontIncreaseButton" class="icon-button desktop-tool" type="button" title="Aumentar tamaño de lectura" aria-label="Aumentar tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><i class="fa-solid fa-plus mini-icon" aria-hidden="true"></i></button>
+          <button id="fontDecreaseButton" class="icon-button desktop-tool font-control" type="button" title="Reducir tamaño de lectura" aria-label="Reducir tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><span class="font-control-step" aria-hidden="true">−</span></button>
+          <button id="fontIncreaseButton" class="icon-button desktop-tool font-control" type="button" title="Aumentar tamaño de lectura" aria-label="Aumentar tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><span class="font-control-step" aria-hidden="true">+</span></button>
           <button id="readerSettingsButton" class="icon-button" type="button" title="Ajustes de lectura" aria-label="Ajustes de lectura"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>
           <button id="themeButton" class="icon-button" type="button" title="Cambiar apariencia" aria-label="Cambiar apariencia"><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
         </div>
