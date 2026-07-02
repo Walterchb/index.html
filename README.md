@@ -1,4 +1,9 @@
-# Course 1 Study Reader Pro v5
+# Course 1 Study Reader — Pro v6
+
+**Diseño editorial premium y responsive (v6).** Esta entrega conserva el contenido y los recursos visuales de v5; cambia la capa de experiencia: sistema visual más sobrio, lectura más legible y tamaños/espaciados recalibrados para móvil, tablet y escritorio.
+
+Cambios de interfaz: paleta verde bosque y crema, contornos rectos y discretos, jerarquía tipográfica editorial, layout de escritorio sin columnas comprimidas y controles táctiles recalibrados para móviles.
+
 
 Lector de estudio local para **Investment Foundations – Course 1: Industry Overview and Structure**. Está pensado para leer en trayectos, practicar y revisar vocabulario desde móvil sin depender del diseño incómodo de un PDF.
 
@@ -10,7 +15,7 @@ Lector de estudio local para **Investment Foundations – Course 1: Industry Ove
 
 La lectura, índice, ejercicios, glosario, marcadores, notas, resaltados y progreso funcionan localmente. La traducción necesita una conexión o un servicio configurado.
 
-## Qué cambió en esta versión
+## Qué incluye esta versión
 
 - **Sin PDF ni 157 capturas de páginas**: el paquete ya no incluye copias completas de las hojas ni los archivos PDF originales. Esto reduce el tamaño aproximado de 19 MB a menos de 4 MB.
 - **Todas las 157 páginas siguen disponibles** como texto refluido, una página de lectura a la vez.
