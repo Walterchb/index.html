@@ -156,28 +156,42 @@
         </div>
       </section>
 
-      <section id="practiceView" class="view-panel" hidden>
-        <div class="practice-hero">
+      <section id="practiceView" class="view-panel practice-view" hidden>
+        <header class="practice-hero">
           <div>
             <p class="eyebrow">PRÁCTICA DEL MATERIAL</p>
             <h3>Recuerda antes de revisar.</h3>
             <p>Las preguntas y la retroalimentación provienen de los knowledge checks del packet. La respuesta aparece únicamente después de tu intento.</p>
           </div>
           <div id="practiceStats" class="practice-stats" aria-label="Estado de práctica"></div>
-        </div>
+        </header>
 
-        <div class="practice-control-bar">
-          <label>Unidad
-            <select id="practiceModuleFilter" aria-label="Filtrar práctica por módulo"></select>
-          </label>
-          <div class="practice-levels" role="tablist" aria-label="Nivel de práctica">
-            <button class="practice-level is-active" type="button" data-practice-level="1"><span>01</span> Lectura inicial</button>
-            <button class="practice-level" type="button" data-practice-level="2"><span>02</span> Comprensión</button>
-            <button class="practice-level" type="button" data-practice-level="3"><span>03</span> Repaso</button>
-            <button class="practice-level" type="button" data-practice-level="4"><span>04</span> Evaluación</button>
+        <section class="practice-control-bar" aria-label="Configurar práctica">
+          <div class="practice-control-intro">
+            <span class="practice-control-number" aria-hidden="true">01</span>
+            <div>
+              <p class="practice-control-eyebrow">CONFIGURA TU RUTA</p>
+              <p class="practice-control-copy">Elige una unidad y el tipo de práctica. Después avanza con el mapa de preguntas.</p>
+            </div>
           </div>
-        </div>
+          <div class="practice-route-row">
+            <label class="practice-module-filter" for="practiceModuleFilter">
+              <span><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Unidad</span>
+              <select id="practiceModuleFilter" aria-label="Filtrar práctica por módulo"></select>
+            </label>
+            <div class="practice-level-panel">
+              <p class="practice-level-label"><i class="fa-solid fa-stairs" aria-hidden="true"></i> Tipo de práctica</p>
+              <div class="practice-levels" role="tablist" aria-label="Nivel de práctica">
+                <button class="practice-level is-active" type="button" data-practice-level="1" aria-selected="true"><span>01</span><strong>Lectura inicial</strong><small>Ideas y vocabulario</small></button>
+                <button class="practice-level" type="button" data-practice-level="2" aria-selected="false"><span>02</span><strong>Comprensión</strong><small>Relaciona conceptos</small></button>
+                <button class="practice-level" type="button" data-practice-level="3" aria-selected="false"><span>03</span><strong>Repaso</strong><small>Por lección</small></button>
+                <button class="practice-level" type="button" data-practice-level="4" aria-selected="false"><span>04</span><strong>Evaluación</strong><small>Vista acumulativa</small></button>
+              </div>
+            </div>
+          </div>
+        </section>
 
+        <section id="practiceNavigator" class="practice-navigator" aria-label="Navegación de preguntas" aria-live="polite"></section>
         <div id="practiceLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Preparando práctica…</div>
         <section id="practiceRunner" class="practice-runner" aria-live="polite"></section>
       </section>
@@ -214,14 +228,11 @@
   </div>
 
   <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
+    <button id="mobileTopNavButton" class="mobile-nav-item mobile-nav-top" type="button" aria-label="Volver al inicio de la vista actual"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i><span>Inicio</span></button>
     <button class="mobile-nav-item is-active" type="button" data-view="reader"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Leer</span></button>
     <button class="mobile-nav-item" type="button" data-view="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></button>
     <button class="mobile-nav-item" type="button" data-view="glossary"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></button>
   </nav>
-
-  <button id="floatingChapterTopButton" class="scroll-top-fab" type="button" aria-label="Volver al inicio de la lectura" title="Volver al inicio">
-    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i><span>Inicio</span>
-  </button>
 
   <div id="selectionToolbar" class="selection-toolbar" hidden role="toolbar" aria-label="Acciones para texto seleccionado">
     <button type="button" data-selection-action="translate"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Traducir</span></button>

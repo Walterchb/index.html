@@ -1,5 +1,5 @@
 /* Optional offline layer for hosted use. Local file:// use does not need it. */
-const CACHE_NAME = "course1-study-reader-v8";
+const CACHE_NAME = "course1-study-reader-v9";
 const APP_SHELL = [
   "./",
   "./index.html",

@@ -1,4 +1,4 @@
-# Arquitectura v8: lector ligero, fiel y escalable
+# Arquitectura v9: lector ligero, fiel y escalable
 
 ## Principio de producto
 
@@ -45,6 +45,17 @@ Este enfoque reduce peso y evita el problema de convertir dos columnas o un layo
 - la página actual se marca con un estado visible;
 - las páginas completadas tienen su propio estado;
 - el usuario puede ir a cualquier página sin cargar todos los textos previamente.
+
+## Flujo de práctica y navegación
+
+La práctica se renderiza solo al abrir su vista. El estado `ui.practice` mantiene el filtro por módulo, nivel, pregunta actual y feedback temporal. La interfaz se divide en cuatro pasos visuales:
+
+1. **Configurar**: seleccionar unidad y tipo de práctica.
+2. **Orientarse**: consultar el contador, barra de avance, selector y mapa de preguntas.
+3. **Responder**: elegir una opción y verificar sin mostrar la respuesta antes del intento.
+4. **Revisar o avanzar**: usar Intentar otra vez, abrir la referencia o ir a la siguiente pregunta.
+
+El mapa de preguntas se genera con el estado local: pendiente, correcta o por reforzar. Los botones Anterior/Siguiente no hacen saltos circulares, por lo que el inicio y el final de la ruta son siempre claros. El acceso móvil a Inicio es parte de la barra inferior; no hay un botón flotante que cubra contenido.
 
 ## Carga progresiva
 

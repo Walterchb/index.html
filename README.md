@@ -1,11 +1,6 @@
-# Course 1 Study Reader — Pro v8
+# Course 1 Study Reader — Pro v9
 
-**Diseño editorial premium y responsive (v8).** Esta entrega conserva el contenido y los recursos visuales de la versión anterior y mejora la capa de experiencia: sistema visual más sobrio, lectura más legible y tamaños/espaciados recalibrados para móvil, tablet y escritorio.
-
-Cambios de interfaz: paleta verde bosque y crema, contornos rectos y discretos, jerarquía tipográfica editorial, layout de escritorio sin columnas comprimidas y controles táctiles recalibrados para móviles.
-
-
-Lector de estudio local para **Investment Foundations – Course 1: Industry Overview and Structure**. Está pensado para leer en trayectos, practicar y revisar vocabulario desde móvil sin depender del diseño incómodo de un PDF.
+Lector de estudio local para **Investment Foundations – Course 1: Industry Overview and Structure**. Está pensado para leer en trayectos, practicar y revisar vocabulario desde móvil sin depender del formato rígido de un PDF.
 
 ## Abrirlo
 
@@ -13,30 +8,36 @@ Lector de estudio local para **Investment Foundations – Course 1: Industry Ove
 2. Conserva las carpetas `assets/` y `data/` junto a `index.html`.
 3. Abre `index.html` en Chrome, Edge, Firefox o Safari.
 
-La lectura, índice, ejercicios, glosario, marcadores, notas, resaltados y progreso funcionan localmente. La traducción necesita una conexión o un servicio configurado.
+La lectura, índice, ejercicios, glosario, marcadores, notas, resaltados y progreso funcionan localmente. La traducción necesita conexión o un servicio configurado.
+
+## Novedades de v9
+
+- El acceso a **Inicio** ya no flota sobre el contenido: en móvil está integrado con **Leer**, **Práctica** y **Glosario** en la navegación inferior.
+- La práctica se organizó como un flujo claro: **configura unidad y tipo → consulta el mapa → responde → revisa → avanza**.
+- El mapa de preguntas muestra cuál es la actual, cuáles están pendientes, cuáles fueron correctas y cuáles necesitan refuerzo.
+- Se añadieron controles visibles de **Anterior**, **Siguiente** e **Ir a una pregunta**. También se mantienen las flechas izquierda/derecha en escritorio para desplazarse entre preguntas.
+- Las opciones elegidas quedan visualmente marcadas antes de verificar.
+- **Intentar otra vez** ahora oculta correctamente el resultado previo para que puedas resolver de nuevo la misma pregunta.
+- Las preguntas se cargan solo al abrir Práctica y se mantienen dentro del filtro elegido para conservar velocidad en móvil.
 
 ## Qué incluye
 
-- Búsqueda contextual: los resultados resaltan la coincidencia en amarillo y llevan al fragmento dentro de la página.
-- Botón flotante de Inicio cuando se desplaza por una lectura larga.
-- Navegación Anterior/Siguiente alineada exactamente con el contenedor de lectura.
-- Títulos de lección normalizados y notas alineadas al borde de lectura.
-
-- **Sin PDF ni 157 capturas de páginas**: el paquete ya no incluye copias completas de las hojas ni los archivos PDF originales. Esto reduce el tamaño aproximado de 19 MB a menos de 4 MB.
-- **Todas las 157 páginas siguen disponibles** como texto refluido, una página de lectura a la vez.
-- **Índice de páginas real**: abre cualquier lección desde el índice y despliega sus páginas para saltar directamente a la que necesites. La página actual y las completadas se distinguen visualmente.
-- **Lectura móvil rediseñada**: tamaños, espacios, botones y jerarquías se han equilibrado para pantallas angostas; la barra inferior tiene solo las tres áreas que realmente necesitas: Leer, Práctica y Glosario.
-- **Visuales fieles, solo cuando importan**: se conservan 21 exhibits, tablas, diagramas, figuras y fotografías como recortes nítidos cercanos al texto que los explica. Se amplían con zoom dentro de la web.
-- **Tablas simples reconstruidas semánticamente** cuando se puede preservar con seguridad la estructura; las complejas permanecen como visuales, evitando columnas desordenadas.
-- **Diseño de plataforma educativa**: navegación de curso, avance visible, acciones de estudio a mano, lectura enfocada y componentes consistentes en claro u oscuro.
+- **157 páginas** de lectura refluida, una a la vez.
+- Índice desplegable por módulo, lección y página.
+- Búsqueda contextual: resalta coincidencias en amarillo y abre el fragmento dentro de la lectura.
+- **21 visuales relevantes** —exhibits, tablas, diagramas, figuras y fotografías— ubicados junto al texto que explican y ampliables con zoom.
+- Tablas simples reconstruidas semánticamente; las complejas permanecen como visuales para evitar errores de columnas o jerarquía.
+- Prácticas basadas únicamente en los knowledge checks del material.
+- Glosario, notas, favoritos, pronunciación, resaltado y progreso guardados en el dispositivo.
+- Modo claro y oscuro, con navegación y controles adaptados a móvil, tablet y escritorio.
 
 ## Uso recomendado en móvil
 
-- Pulsa el botón de menú superior para abrir el **índice**. Toca la flecha de una lección para ver sus páginas.
-- Usa **p. X / 157** y los botones Anterior/Siguiente para sostener el ritmo de lectura.
-- Mantén pulsado un fragmento de texto y selecciona: puedes traducir, escuchar, guardar, resaltar o copiar.
-- Cuando aparezca un exhibit, toca **Ampliar visual**. No tienes que salir de la lectura.
-- Usa los accesos **Escuchar, Nota y Practicar** debajo del texto en móvil.
+- Pulsa el menú superior para abrir el **índice** y navegar por módulo, lección o página.
+- En la barra inferior usa **Inicio** para volver al comienzo de la vista actual, **Leer** para la lectura, **Práctica** para reforzar y **Glosario** para vocabulario.
+- Mantén pulsado un fragmento de lectura y selecciona: puedes traducir, escuchar, guardar, resaltar o copiar.
+- En Práctica, elige unidad y tipo. Usa el **mapa de preguntas** o el selector **Ir a** para retomar un punto específico.
+- Cuando aparezca un exhibit, toca **Ampliar visual**. No necesitas salir de la lectura.
 - Marca una página como estudiada antes de seguir; la web guarda dónde te quedaste.
 
 ## Traducción
@@ -74,14 +75,3 @@ Estos datos no se sincronizan entre dispositivos. Puedes limpiarlos desde **Rest
 ## Contenido y privacidad
 
 La herramienta usa exclusivamente el texto y los visuales necesarios de los documentos proporcionados para estudio personal. Los recursos se mantienen locales y no deben publicarse de forma abierta si el material tiene restricciones de uso.
-
-
-## Ajustes de interfaz de v8
-
-- El panel de resultados de búsqueda permanece oculto hasta que haya una búsqueda válida.
-- Los títulos de lección se renderizan como encabezados principales incluso cuando el PDF los entrega como párrafos.
-- Las notas no heredan sangrías de la extracción y se alinean al borde de lectura.
-- Anterior/Siguiente comparten exactamente el ancho del contenedor de lectura en móvil, tablet y escritorio.
-- Un acceso flotante de Inicio aparece al desplazarte en una página de lectura larga.
-- Al tocar un resultado, la coincidencia se resalta en amarillo y se centra automáticamente dentro de la lectura.
-- El modo oscuro conserva contrastes específicos para notas, visuales, tablas y resaltados de búsqueda.

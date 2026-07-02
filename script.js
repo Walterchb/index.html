@@ -1,5 +1,5 @@
 /*
-  Course 1 Study Reader - v8
+  Course 1 Study Reader - v9
   --------------------------
   UI shell is intentionally independent from the course corpus. Text lives in lazy
   module chunks, semantic tables and cropped exhibits remain separate lazy files.
@@ -77,6 +77,8 @@ const ui = {
     questions: [],
     index: 0,
     transientFeedback: {},
+    retrying: new Set(),
+    focusAfterRender: false,
     loading: false
   },
   glossary: {
@@ -639,12 +641,24 @@ function scrollToReaderStart() {
   window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
 }
 
-function updateFloatingTopButton() {
-  const button = $("#floatingChapterTopButton");
-  if (!button) return;
-  const shouldShow = ui.view === "reader" && window.scrollY > 520;
-  button.classList.toggle("is-visible", shouldShow);
-  button.tabIndex = shouldShow ? 0 : -1;
+function scrollToViewStart(view = ui.view) {
+  if (view === "reader") {
+    scrollToReaderStart();
+    return;
+  }
+  const panel = $(`#${view}View`);
+  if (!panel) return;
+  const headerOffset = $(".topbar")?.getBoundingClientRect().height || 0;
+  const top = window.scrollY + panel.getBoundingClientRect().top - headerOffset - 10;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function scrollToPracticeQuestion() {
+  const target = $("#practiceNavigator") || $("#practiceRunner");
+  if (!target) return;
+  const headerOffset = $(".topbar")?.getBoundingClientRect().height || 0;
+  const top = window.scrollY + target.getBoundingClientRect().top - headerOffset - 12;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
 }
 
 async function renderReader() {
@@ -694,17 +708,22 @@ function closeSidebar() {
 function setView(view) {
   const valid = ["reader", "practice", "glossary"];
   if (!valid.includes(view)) return;
+  const previousView = ui.view;
   ui.view = view;
   valid.forEach((name) => {
     $(`#${name}View`).hidden = name !== view;
     $$(`[data-view="${name}"]`).forEach((button) => button.classList.toggle("is-active", name === view));
   });
   closeSidebar();
-  updateFloatingTopButton();
 
   if (view === "reader") void renderReader();
   if (view === "practice") void renderPractice();
   if (view === "glossary") void renderGlossary();
+
+  // Each main area starts at a clear point instead of inheriting a deep scroll position.
+  if (previousView !== view && view !== "reader") {
+    requestAnimationFrame(() => scrollToViewStart(view));
+  }
 }
 
 function setPage(page, { autoCompletePrevious = false, view = ui.view } = {}) {
@@ -1026,19 +1045,94 @@ function exerciseInputHtml(exercise) {
 }
 
 function currentFeedback(exercise) {
+  if (ui.practice.retrying.has(exercise.id)) return null;
   return ui.practice.transientFeedback[exercise.id] || state.exerciseProgress[exercise.id] || null;
+}
+
+function practiceStatus(exercise) {
+  const result = state.exerciseProgress[exercise.id];
+  if (!result) return "pending";
+  return result.correct ? "correct" : "wrong";
+}
+
+function practiceLevelCopy(level) {
+  const labels = {
+    "1": "Lectura inicial",
+    "2": "Comprensión",
+    "3": "Repaso",
+    "4": "Evaluación"
+  };
+  return labels[String(level)] || "Práctica";
+}
+
+function renderPracticeNavigator(questions) {
+  const total = questions.length;
+  const activeIndex = ui.practice.index;
+  const answered = questions.filter((question) => Boolean(state.exerciseProgress[question.id])).length;
+  const correct = questions.filter((question) => state.exerciseProgress[question.id]?.correct).length;
+  const wrong = Math.max(answered - correct, 0);
+  const completedPct = total ? Math.round((answered / total) * 100) : 0;
+  const current = questions[activeIndex];
+  const currentSection = current ? sectionForPage(current.page) : null;
+  const map = questions.map((question, index) => {
+    const status = practiceStatus(question);
+    const active = index === activeIndex;
+    const statusText = status === "correct" ? "respondida correctamente" : status === "wrong" ? "por reforzar" : "pendiente";
+    return `<button type="button" class="practice-map-item is-${status}${active ? " is-current" : ""}" data-practice-jump="${index}" aria-current="${active ? "step" : "false"}" aria-label="Pregunta ${index + 1}: ${statusText}">${index + 1}</button>`;
+  }).join("");
+  const options = questions.map((question, index) => {
+    const status = practiceStatus(question);
+    const suffix = status === "correct" ? " · correcta" : status === "wrong" ? " · reforzar" : " · pendiente";
+    return `<option value="${index}" ${index === activeIndex ? "selected" : ""}>Pregunta ${index + 1}${suffix}</option>`;
+  }).join("");
+
+  $("#practiceNavigator").innerHTML = `
+    <section class="practice-navigator-card">
+      <div class="practice-navigator-head">
+        <div>
+          <p class="practice-kicker">RUTA DE PRÁCTICA</p>
+          <h4>Pregunta ${activeIndex + 1} de ${total}</h4>
+          <p>${escapeHtml(currentSection?.title || "Knowledge check")} · Nivel ${ui.practice.level}: ${practiceLevelCopy(ui.practice.level)}</p>
+        </div>
+        <div class="practice-session-progress" aria-label="Avance de preguntas">
+          <div><span>${answered} resueltas</span><strong>${completedPct}%</strong></div>
+          <div class="progress-track"><span style="width:${completedPct}%"></span></div>
+          <small><i class="fa-solid fa-circle-check" aria-hidden="true"></i> ${correct} correctas <span aria-hidden="true">·</span> <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> ${wrong} por reforzar</small>
+        </div>
+      </div>
+      <div class="practice-navigation-controls">
+        <button class="practice-nav-button" type="button" data-practice-action="previous" ${activeIndex === 0 ? "disabled" : ""}><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Anterior</span></button>
+        <label class="practice-question-jump" for="practiceQuestionSelect"><span>Ir a</span><select id="practiceQuestionSelect" aria-label="Ir a una pregunta">${options}</select></label>
+        <button class="practice-nav-button practice-nav-next" type="button" data-practice-action="next" ${activeIndex >= total - 1 ? "disabled" : ""}><span>Siguiente</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+      </div>
+      <div class="practice-question-map" role="list" aria-label="Mapa de preguntas">${map}</div>
+      <p class="practice-map-key"><span class="map-key map-key-current"></span> actual <span class="map-key map-key-correct"></span> correcta <span class="map-key map-key-wrong"></span> por reforzar <span class="map-key map-key-pending"></span> pendiente</p>
+    </section>`;
 }
 
 function renderPracticeCard(exercise) {
   const feedback = currentFeedback(exercise);
   const source = `Página fuente ${exercise.page}`;
+  const isLast = ui.practice.index >= ui.practice.questions.length - 1;
   const feedbackHtml = feedback?.checked ? `<div class="practice-feedback ${feedback.correct ? "is-correct" : "is-wrong"}"><strong>${feedback.correct ? "Correcto." : "Aún no."}</strong><span>${escapeHtml(exercise.feedback || "Revisa el texto indicado.")}</span></div>` : "";
+  const nextControl = feedback?.checked
+    ? (isLast
+      ? `<button class="compact-button" type="button" data-practice-action="restart"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Volver a la primera</button>`
+      : `<button class="primary-button" type="button" data-practice-action="next"><span>Siguiente pregunta</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>`)
+    : "";
   return `<article class="practice-card" data-exercise="${escapeHtml(exercise.id)}">
-    <header class="practice-card-top"><div><span class="practice-kicker">${escapeHtml(exercise.title || "Knowledge check")}</span><h4>${escapeHtml(exercise.question)}</h4></div><span class="practice-position">${ui.practice.index + 1} de ${ui.practice.questions.length}</span></header>
-    <div class="practice-question">Elige tu respuesta antes de verificar.</div>
+    <header class="practice-card-top">
+      <div>
+        <span class="practice-kicker">${escapeHtml(exercise.title || "Knowledge check")}</span>
+        <h4>${escapeHtml(exercise.question)}</h4>
+      </div>
+      <span class="practice-position">${ui.practice.index + 1} / ${ui.practice.questions.length}</span>
+    </header>
+    <div class="practice-question"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Elige tu respuesta antes de verificar.</div>
     ${exerciseInputHtml(exercise)}
     <div class="practice-actions"><button class="primary-button" type="button" data-practice-action="verify"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verificar respuesta</button>${feedback?.checked ? `<button class="compact-button" type="button" data-practice-action="retry"><i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i> Intentar otra vez</button>` : ""}</div>
     ${feedbackHtml}
+    ${nextControl ? `<div class="practice-follow-up">${nextControl}</div>` : ""}
     <footer class="practice-card-bottom"><span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> ${source} · ${escapeHtml(sectionForPage(exercise.page).title)}</span><button class="link-button" type="button" data-practice-action="source"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Abrir referencia</button></footer>
   </article>`;
 }
@@ -1059,8 +1153,17 @@ async function ensurePracticeQuestions() {
   return questions;
 }
 
+function syncPracticeLevelControls() {
+  $$('[data-practice-level]').forEach((button) => {
+    const active = button.dataset.practiceLevel === ui.practice.level;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+}
+
 async function renderPractice() {
   $("#practiceModuleFilter").value = ui.practice.moduleId;
+  syncPracticeLevelControls();
   const token = ++renderToken;
   $("#practiceLoading").hidden = false;
   try {
@@ -1068,12 +1171,19 @@ async function renderPractice() {
     if (token !== renderToken || ui.view !== "practice") return;
     renderPracticeStats(questions);
     if (!questions.length) {
+      $("#practiceNavigator").innerHTML = "";
       $("#practiceRunner").innerHTML = `<div class="practice-empty">No hay preguntas para este filtro. Cambia de nivel o de unidad.</div>`;
       return;
     }
+    renderPracticeNavigator(questions);
     $("#practiceRunner").innerHTML = renderPracticeCard(questions[ui.practice.index]);
+    if (ui.practice.focusAfterRender) {
+      ui.practice.focusAfterRender = false;
+      requestAnimationFrame(scrollToPracticeQuestion);
+    }
   } catch (error) {
     console.error(error);
+    $("#practiceNavigator").innerHTML = "";
     $("#practiceRunner").innerHTML = `<div class="practice-empty">No se pudo abrir la práctica. Verifica que la carpeta <code>data/exercises</code> esté disponible.</div>`;
   } finally {
     if (token === renderToken) $("#practiceLoading").hidden = true;
@@ -1109,6 +1219,7 @@ function verifyCurrentExercise() {
   const previous = state.exerciseProgress[exercise.id] || {};
   const result = { checked: true, correct, attempts: Number(previous.attempts || 0) + 1, answeredAt: Date.now() };
   state.exerciseProgress[exercise.id] = result;
+  ui.practice.retrying.delete(exercise.id);
   ui.practice.transientFeedback[exercise.id] = result;
   persistState();
   void renderPractice();
@@ -1118,13 +1229,33 @@ function retryCurrentExercise() {
   const exercise = ui.practice.questions[ui.practice.index];
   if (!exercise) return;
   delete ui.practice.transientFeedback[exercise.id];
+  ui.practice.retrying.add(exercise.id);
   void renderPractice();
 }
 
 function movePractice(direction) {
   const total = ui.practice.questions.length;
   if (!total) return;
-  ui.practice.index = (ui.practice.index + direction + total) % total;
+  const nextIndex = clamp(ui.practice.index + direction, 0, total - 1);
+  if (nextIndex === ui.practice.index) return;
+  ui.practice.index = nextIndex;
+  ui.practice.focusAfterRender = true;
+  void renderPractice();
+}
+
+function jumpToPractice(index) {
+  const total = ui.practice.questions.length;
+  const nextIndex = clamp(Number(index), 0, Math.max(total - 1, 0));
+  if (!total || nextIndex === ui.practice.index) return;
+  ui.practice.index = nextIndex;
+  ui.practice.focusAfterRender = true;
+  void renderPractice();
+}
+
+function restartPractice() {
+  if (!ui.practice.questions.length) return;
+  ui.practice.index = 0;
+  ui.practice.focusAfterRender = true;
   void renderPractice();
 }
 
@@ -1362,8 +1493,7 @@ function bindEvents() {
   $("#readerLineHeightSelect").addEventListener("change", (event) => { state.readerLineHeight = Number(event.target.value); applyReaderPreferences(); persistState(); });
   $("#readerWidthSelect").addEventListener("change", (event) => { state.readerWidth = Number(event.target.value); applyReaderPreferences(); persistState(); });
   $("#chapterTopButton").addEventListener("click", scrollToReaderStart);
-  $("#floatingChapterTopButton").addEventListener("click", scrollToReaderStart);
-  window.addEventListener("scroll", updateFloatingTopButton, { passive: true });
+  $("#mobileTopNavButton").addEventListener("click", () => scrollToViewStart());
 
   $("#markPageButton").addEventListener("click", () => {
     if (isPageComplete(ui.currentPage)) {
@@ -1427,23 +1557,49 @@ function bindEvents() {
   $("#noteCloseButton").addEventListener("click", () => $("#noteDialog").close());
   $("#noteCancelButton").addEventListener("click", () => $("#noteDialog").close());
 
-  $("#practiceModuleFilter").addEventListener("change", (event) => { ui.practice.moduleId = event.target.value; ui.practice.index = 0; ui.practice.transientFeedback = {}; void renderPractice(); });
-  $$("[data-practice-level]").forEach((button) => button.addEventListener("click", () => {
+  $("#practiceModuleFilter").addEventListener("change", (event) => {
+    ui.practice.moduleId = event.target.value;
+    ui.practice.index = 0;
+    ui.practice.transientFeedback = {};
+    ui.practice.retrying.clear();
+    ui.practice.focusAfterRender = true;
+    void renderPractice();
+  });
+  $$('[data-practice-level]').forEach((button) => button.addEventListener("click", () => {
     ui.practice.level = button.dataset.practiceLevel;
     ui.practice.index = 0;
     ui.practice.transientFeedback = {};
-    $$("[data-practice-level]").forEach((item) => item.classList.toggle("is-active", item === button));
+    ui.practice.retrying.clear();
+    ui.practice.focusAfterRender = true;
+    syncPracticeLevelControls();
     void renderPractice();
   }));
-  $("#practiceRunner").addEventListener("click", (event) => {
-    const action = event.target.closest("[data-practice-action]")?.dataset.practiceAction;
+
+  const handlePracticeAction = (action) => {
     if (!action) return;
     if (action === "verify") verifyCurrentExercise();
     if (action === "retry") retryCurrentExercise();
+    if (action === "previous") movePractice(-1);
+    if (action === "next") movePractice(1);
+    if (action === "restart") restartPractice();
     if (action === "source") {
       const question = ui.practice.questions[ui.practice.index];
       if (question) setPage(question.page, { view: "reader" });
     }
+  };
+  $("#practiceRunner").addEventListener("click", (event) => {
+    handlePracticeAction(event.target.closest("[data-practice-action]")?.dataset.practiceAction);
+  });
+  $("#practiceNavigator").addEventListener("click", (event) => {
+    const jump = event.target.closest("[data-practice-jump]");
+    if (jump) {
+      jumpToPractice(Number(jump.dataset.practiceJump));
+      return;
+    }
+    handlePracticeAction(event.target.closest("[data-practice-action]")?.dataset.practiceAction);
+  });
+  $("#practiceNavigator").addEventListener("change", (event) => {
+    if (event.target.id === "practiceQuestionSelect") jumpToPractice(Number(event.target.value));
   });
 
   $("#glossarySearch").addEventListener("input", (event) => { ui.glossary.search = event.target.value; ui.glossary.limit = 24; void renderGlossary(); });
@@ -1523,7 +1679,6 @@ async function initialize() {
   $("#practiceModuleFilter").value = ui.practice.moduleId;
   bindEvents();
   registerServiceWorker();
-  updateFloatingTopButton();
   await renderReader();
 }
 
