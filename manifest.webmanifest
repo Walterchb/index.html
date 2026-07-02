@@ -1,11 +1,11 @@
 {
   "name": "Course 1 Study Reader",
   "short_name": "C1 Reader",
-  "description": "Lector móvil privado para Investment Foundations Course 1.",
+  "description": "Lector privado, ligero y móvil para Investment Foundations Course 1.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f2f5fa",
-  "theme_color": "#0d1b3d",
+  "theme_color": "#13264f",
   "lang": "es",
   "icons": [
     {

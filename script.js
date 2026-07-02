@@ -1,10 +1,10 @@
 /*
-  Course 1 Study Reader - v3
+  Course 1 Study Reader - v5
   --------------------------
   UI shell is intentionally independent from the course corpus. Text lives in lazy
-  module chunks, visual source pages are local WebP files requested only in Source
-  view, and exercises/glossary remain separate lazy files. This keeps first paint light
-  while preserving every page of the supplied reading packet.
+  module chunks, semantic tables and cropped exhibits remain separate lazy files.
+  No full-page PDF screenshots or source PDFs are shipped: the first paint stays light
+  while all reading pages and their relevant visuals remain available in the study flow.
 */
 
 const MANIFEST = window.COURSE_MANIFEST;
@@ -17,8 +17,8 @@ if (!MANIFEST || !PAGES || !CONTENT) {
   throw new Error("No se pudo iniciar el lector: faltan los archivos del contenido.");
 }
 
-const STORAGE_KEY = "course1StudyReader.v4";
-const LEGACY_STORAGE_KEYS = ["course1StudyReader.v3", "course1StudyReader.v2"];
+const STORAGE_KEY = "course1StudyReader.v5";
+const LEGACY_STORAGE_KEYS = ["course1StudyReader.v4", "course1StudyReader.v3", "course1StudyReader.v2"];
 const MAX_PAGE = Number(MANIFEST.course.mainPages || 157);
 const FIRST_READING_PAGE = 5;
 
@@ -38,7 +38,7 @@ const sectionsById = new Map(MANIFEST.sections.map((item) => [item.id, item]));
 const frontModule = modulesById.get("front");
 
 const DEFAULT_STATE = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   currentPage: FIRST_READING_PAGE,
   completePages: {},
   favorites: [],
@@ -48,9 +48,9 @@ const DEFAULT_STATE = {
   exerciseProgress: {},
   glossaryProgress: {},
   theme: "light",
-  readerFont: 19,
+  readerFont: 18,
   readerLineHeight: 1.76,
-  readerWidth: 72
+  readerWidth: 70
 };
 
 let persistTimer = null;
@@ -66,8 +66,8 @@ const ui = {
   view: "reader",
   currentPage: FIRST_READING_PAGE,
   currentPageData: null,
-  sourceZoom: 1,
   collapsedModules: new Set(MANIFEST.modules.map((module) => module.id).filter((id) => id !== "m1")),
+  expandedSections: new Set(["m1-l1"]),
   selectionText: "",
   noteEditing: null,
   practice: {
@@ -119,7 +119,7 @@ function migrateLegacyState(legacy) {
   const legacySection = sectionsById.get(legacy.lastSection);
   if (legacySection) migrated.currentPage = legacySection.pageStart;
   migrated.theme = legacy.theme === "dark" ? "dark" : "light";
-  migrated.readerFont = clamp(Number(legacy.fontSize) || 19, 16, 23);
+  migrated.readerFont = clamp(Number(legacy.fontSize) || 19, 17, 23);
   migrated.exerciseProgress = legacy.exerciseProgress || {};
   migrated.glossaryProgress = legacy.glossaryProgress || {};
   migrated.personalWords = Array.isArray(legacy.personalWords) ? legacy.personalWords.map((item) => ({
@@ -179,7 +179,7 @@ function loadState() {
       const legacy = JSON.parse(localStorage.getItem(key));
       if (!legacy || typeof legacy !== "object") continue;
       const migrated = key.endsWith("v3") ? normaliseSavedState(legacy) : migrateLegacyState(legacy);
-      migrated.schemaVersion = 4;
+      migrated.schemaVersion = 5;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
       return migrated;
     }
@@ -267,9 +267,6 @@ function getNotes(page = ui.currentPage) {
   return Array.isArray(notes) ? notes : [];
 }
 
-function pageImagePath(page) {
-  return `assets/source-pages/p${String(page).padStart(3, "0")}.webp`;
-}
 
 function sectionLabel(section) {
   const module = modulesById.get(section.moduleId);
@@ -296,9 +293,9 @@ function applyTheme() {
 }
 
 function applyReaderPreferences() {
-  const size = clamp(Number(state.readerFont) || 19, 16, 24);
+  const size = clamp(Number(state.readerFont) || 18, 17, 23);
   const leading = clamp(Number(state.readerLineHeight) || 1.76, 1.55, 2.05);
-  const width = clamp(Number(state.readerWidth) || 72, 58, 88);
+  const width = clamp(Number(state.readerWidth) || 70, 58, 82);
   state.readerFont = size;
   state.readerLineHeight = leading;
   state.readerWidth = width;
@@ -333,20 +330,32 @@ function renderCourseNav() {
     const sections = MANIFEST.sections.filter((section) => section.moduleId === module.id);
     if (!sections.length) return "";
     const collapsed = ui.collapsedModules.has(module.id) ? "is-collapsed" : "";
-    const items = sections.map((section) => {
+    const sectionItems = sections.map((section) => {
       const ratio = completeSectionRatio(section);
       const active = section.id === currentSection.id ? "is-active" : "";
       const done = ratio.percent === 100 ? "is-done" : "";
+      const expanded = ui.expandedSections.has(section.id) ? "is-expanded" : "";
       const pageText = section.pageStart === section.pageEnd ? `p. ${section.pageStart}` : `pp. ${section.pageStart}-${section.pageEnd}`;
-      return `<button class="course-nav-item ${active} ${done}" type="button" data-nav-page="${section.pageStart}">
-        <i class="nav-dot" aria-hidden="true"></i><span>${escapeHtml(section.label)} · ${escapeHtml(section.title)}</span><small>${pageText}</small>
-      </button>`;
+      const pages = sectionPages(section).map((page) => {
+        const pageCurrent = page === ui.currentPage ? "is-current" : "";
+        const pageDone = isPageComplete(page) ? "is-done" : "";
+        return `<button class="page-jump ${pageCurrent} ${pageDone}" type="button" data-nav-page="${page}" aria-label="${escapeHtml(section.title)}, página ${page}" ${page === ui.currentPage ? 'aria-current="page"' : ""}>${page}</button>`;
+      }).join("");
+      return `<div class="section-nav-group ${expanded}" data-section-group="${section.id}">
+        <div class="section-nav-main">
+          <button class="course-nav-item ${active} ${done}" type="button" data-nav-page="${section.pageStart}" title="${escapeHtml(section.title)}">
+            <i class="nav-dot" aria-hidden="true"></i><span>${escapeHtml(section.label)} · ${escapeHtml(section.title)}</span><small>${pageText}</small>
+          </button>
+          <button class="section-toggle" type="button" data-toggle-section="${section.id}" aria-label="${expanded ? 'Ocultar' : 'Mostrar'} páginas de ${escapeHtml(section.title)}" aria-expanded="${expanded ? 'true' : 'false'}"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+        </div>
+        <div class="section-page-grid" aria-label="Páginas de ${escapeHtml(section.title)}">${pages}</div>
+      </div>`;
     }).join("");
     return `<section class="module-nav-group ${collapsed}" data-module-group="${module.id}">
-      <button class="module-nav-head" type="button" data-toggle-module="${module.id}">
+      <button class="module-nav-head" type="button" data-toggle-module="${module.id}" aria-expanded="${collapsed ? 'false' : 'true'}">
         <span><span>${escapeHtml(module.number)}</span><strong>${escapeHtml(module.title)}</strong></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </button>
-      <div class="module-nav-items">${items}</div>
+      <div class="module-nav-items">${sectionItems}</div>
     </section>`;
   }).join("");
 
@@ -395,7 +404,7 @@ function blockHtml(block, index) {
 function semanticTableHtml(tableId) {
   if (tableId === "debt-equity") {
     return `<section class="semantic-table-card" aria-label="Exhibit 1: Debt and Equity Securities">
-      <div class="semantic-table-heading"><span class="exhibit-kicker">EXHIBIT 1</span><h3>Debt and Equity Securities</h3><button type="button" class="visual-open-button" data-open-visual-page="7"><i class="fa-solid fa-expand" aria-hidden="true"></i> Ver original</button></div>
+      <div class="semantic-table-heading"><span class="exhibit-kicker">EXHIBIT 1</span><h3>Debt and Equity Securities</h3><button type="button" class="visual-open-button" data-open-visual-page="7"><i class="fa-solid fa-expand" aria-hidden="true"></i> Ver referencia</button></div>
       <div class="semantic-table-wrap" tabindex="0" aria-label="Tabla desplazable horizontalmente">
         <table class="semantic-table">
           <caption class="sr-only">Exhibit 1: Debt and Equity Securities</caption>
@@ -407,12 +416,12 @@ function semanticTableHtml(tableId) {
         </table>
       </div>
       <p class="table-scroll-hint"><i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i> Desliza horizontalmente para comparar las dos columnas.</p>
-      <p class="visual-source-note"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> PDF source p. 7 · Columns retained as separate concepts.</p>
+      <p class="visual-source-note"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Fuente: p. 7 del packet · Columnas preservadas como conceptos separados.</p>
     </section>`;
   }
   if (tableId === "competitive-liquid") {
     return `<section class="semantic-table-card" aria-label="Exhibit 1: Competitive and Liquid Markets">
-      <div class="semantic-table-heading"><span class="exhibit-kicker">EXHIBIT 1</span><h3>Competitive and Liquid Markets</h3><button type="button" class="visual-open-button" data-open-visual-page="16"><i class="fa-solid fa-expand" aria-hidden="true"></i> Ver original</button></div>
+      <div class="semantic-table-heading"><span class="exhibit-kicker">EXHIBIT 1</span><h3>Competitive and Liquid Markets</h3><button type="button" class="visual-open-button" data-open-visual-page="16"><i class="fa-solid fa-expand" aria-hidden="true"></i> Ver referencia</button></div>
       <div class="semantic-table-wrap" tabindex="0" aria-label="Tabla desplazable horizontalmente">
         <table class="semantic-table">
           <caption class="sr-only">Exhibit 1: Competitive and Liquid Markets</caption>
@@ -424,7 +433,7 @@ function semanticTableHtml(tableId) {
         </table>
       </div>
       <p class="table-scroll-hint"><i class="fa-solid fa-arrows-left-right" aria-hidden="true"></i> Desliza horizontalmente para comparar las dos columnas.</p>
-      <p class="visual-source-note"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> PDF source p. 16 · Column relationships preserved.</p>
+      <p class="visual-source-note"><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Fuente: p. 16 del packet · Relaciones entre columnas preservadas.</p>
     </section>`;
   }
   return "";
@@ -432,15 +441,15 @@ function semanticTableHtml(tableId) {
 
 function visualFigureHtml(visual, readerPage) {
   if (!visual) return "";
-  const visualTitle = escapeHtml(visual.title || visual.label || "Visual source");
-  const caption = escapeHtml(visual.caption || "Visual source retained from the reading packet.");
+  const visualTitle = escapeHtml(visual.title || visual.label || "Visual del material");
+  const caption = escapeHtml(visual.caption || "Visual del reading packet integrado para conservar la información.");
   const alt = escapeHtml(visual.alt || visualTitle);
   const label = escapeHtml(visual.label || "SOURCE VISUAL");
   const page = Number(readerPage || visual.sourcePage);
   return `<figure class="inline-visual" data-visual-page="${page}">
     <div class="inline-visual-head"><div><span class="exhibit-kicker">${label}</span><h3>${visualTitle}</h3></div><button class="visual-open-button" type="button" data-open-visual-page="${page}" aria-label="Ampliar ${visualTitle}"><i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i><span>Ampliar</span></button></div>
     <button class="inline-visual-image-button" type="button" data-open-visual-page="${page}" aria-label="Abrir visual ampliado: ${visualTitle}"><img src="${escapeHtml(visual.asset)}" alt="${alt}" loading="lazy" decoding="async" /></button>
-    <figcaption>${caption}<span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> PDF source p. ${Number(visual.sourcePage || page)}</span></figcaption>
+    <figcaption>${caption}<span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Packet p. ${Number(visual.sourcePage || page)}</span></figcaption>
   </figure>`;
 }
 
@@ -483,17 +492,17 @@ function setVisualZoom(nextValue) {
 function openVisualDialog(pageNumber = ui.currentPage) {
   const visual = VISUALS[Number(pageNumber)];
   if (!visual) {
-    setView("source");
+    showToast("Esta página no tiene un visual adicional.", "warning");
     return;
   }
   activeVisual = visual;
   visualZoom = 1;
-  $("#visualDialogMeta").textContent = `${visual.label || "SOURCE VISUAL"} · PDF p. ${visual.sourcePage || pageNumber}`.toUpperCase();
-  $("#visualDialogTitle").textContent = visual.title || "Source visual";
-  $("#visualDialogCaption").textContent = visual.caption || "Visual source retained from the reading packet.";
+  $("#visualDialogMeta").textContent = `${visual.label || "VISUAL DEL MATERIAL"} · PACKET P. ${visual.sourcePage || pageNumber}`.toUpperCase();
+  $("#visualDialogTitle").textContent = visual.title || "Visual del material";
+  $("#visualDialogCaption").textContent = visual.caption || "Visual del reading packet integrado para conservar la información.";
   const image = $("#visualImage");
   image.src = visual.asset;
-  image.alt = visual.alt || visual.title || "Visual source";
+  image.alt = visual.alt || visual.title || "Visual del material";
   setVisualZoom(1);
   if (!$("#visualDialog").open) $("#visualDialog").showModal();
 }
@@ -510,31 +519,34 @@ function updateReaderChrome() {
 
   $("#topBreadcrumb").textContent = sectionLabel(section);
   $("#topTitle").textContent = section.title;
+  $("#topPageChip").textContent = `p. ${ui.currentPage} / ${MAX_PAGE}`;
   $("#readerModuleLabel").textContent = (module?.number || "Reading packet").toUpperCase();
   $("#readerSectionTitle").textContent = section.title;
-  $("#readerSectionMeta").textContent = `Página fuente ${ui.currentPage} · ${position} de ${total} en esta sección · Lectura adaptada`;
+  $("#readerSectionMeta").textContent = `Página ${ui.currentPage} · ${position} de ${total} en esta lección`;
   $("#currentPageNumber").textContent = `p. ${ui.currentPage}`;
-  $("#currentPageCount").textContent = `de ${total}`;
-  $("#currentPagePosition").textContent = `Página ${position} de la sección`;
+  $("#currentPageCount").textContent = `/ ${MAX_PAGE}`;
+  $("#currentPagePosition").textContent = `Página ${position} de ${total} en esta lección`;
   $("#sectionProgressBar").style.width = `${ratio.percent}%`;
-  $("#sectionProgressCopy").textContent = `${ratio.percent}% de esta sección`;
-  $("#readerSourceLabel").textContent = visual ? `TEXTO REFLUIDO + ${String(visual.label || "VISUAL").toUpperCase()} FIEL` : "TEXTO REFLUIDO DEL PACKET";
-  $("#visualReferenceButton").innerHTML = visual
-    ? '<i class="fa-solid fa-expand" aria-hidden="true"></i> Ampliar visual'
-    : '<i class="fa-solid fa-file-image" aria-hidden="true"></i> Ver página completa';
+  $("#sectionProgressCopy").textContent = `${ratio.percent}% de esta lección`;
+  $("#readerSourceLabel").textContent = visual ? `LECTURA + ${String(visual.label || "VISUAL").toUpperCase()}` : "LECTURA DEL PACKET";
+  $("#visualReferenceButton").hidden = !visual;
+  $("#mobileVisualAction").hidden = !visual;
+  $("#openVisualFromReaderButton").hidden = !visual;
   $("#favoritePageButton").classList.toggle("is-saved", favorite);
   $("#favoritePageButton").setAttribute("aria-pressed", String(favorite));
   $("#favoritePageButton").innerHTML = favorite
-    ? '<i class="fa-solid fa-bookmark" aria-hidden="true"></i> Guardada'
-    : '<i class="fa-regular fa-bookmark" aria-hidden="true"></i> Guardar';
+    ? '<i class="fa-solid fa-bookmark" aria-hidden="true"></i><span>Guardada</span>'
+    : '<i class="fa-regular fa-bookmark" aria-hidden="true"></i><span>Guardar</span>';
   $("#markPageButton").innerHTML = completed
-    ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i> Página completada'
-    : '<i class="fa-solid fa-check" aria-hidden="true"></i> Marcar estudiada';
+    ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Completada</span>'
+    : '<i class="fa-solid fa-check" aria-hidden="true"></i><span>Marcar estudiada</span>';
   $("#markPageButton").classList.toggle("is-complete", completed);
   $("#previousPageButton").disabled = ui.currentPage <= 1;
   $("#nextPageButton").disabled = ui.currentPage >= MAX_PAGE;
-  $("#sourcePreviousButton").disabled = ui.currentPage <= 1;
-  $("#sourceNextButton").disabled = ui.currentPage >= MAX_PAGE;
+  const previousLabel = ui.currentPage > 1 ? `Ir a p. ${ui.currentPage - 1}` : "Inicio del curso";
+  const nextLabel = ui.currentPage < MAX_PAGE ? `Ir a p. ${ui.currentPage + 1}` : "Fin del curso";
+  $("#previousPageButton strong").textContent = previousLabel;
+  $("#nextPageButton strong").textContent = nextLabel;
 }
 function renderPageNotes() {
   const notes = getNotes();
@@ -575,39 +587,31 @@ async function renderReader() {
   }
 }
 
-function renderSource() {
-  const section = sectionForPage(ui.currentPage);
-  $("#sourceTitle").textContent = `Página ${ui.currentPage} del paquete original · ${section.title}`;
-  const image = $("#sourcePageImage");
-  image.src = pageImagePath(ui.currentPage);
-  image.alt = `Página ${ui.currentPage} del paquete fuente: ${section.title}`;
-  image.style.width = `${Math.round(918 * ui.sourceZoom)}px`;
-  $("#sourceZoomValue").textContent = `${Math.round(ui.sourceZoom * 100)}%`;
-  updateReaderChrome();
-}
 
-function updateSourceZoom(delta) {
-  ui.sourceZoom = clamp(Math.round((ui.sourceZoom + delta) * 20) / 20, .8, 1.8);
-  renderSource();
+function setSidebarOpen(open) {
+  const sidebar = $("#courseSidebar");
+  const backdrop = $("#drawerBackdrop");
+  sidebar.classList.toggle("is-open", open);
+  backdrop.classList.toggle("is-visible", open);
+  document.body.classList.toggle("drawer-open", open);
+  $("#mobileMenuButton").setAttribute("aria-expanded", String(open));
 }
 
 function closeSidebar() {
-  $("#courseSidebar").classList.remove("is-open");
-  $("#mobileMenuButton").setAttribute("aria-expanded", "false");
+  setSidebarOpen(false);
 }
 
 function setView(view) {
-  const valid = ["reader", "source", "practice", "glossary"];
+  const valid = ["reader", "practice", "glossary"];
   if (!valid.includes(view)) return;
   ui.view = view;
-  ["reader", "source", "practice", "glossary"].forEach((name) => {
+  valid.forEach((name) => {
     $(`#${name}View`).hidden = name !== view;
     $$(`[data-view="${name}"]`).forEach((button) => button.classList.toggle("is-active", name === view));
   });
   closeSidebar();
 
   if (view === "reader") void renderReader();
-  if (view === "source") renderSource();
   if (view === "practice") void renderPractice();
   if (view === "glossary") void renderGlossary();
 }
@@ -619,13 +623,13 @@ function setPage(page, { autoCompletePrevious = false, view = ui.view } = {}) {
   state.currentPage = nextPage;
   const section = sectionForPage(nextPage);
   ui.collapsedModules.delete(section.moduleId);
+  ui.expandedSections.add(section.id);
   if (["m1", "m2", "m3", "m4", "m5"].includes(section.moduleId)) ui.practice.moduleId = section.moduleId;
   persistState();
   renderCourseNav();
   updateProgressUI();
   if (view !== ui.view) setView(view);
   else if (ui.view === "reader") void renderReader();
-  else if (ui.view === "source") renderSource();
   else updateReaderChrome();
 }
 
@@ -641,16 +645,6 @@ function previousPage() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function sourceNextPage() {
-  if (ui.currentPage >= MAX_PAGE) return;
-  setPage(ui.currentPage + 1);
-  $("#sourceStageWrap")?.scrollTo?.({ top: 0 });
-}
-
-function sourcePreviousPage() {
-  if (ui.currentPage <= 1) return;
-  setPage(ui.currentPage - 1);
-}
 
 function openNoteDialog(noteId = null) {
   const notes = getNotes();
@@ -1196,12 +1190,9 @@ function registerServiceWorker() {
 }
 
 function bindEvents() {
-  $("#mobileMenuButton").addEventListener("click", () => {
-    const sidebar = $("#courseSidebar");
-    const open = !sidebar.classList.contains("is-open");
-    sidebar.classList.toggle("is-open", open);
-    $("#mobileMenuButton").setAttribute("aria-expanded", String(open));
-  });
+  $("#mobileMenuButton").addEventListener("click", () => setSidebarOpen(!$("#courseSidebar").classList.contains("is-open")));
+  $("#mobileDrawerClose").addEventListener("click", closeSidebar);
+  $("#drawerBackdrop").addEventListener("click", closeSidebar);
 
   $("#courseNav").addEventListener("click", (event) => {
     const group = event.target.closest("[data-toggle-module]");
@@ -1212,11 +1203,30 @@ function bindEvents() {
       renderCourseNav();
       return;
     }
+    const sectionToggle = event.target.closest("[data-toggle-section]");
+    if (sectionToggle) {
+      const id = sectionToggle.dataset.toggleSection;
+      if (ui.expandedSections.has(id)) ui.expandedSections.delete(id);
+      else ui.expandedSections.add(id);
+      renderCourseNav();
+      return;
+    }
     const pageButton = event.target.closest("[data-nav-page]");
     if (pageButton) setPage(Number(pageButton.dataset.navPage), { view: "reader" });
   });
 
   $$("[data-view]").forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
+
+  $("#mobileSearchButton").addEventListener("click", () => {
+    const box = $("#searchBox");
+    const open = !box.classList.contains("is-open");
+    box.classList.toggle("is-open", open);
+    if (open) window.setTimeout(() => $("#courseSearch").focus(), 40);
+  });
+  document.addEventListener("click", (event) => {
+    const box = $("#searchBox");
+    if (!event.target.closest("#searchBox")) box.classList.remove("is-open");
+  });
 
   $("#continueButton").addEventListener("click", () => setPage(Number(state.currentPage) || FIRST_READING_PAGE, { view: "reader" }));
   $("#coverageButton").addEventListener("click", () => $("#coverageDialog").showModal());
@@ -1224,6 +1234,8 @@ function bindEvents() {
     if (!window.confirm("¿Restablecer progreso, notas, guardados y resultados de esta web?")) return;
     state = cloneDefaultState();
     ui.currentPage = FIRST_READING_PAGE;
+    ui.collapsedModules = new Set();
+    ui.expandedSections = new Set(["m1-l1"]);
     persistNow();
     renderCourseNav();
     updateProgressUI();
@@ -1238,8 +1250,8 @@ function bindEvents() {
     applyTheme();
     persistState();
   });
-  $("#fontDecreaseButton").addEventListener("click", () => { state.readerFont = clamp(state.readerFont - 1, 16, 24); applyReaderPreferences(); persistState(); });
-  $("#fontIncreaseButton").addEventListener("click", () => { state.readerFont = clamp(state.readerFont + 1, 16, 24); applyReaderPreferences(); persistState(); });
+  $("#fontDecreaseButton").addEventListener("click", () => { state.readerFont = clamp(state.readerFont - 1, 17, 23); applyReaderPreferences(); persistState(); });
+  $("#fontIncreaseButton").addEventListener("click", () => { state.readerFont = clamp(state.readerFont + 1, 17, 23); applyReaderPreferences(); persistState(); });
   $("#readerSettingsButton").addEventListener("click", () => { applyReaderPreferences(); $("#readerSettingsDialog").showModal(); });
   $("#readerSettingsCloseButton").addEventListener("click", () => $("#readerSettingsDialog").close());
   $("#readerFontRange").addEventListener("input", (event) => { state.readerFont = Number(event.target.value); applyReaderPreferences(); persistState(); });
@@ -1259,25 +1271,25 @@ function bindEvents() {
   $("#favoritePageButton").addEventListener("click", () => toggleFavorite(ui.currentPage));
   $("#previousPageButton").addEventListener("click", previousPage);
   $("#nextPageButton").addEventListener("click", nextPage);
-  $("#sourcePreviousButton").addEventListener("click", sourcePreviousPage);
-  $("#sourceNextButton").addEventListener("click", sourceNextPage);
-  $("#openSourceFromReaderButton").addEventListener("click", () => setView("source"));
-  $("#visualReferenceButton").addEventListener("click", () => {
-    if (VISUALS[Number(ui.currentPage)]) openVisualDialog(ui.currentPage);
-    else setView("source");
-  });
+  $("#openVisualFromReaderButton").addEventListener("click", () => openVisualDialog(ui.currentPage));
+  $("#visualReferenceButton").addEventListener("click", () => openVisualDialog(ui.currentPage));
   $("#addNoteButton").addEventListener("click", () => openNoteDialog());
   $("#listenPageButton").addEventListener("click", () => speak(ui.currentPageData?.plainText || $("#readerContent").innerText));
   $("#quickTranslateButton").addEventListener("click", () => openTranslationDialog(selectedText() || ui.selectionText));
   $("#sectionPracticeButton").addEventListener("click", () => { ui.practice.moduleId = sectionForPage(ui.currentPage).moduleId; ui.practice.level = "1"; ui.practice.index = 0; setView("practice"); });
   $("#viewSavedTermsButton").addEventListener("click", () => { ui.glossary.mode = "saved"; setView("glossary"); });
-  $("#sourceZoomOutButton").addEventListener("click", () => updateSourceZoom(-.1));
-  $("#sourceZoomInButton").addEventListener("click", () => updateSourceZoom(.1));
+  $(".mobile-study-actions").addEventListener("click", (event) => {
+    const action = event.target.closest("[data-reader-action]")?.dataset.readerAction;
+    if (!action) return;
+    if (action === "listen") speak(ui.currentPageData?.plainText || $("#readerContent").innerText);
+    if (action === "note") openNoteDialog();
+    if (action === "practice") { ui.practice.moduleId = sectionForPage(ui.currentPage).moduleId; ui.practice.level = "1"; ui.practice.index = 0; setView("practice"); }
+    if (action === "visual") openVisualDialog(ui.currentPage);
+  });
 
   $("#readerContent").addEventListener("click", (event) => {
     const visualButton = event.target.closest("[data-open-visual-page]");
     if (visualButton) { openVisualDialog(Number(visualButton.dataset.openVisualPage)); return; }
-    if (event.target.closest("[data-open-source]")) setView("source");
   });
   $("#visualZoomOutButton").addEventListener("click", () => setVisualZoom(visualZoom - .2));
   $("#visualZoomInButton").addEventListener("click", () => setVisualZoom(visualZoom + .2));
@@ -1375,11 +1387,17 @@ function bindEvents() {
     if (!button) return;
     $("#courseSearch").value = "";
     $("#searchResults").hidden = true;
+    $("#searchBox").classList.remove("is-open");
     setPage(Number(button.dataset.searchPage), { view: "reader" });
   });
 
   window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") hideSelectionToolbar();
+    if (event.key === "Escape") {
+      hideSelectionToolbar();
+      setSidebarOpen(false);
+      $("#searchBox").classList.remove("is-open");
+      $("#searchResults").hidden = true;
+    }
     if (event.key === "ArrowRight" && ui.view === "practice" && !event.target.matches("input, textarea, select")) movePractice(1);
     if (event.key === "ArrowLeft" && ui.view === "practice" && !event.target.matches("input, textarea, select")) movePractice(-1);
   });

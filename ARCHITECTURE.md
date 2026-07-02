@@ -1,109 +1,81 @@
-# Arquitectura del lector: rápida, fiel y escalable
+# Arquitectura v5: lector ligero, fiel y escalable
 
-## Principio
+## Principio de producto
 
-La interfaz no contiene el libro completo ni todas las imágenes en un solo archivo. El lector separa texto, visuales, búsqueda, práctica y glosario para que pueda abrir rápido hoy y crecer hacia una biblioteca privada después.
+La web no funciona como un visor PDF. Funciona como una plataforma de aprendizaje: una página refluida por vez, visuales precisos ubicados dentro del flujo pedagógico y una navegación de páginas que permite retomar o saltar sin perderse.
 
 ```text
-index.html + styles.css + script.js       interfaz, accesibilidad y comportamiento
-├── data/course-manifest.js               mapa del curso, módulos y secciones
-├── data/page-registry.js                 cargador de texto por grupo de páginas
-├── data/page-content/<grupo>.js          contenido refluido de cada página
-├── data/visual-registry.js               ubicación y metadata de cada visual inline
-├── data/page-search-index.js             índice completo, cargado al buscar
-├── data/exercises/<módulo>.js            prácticas por módulo
-├── data/glossary.js                      glosario bajo demanda
-├── assets/visuals/*.webp                 crops nítidos de exhibits/tablas/diagramas
-├── assets/source-pages/p###.webp         vista completa de cada página fuente
-├── assets/source/*.pdf                   copias locales de referencia
-└── service-worker.js                     caché para uso instalado/HTTPS
+index.html + styles.css + script.js       interfaz responsive, estado y accesibilidad
+├── data/course-manifest.js               curso, módulos, lecciones y las 157 páginas
+├── data/page-registry.js                 cargador local o remoto de contenido por grupos
+├── data/page-content/<grupo>.js          texto refluido, separado por módulo
+├── data/visual-registry.js               visual y ubicación pedagógica de cada exhibit
+├── data/page-search-index.js             índice de búsqueda cargado solo al buscar
+├── data/exercises/<módulo>.js            prácticas cargadas bajo demanda
+├── data/glossary.js                      glosario cargado bajo demanda
+├── assets/visuals/*.webp                 solo exhibits, tablas, diagramas y figuras necesarios
+└── service-worker.js                     caché opcional en HTTPS
 ```
 
-## Fidelity-first: texto versus visual
+## Qué no se envía al navegador
 
-Cada recurso se decide de forma individual:
+- No se incluyen los PDFs originales.
+- No se incluye una imagen completa de cada una de las 157 páginas.
+- No se crean galerías o respaldos visuales que obliguen a descargar información duplicada.
 
-1. **Texto narrativo** se convierte a bloques refluibles, seleccionables y compatibles con traducción/voz.
-2. **Tabla simple** se reconstruye como tabla HTML semántica solo cuando se puede mantener con seguridad título, encabezados, celdas, orden y relaciones.
-3. **Tabla compleja, esquema, diagrama, fotografía o layout compuesto** se mantiene como una imagen recortada de alta resolución, localizada junto al texto que la presenta. Incluye título, leyenda, página fuente, texto alternativo y ampliación integrada.
-4. **Página fuente completa** está siempre disponible dentro del módulo Fuente visual; es un respaldo interno de fidelidad, no un requisito para leer el curso.
+Las 157 páginas se mantienen en lectura refluida. Los 21 recursos visuales se cargan únicamente en la página que los necesita y el navegador retrasa su descarga hasta que estén cerca del viewport.
 
-Esto evita el problema típico de extraer una tabla como párrafos intercalados y alterar las columnas o el significado.
+## Fidelidad: texto, tabla o visual
+
+Cada elemento se gestiona por tipo:
+
+1. **Texto narrativo** → bloques HTML refluibles, seleccionables y compatibles con traducción, voz, resaltado y notas.
+2. **Tabla simple** → tabla HTML semántica solo cuando se puede conservar título, encabezados, columnas y relación entre celdas.
+3. **Tabla compleja, diagrama, esquema, fotografía o layout compuesto** → recorte visual original, nítido, con título, leyenda, página de referencia, texto alternativo y zoom integrado.
+4. **Exhibit incluido como visual** → se ubica con `insertBefore` o `insertAfter` junto al texto que lo presenta. `skipBlocks` evita mostrar una extracción plana o duplicada cuando puede confundir.
+
+Este enfoque reduce peso y evita el problema de convertir dos columnas o un layout visual en párrafos sin estructura.
+
+## Navegación de páginas
+
+`course-manifest.js` mantiene los rangos de cada sección. El índice se genera desde ese mapa:
+
+- cada módulo puede abrirse o cerrarse;
+- cada lección puede desplegar la grilla de sus páginas;
+- la página actual se marca con un estado visible;
+- las páginas completadas tienen su propio estado;
+- el usuario puede ir a cualquier página sin cargar todos los textos previamente.
 
 ## Carga progresiva
 
-- La app abre con un manifiesto pequeño y una interfaz estática.
-- El texto se pide por grupo de páginas (`front`, `m1`, `m2`, etc.).
-- Los visuales inline utilizan `loading="lazy"`; no se descargan todos al abrir el curso.
-- Las 157 páginas fuente solo se cargan si la persona abre Fuente visual.
-- Práctica, glosario y búsqueda se solicitan únicamente al usarlos.
-- Las traducciones se almacenan en IndexedDB, de modo que un fragmento ya consultado no se vuelve a enviar al servicio.
+| Recurso | Cuándo se solicita |
+| --- | --- |
+| Interfaz, manifiesto y navegación | al abrir la web |
+| Texto de lectura | al abrir una página de su grupo/módulo |
+| Visual de un exhibit | cuando la página lo necesita y llega al viewport |
+| Ejercicios | al abrir Práctica |
+| Glosario | al abrir Glosario |
+| Índice de búsqueda | al escribir en Buscar |
+| Traducción | solo para el fragmento seleccionado |
 
-## Modelo de página
-
-```js
-{
-  page: 7,
-  sectionId: "m1-l1",
-  moduleId: "m1",
-  blocks: [/* texto refluido */],
-  plainText: "...",
-  hasVisual: true
-}
-```
-
-`data/visual-registry.js` añade el vínculo pedagógico entre una página y su visual:
-
-```js
-{
-  kind: "semantic-table", // o "figure"
-  insertAfter: 0,
-  asset: "assets/visuals/p007-exhibit-1-debt-equity.webp",
-  sourcePage: 7,
-  title: "Debt and Equity Securities",
-  alt: "...",
-  skipBlocks: [/* solo cuando el visual reemplaza extracción desordenada */]
-}
-```
-
-Con `skipBlocks`, una tabla visual no se duplica ni se muestra como texto mal ordenado. Cuando se reconstruye una tabla semántica, el mismo registro mantiene una imagen original ampliable para auditoría visual.
-
-## Agregar otra lectura
-
-1. Mantén el PDF original en almacenamiento privado.
-2. Renderiza la página fuente y revisa visualmente la extracción.
-3. Separa texto narrativo, exhibits y ejercicios por páginas/secciones.
-4. Revisa cada tabla. Usa HTML solo si la reconstrucción respeta la estructura; de lo contrario, usa un visual nítido inline.
-5. Crea un registro visual con página, ubicación (`insertBefore` / `insertAfter`), título, leyenda y texto alternativo.
-6. Divide los datos en grupos pequeños y crea un índice de búsqueda diferido.
-7. Versiona el curso y el `STORAGE_KEY` cuando un cambio de estructura pueda invalidar los datos locales.
-
-## Evolución: biblioteca privada y API
-
-Para uno o pocos cursos, los archivos estáticos son simples y rápidos. Para muchos cursos, múltiples dispositivos o sincronización, sirve los mismos recursos desde almacenamiento privado y agrega una API:
+Los grupos de contenido locales ya tienen un modo remoto opcional en `data/page-registry.js`. Al agregar muchos cursos, conserva el mismo formato y sirve cada grupo desde una API autenticada:
 
 ```text
-Cliente PWA privado
-   ├── GET /courses/course-1/manifest
-   ├── GET /courses/course-1/page-groups/m1
-   ├── GET /courses/course-1/visual-registry
-   ├── GET /courses/course-1/search-index
-   ├── GET /courses/course-1/exercises/m1
-   ├── GET /courses/course-1/glossary
-   ├── GET /courses/course-1/visuals/p007.webp
-   ├── GET /courses/course-1/source-pages/007.webp
-   ├── POST /translate
-   └── POST /progress
+GET /courses/{courseId}/manifest
+GET /courses/{courseId}/page-groups/{moduleId}
+GET /courses/{courseId}/search-index
+GET /courses/{courseId}/exercises/{moduleId}
+GET /courses/{courseId}/glossary
+GET /courses/{courseId}/visuals/{visualId}.webp
+POST /translate
+POST /progress
 ```
 
-### Reglas para una versión privada
+## Reglas para crecer a una biblioteca privada
 
-- Protege los PDFs y assets con autenticación; no expongas materiales de curso en una publicación pública.
-- Usa nombres de recursos versionados y caché larga para assets inmutables.
-- Mantén la traducción detrás de un proxy para no exponer claves ni permitir abuso.
-- Sincroniza progreso, notas y tarjetas; no es necesario copiar el texto académico a una base de datos de usuario.
-- Permite descargar módulos concretos para offline en vez de todo el catálogo.
-
-## PWA y trayectos
-
-El service worker guarda la interfaz al instalar la app y conserva los recursos visitados. Antes de un trayecto largo, abre las lecciones y visuales que planees revisar mientras tengas Wi-Fi. Una futura API puede ofrecer "Descargar este módulo" con una estimación de tamaño antes de guardar todos sus textos y visuales.
+- Mantén los PDFs fuente fuera del bundle público; úsalos para el proceso de preparación y control de calidad.
+- Versiona manifiestos y assets visuales con nombres inmutables.
+- Conserva los crops de exhibits solo cuando aportan información no reproducible con texto o tabla semántica.
+- Protege API y archivos con autenticación cuando el curso tenga derechos restringidos.
+- Sincroniza solo progreso, notas, tarjetas y preferencias; no es necesario duplicar el corpus académico en una base de datos de usuario.
+- Agrega descarga offline por módulo, no por catálogo completo.

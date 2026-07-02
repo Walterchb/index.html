@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="description" content="Lector de estudio móvil para Investment Foundations Course 1." />
-  <meta name="theme-color" content="#102448" />
+  <meta name="description" content="Lector móvil de estudio para Investment Foundations Course 1." />
+  <meta name="theme-color" content="#13264f" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -17,42 +17,45 @@
 <body data-theme="light">
   <a class="skip-link" href="#mainContent">Saltar al contenido principal</a>
 
+  <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+
   <div class="app-shell">
-    <aside id="courseSidebar" class="course-sidebar" aria-label="Mapa del curso">
-      <div class="sidebar-brand">
-        <div class="brand-orb" aria-hidden="true">01</div>
-        <div>
-          <p class="sidebar-eyebrow">INVESTMENT FOUNDATIONS</p>
-          <h1>Study Reader</h1>
-          <p>Industry Overview<br />&amp; Structure</p>
+    <aside id="courseSidebar" class="course-sidebar" aria-label="Índice del curso">
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <div class="brand-orb" aria-hidden="true">01</div>
+          <div>
+            <p class="sidebar-eyebrow">INVESTMENT FOUNDATIONS</p>
+            <h1>Study Reader</h1>
+            <p>Industry Overview &amp; Structure</p>
+          </div>
         </div>
+        <button id="mobileDrawerClose" class="drawer-close" type="button" aria-label="Cerrar índice"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
       </div>
 
       <div class="sidebar-progress-card" aria-label="Avance del curso">
-        <div class="sidebar-progress-head">
-          <span>Avance del paquete</span>
-          <strong id="courseProgressValue">0%</strong>
-        </div>
+        <div class="sidebar-progress-head"><span>Tu avance</span><strong id="courseProgressValue">0%</strong></div>
         <div class="progress-track progress-track-dark"><span id="courseProgressBar"></span></div>
-        <p id="courseProgressCopy">0 de 157 páginas completadas</p>
+        <p id="courseProgressCopy">0 de 157 páginas estudiadas</p>
       </div>
 
       <div class="sidebar-section-head">
-        <span>CONTENIDO</span>
-        <button id="coverageButton" class="icon-button icon-button-inverse" type="button" aria-label="Ver cobertura del contenido" title="Cobertura del contenido"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>
+        <span>ÍNDICE DEL CURSO</span>
+        <button id="coverageButton" class="icon-button icon-button-inverse" type="button" aria-label="Ver cobertura y rendimiento" title="Cobertura y rendimiento"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>
       </div>
-      <nav id="courseNav" class="course-nav" aria-label="Índice del documento"></nav>
+      <p class="sidebar-nav-helper"><i class="fa-solid fa-list-ol" aria-hidden="true"></i> Abre una lección para ver y navegar todas sus páginas.</p>
+      <nav id="courseNav" class="course-nav" aria-label="Lecciones y páginas"></nav>
 
       <div class="sidebar-bottom-actions">
-        <button id="continueButton" class="continue-button" type="button"><i class="fa-solid fa-play" aria-hidden="true"></i> Continuar lectura</button>
-        <button id="resetButton" class="sidebar-link-button" type="button">Restablecer datos locales</button>
+        <button id="continueButton" class="continue-button" type="button"><i class="fa-solid fa-play" aria-hidden="true"></i><span>Continuar lectura</span></button>
+        <button id="resetButton" class="sidebar-link-button" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Restablecer datos locales</button>
       </div>
     </aside>
 
     <main id="mainContent" class="workspace">
       <header class="topbar">
         <div class="topbar-main">
-          <button id="mobileMenuButton" class="icon-button mobile-menu-button" type="button" aria-label="Abrir contenido" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+          <button id="mobileMenuButton" class="icon-button mobile-menu-button" type="button" aria-label="Abrir índice" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
           <div class="course-context">
             <p id="topBreadcrumb" class="top-breadcrumb">Module 1 · Lesson 1</p>
             <h2 id="topTitle">What Is the Financial Services Industry?</h2>
@@ -60,12 +63,13 @@
         </div>
 
         <div class="topbar-tools">
-          <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <div id="searchBox" class="search-box">
+            <button id="mobileSearchButton" class="mobile-search-trigger" type="button" aria-label="Abrir buscador"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
             <label class="sr-only" for="courseSearch">Buscar en el contenido</label>
-            <input id="courseSearch" type="search" autocomplete="off" placeholder="Buscar término, frase o capítulo" />
+            <input id="courseSearch" type="search" autocomplete="off" placeholder="Buscar en el curso" />
             <div id="searchResults" class="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
           </div>
+          <span id="topPageChip" class="top-page-chip" aria-label="Página actual">p. 5 / 157</span>
           <button id="fontDecreaseButton" class="icon-button desktop-tool" type="button" title="Reducir tamaño de lectura" aria-label="Reducir tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><i class="fa-solid fa-minus mini-icon" aria-hidden="true"></i></button>
           <button id="fontIncreaseButton" class="icon-button desktop-tool" type="button" title="Aumentar tamaño de lectura" aria-label="Aumentar tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><i class="fa-solid fa-plus mini-icon" aria-hidden="true"></i></button>
           <button id="readerSettingsButton" class="icon-button" type="button" title="Ajustes de lectura" aria-label="Ajustes de lectura"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>
@@ -75,42 +79,42 @@
 
       <nav class="workspace-tabs" aria-label="Áreas de estudio">
         <button class="workspace-tab is-active" data-view="reader" type="button"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Lectura</span></button>
-        <button class="workspace-tab" data-view="source" type="button"><i class="fa-solid fa-file-image" aria-hidden="true"></i><span>Fuente visual</span></button>
         <button class="workspace-tab" data-view="practice" type="button"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></button>
         <button class="workspace-tab" data-view="glossary" type="button"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></button>
       </nav>
 
-      <section id="readerView" class="view-panel">
+      <section id="readerView" class="view-panel reader-view">
         <div class="reader-overview">
-          <div>
+          <div class="reader-title-block">
             <p id="readerModuleLabel" class="eyebrow">MODULE 1</p>
             <h3 id="readerSectionTitle">What Is the Financial Services Industry?</h3>
-            <p id="readerSectionMeta">Página fuente 5 · lectura adaptada para móvil</p>
+            <p id="readerSectionMeta">Página 5 · lectura adaptada</p>
           </div>
-          <div class="reader-overview-actions">
-            <button id="chapterTopButton" class="compact-button" type="button"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Inicio del capítulo</button>
-            <button id="favoritePageButton" class="compact-button" type="button" aria-pressed="false"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Guardar</button>
-            <button id="markPageButton" class="primary-button" type="button"><i class="fa-solid fa-check" aria-hidden="true"></i> Marcar estudiada</button>
+          <div class="reader-overview-actions" aria-label="Acciones de la página">
+            <button id="chapterTopButton" class="compact-button secondary-action" type="button"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i><span>Inicio</span></button>
+            <button id="favoritePageButton" class="compact-button" type="button" aria-pressed="false"><i class="fa-regular fa-bookmark" aria-hidden="true"></i><span>Guardar</span></button>
+            <button id="markPageButton" class="primary-button" type="button"><i class="fa-solid fa-check" aria-hidden="true"></i><span>Marcar estudiada</span></button>
           </div>
         </div>
 
         <div class="reading-layout">
-          <aside class="page-rail" aria-label="Navegación de páginas de la sección">
-            <p class="rail-label">RITMO DE LECTURA</p>
-            <div class="page-number-display"><strong id="currentPageNumber">p. 5</strong><span id="currentPageCount">de 6</span></div>
-            <p id="currentPagePosition">Página 1 de la sección</p>
+          <aside class="page-rail" aria-label="Progreso de lectura">
+            <p class="rail-label">PROGRESO</p>
+            <div class="page-number-display"><strong id="currentPageNumber">p. 5</strong><span id="currentPageCount">/ 157</span></div>
+            <p id="currentPagePosition">Página 1 de 6 en esta lección</p>
             <div class="progress-track"><span id="sectionProgressBar"></span></div>
-            <p id="sectionProgressCopy">0% de esta sección</p>
-            <button id="listenPageButton" class="rail-action" type="button"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Escuchar esta página</button>
-            <button id="openSourceFromReaderButton" class="rail-action" type="button"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Ver página fuente</button>
-            <button id="addNoteButton" class="rail-action" type="button"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Escribir nota</button>
+            <p id="sectionProgressCopy">0% de esta lección</p>
+            <div class="rail-divider"></div>
+            <button id="listenPageButton" class="rail-action" type="button"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span>Escuchar página</span></button>
+            <button id="openVisualFromReaderButton" class="rail-action" type="button" hidden><i class="fa-solid fa-expand" aria-hidden="true"></i><span>Ver visual</span></button>
+            <button id="addNoteButton" class="rail-action" type="button"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>Crear nota</span></button>
           </aside>
 
           <article id="readerPaper" class="reader-paper" aria-live="polite">
             <div id="readerLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Preparando página…</div>
-            <header class="source-page-bar">
-              <div><span class="source-dot"></span><span id="readerSourceLabel">TEXTO REFLUIDO + VISUALES FIELES</span></div>
-              <button id="visualReferenceButton" class="text-button" type="button"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i> Ver página completa</button>
+            <header class="reader-paper-head">
+              <div class="reader-paper-meta"><span class="page-status-dot" aria-hidden="true"></span><span id="readerSourceLabel">LECTURA DEL PACKET</span></div>
+              <button id="visualReferenceButton" class="text-button" type="button" hidden><i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i><span>Ampliar visual</span></button>
             </header>
             <div id="readerContent" class="reader-content" tabindex="0" aria-label="Lectura en inglés"></div>
             <footer class="reader-page-footer">
@@ -120,15 +124,15 @@
           </article>
 
           <aside class="study-rail" aria-label="Herramientas de estudio">
-            <section class="study-rail-card">
+            <section class="study-rail-card page-focus-card">
               <p class="rail-label">EN ESTA PÁGINA</p>
-              <p id="pageFocusHint">Lee en bloques cortos. Los cuadros y gráficos aparecen junto al texto que los explica.</p>
+              <p id="pageFocusHint">Lee en bloques cortos. Los visuales aparecen junto al texto que los explica.</p>
             </section>
             <section class="study-rail-card">
               <p class="rail-label">ESTUDIO RÁPIDO</p>
-              <button id="quickTranslateButton" class="study-tool" type="button"><i class="fa-solid fa-language" aria-hidden="true"></i> Traducir selección</button>
-              <button id="sectionPracticeButton" class="study-tool" type="button"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Practicar lección</button>
-              <button id="viewSavedTermsButton" class="study-tool" type="button"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Palabras guardadas</button>
+              <button id="quickTranslateButton" class="study-tool" type="button"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Traducir selección</span></button>
+              <button id="sectionPracticeButton" class="study-tool" type="button"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar lección</span></button>
+              <button id="viewSavedTermsButton" class="study-tool" type="button"><i class="fa-solid fa-bookmark" aria-hidden="true"></i><span>Palabras guardadas</span></button>
             </section>
             <section id="pageNotesCard" class="study-rail-card notes-mini-card">
               <p class="rail-label">MIS NOTAS</p>
@@ -137,33 +141,16 @@
           </aside>
         </div>
 
+        <div class="mobile-study-actions" aria-label="Herramientas de estudio">
+          <button type="button" data-reader-action="listen"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span>Escuchar</span></button>
+          <button type="button" data-reader-action="note"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>Nota</span></button>
+          <button type="button" data-reader-action="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar</span></button>
+          <button type="button" data-reader-action="visual" id="mobileVisualAction" hidden><i class="fa-solid fa-expand" aria-hidden="true"></i><span>Visual</span></button>
+        </div>
+
         <div class="page-navigation">
           <button id="previousPageButton" class="page-nav-button" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span><small>ANTERIOR</small><strong>Volver una página</strong></span></button>
           <button id="nextPageButton" class="page-nav-button page-nav-next" type="button"><span><small>SIGUIENTE</small><strong>Continuar lectura</strong></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
-        </div>
-      </section>
-
-      <section id="sourceView" class="view-panel" hidden>
-        <div class="source-view-header">
-          <div>
-            <p class="eyebrow">PÁGINA FUENTE INTEGRADA</p>
-            <h3 id="sourceTitle">Página 5 del paquete</h3>
-            <p>Referencia visual completa sin salir de la herramienta. Úsala para revisar el diseño original o un elemento no refluido.</p>
-          </div>
-          <div class="source-header-actions">
-            <div class="source-zoom-control" aria-label="Zoom de página fuente">
-              <button id="sourceZoomOutButton" type="button" aria-label="Alejar"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
-              <span id="sourceZoomValue">100%</span>
-              <button id="sourceZoomInButton" type="button" aria-label="Acercar"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
-            </div>
-          </div>
-        </div>
-        <div id="sourceStageWrap" class="source-stage-wrap">
-          <div id="sourceStage" class="source-stage"><img id="sourcePageImage" alt="Página fuente del documento" loading="lazy" decoding="async" /></div>
-        </div>
-        <div class="page-navigation source-navigation">
-          <button id="sourcePreviousButton" class="page-nav-button" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span><small>ANTERIOR</small><strong>Página anterior</strong></span></button>
-          <button id="sourceNextButton" class="page-nav-button page-nav-next" type="button"><span><small>SIGUIENTE</small><strong>Página siguiente</strong></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
         </div>
       </section>
 
@@ -226,8 +213,7 @@
 
   <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
     <button class="mobile-nav-item is-active" type="button" data-view="reader"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Leer</span></button>
-    <button class="mobile-nav-item" type="button" data-view="source"><i class="fa-solid fa-file-image" aria-hidden="true"></i><span>Visual</span></button>
-    <button class="mobile-nav-item" type="button" data-view="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar</span></button>
+    <button class="mobile-nav-item" type="button" data-view="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></button>
     <button class="mobile-nav-item" type="button" data-view="glossary"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></button>
   </nav>
 
@@ -266,19 +252,19 @@
       <button id="readerSettingsCloseButton" class="dialog-close" value="cancel" aria-label="Cerrar ajustes"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
       <p class="eyebrow">AJUSTES DE LECTURA</p>
       <h3>Haz la página cómoda para ti.</h3>
-      <label class="setting-control" for="readerFontRange"><span><i class="fa-solid fa-font" aria-hidden="true"></i> Tamaño de texto</span><output id="readerFontOutput">19 px</output></label>
-      <input id="readerFontRange" type="range" min="16" max="24" step="1" value="19" />
+      <label class="setting-control" for="readerFontRange"><span><i class="fa-solid fa-font" aria-hidden="true"></i> Tamaño de texto</span><output id="readerFontOutput">18 px</output></label>
+      <input id="readerFontRange" type="range" min="17" max="23" step="1" value="18" />
       <label class="setting-control" for="readerLineHeightSelect"><span><i class="fa-solid fa-text-height" aria-hidden="true"></i> Interlineado</span></label>
       <select id="readerLineHeightSelect"><option value="1.62">Compacto</option><option value="1.76">Equilibrado</option><option value="1.92">Espacioso</option></select>
       <label class="setting-control" for="readerWidthSelect"><span><i class="fa-solid fa-arrows-left-right-to-line" aria-hidden="true"></i> Ancho de lectura</span></label>
-      <select id="readerWidthSelect"><option value="64">Enfocado</option><option value="72">Equilibrado</option><option value="82">Amplio</option></select>
+      <select id="readerWidthSelect"><option value="62">Enfocado</option><option value="70">Equilibrado</option><option value="80">Amplio</option></select>
       <p class="dialog-helper">Los ajustes se guardan en este dispositivo.</p>
     </form>
   </dialog>
 
   <dialog id="visualDialog" class="visual-dialog">
     <div class="visual-dialog-head">
-      <div><p id="visualDialogMeta" class="eyebrow">FUENTE VISUAL</p><h3 id="visualDialogTitle">Exhibit</h3></div>
+      <div><p id="visualDialogMeta" class="eyebrow">VISUAL DEL MATERIAL</p><h3 id="visualDialogTitle">Exhibit</h3></div>
       <div class="visual-dialog-actions">
         <button id="visualZoomOutButton" class="icon-button" type="button" aria-label="Alejar"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
         <span id="visualZoomValue">100%</span>
@@ -293,15 +279,15 @@
   <dialog id="coverageDialog" class="app-dialog coverage-dialog">
     <form method="dialog">
       <button class="dialog-close" value="cancel" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-      <p class="eyebrow">COBERTURA Y VELOCIDAD</p>
-      <h3>Texto refluido, visuales fieles.</h3>
+      <p class="eyebrow">COBERTURA Y RENDIMIENTO</p>
+      <h3>Lectura ligera, visuales donde aportan.</h3>
       <div class="coverage-grid">
-        <div><strong>157</strong><span>páginas fuente</span></div>
-        <div><strong>41</strong><span>secciones navegables</span></div>
-        <div><strong>21</strong><span>visuales inline</span></div>
+        <div><strong>157</strong><span>páginas de lectura</span></div>
+        <div><strong>41</strong><span>secciones y lecciones</span></div>
+        <div><strong>21</strong><span>visuales integrados</span></div>
       </div>
-      <p>El lector conserva cada página en reflow y mantiene los exhibits, tablas, diagramas, fotografías y cuadros complejos en su forma visual original, en la parte de la lectura donde aportan contexto.</p>
-      <p>La web carga una página de texto y su recurso visual bajo demanda. Esto evita saturarla ahora y permite sumar otros cursos usando el mismo formato de contenido.</p>
+      <p>Todo el texto del reading packet se mantiene en lectura refluida. Los exhibits, tablas, diagramas y fotografías que aportan información se integran junto al contenido correspondiente y se pueden ampliar.</p>
+      <p>Para mantener la web rápida en móvil, no se incluyen copias de todas las hojas del PDF ni los PDFs originales. El lector descarga una página de texto y solo el visual que esa página necesita.</p>
     </form>
   </dialog>
 
