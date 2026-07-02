@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Lector y práctica local para Investment Foundations Course 1." />
+  <title>Course 1 Study Reader</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="light">
+  <a class="skip-link" href="#appMain">Saltar al contenido principal</a>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">IF</div>
+        <div>
+          <p class="eyebrow">LECTOR DE ESTUDIO</p>
+          <h1>Course 1</h1>
+          <p>Industry Overview &amp; Structure</p>
+        </div>
+      </div>
+
+      <nav class="primary-nav" aria-label="Módulos principales">
+        <button class="nav-tab is-active" type="button" data-view-target="bookView" aria-controls="bookView">
+          <span aria-hidden="true">▤</span> Libro
+        </button>
+        <button class="nav-tab" type="button" data-view-target="glossaryView" aria-controls="glossaryView">
+          <span aria-hidden="true">⌁</span> Glosario
+        </button>
+      </nav>
+
+      <section class="sidebar-progress" aria-label="Progreso global">
+        <div class="sidebar-progress-head">
+          <span>Progreso total</span>
+          <strong id="sidebarProgressValue">0%</strong>
+        </div>
+        <div class="progress-track" aria-hidden="true"><span id="sidebarProgressBar"></span></div>
+        <p id="sidebarProgressText">0 de 34 secciones marcadas como estudiadas</p>
+      </section>
+
+      <div class="book-nav-wrap" id="bookNavWrap">
+        <div class="sidebar-label-row">
+          <p class="sidebar-label">ÍNDICE DEL LIBRO</p>
+          <button id="sourceCoverageButton" type="button" class="icon-button tiny" aria-label="Ver notas de extracción" title="Notas de extracción">i</button>
+        </div>
+        <nav id="bookNav" class="book-nav" aria-label="Índice del curso"></nav>
+      </div>
+
+      <div class="sidebar-foot">
+        <button id="continueButton" type="button" class="secondary-button full-width">Continuar lectura</button>
+        <button id="clearDataButton" type="button" class="text-button full-width">Restablecer progreso local</button>
+      </div>
+    </aside>
+
+    <main id="appMain" class="main-workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="mobileMenuButton" type="button" class="icon-button mobile-only" aria-label="Abrir índice" aria-expanded="false">☰</button>
+          <div>
+            <p id="viewKicker" class="eyebrow">MÓDULO LIBRO</p>
+            <h2 id="topbarTitle">Lectura</h2>
+          </div>
+        </div>
+
+        <div class="search-wrap">
+          <label class="sr-only" for="globalSearch">Buscar en el libro</label>
+          <input id="globalSearch" type="search" placeholder="Buscar una palabra o tema…" autocomplete="off" />
+          <div id="searchResults" class="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
+        </div>
+
+        <div class="reader-controls">
+          <button id="decreaseFontButton" type="button" class="icon-button" aria-label="Reducir tamaño de letra" title="Reducir tamaño de letra">A−</button>
+          <button id="increaseFontButton" type="button" class="icon-button" aria-label="Aumentar tamaño de letra" title="Aumentar tamaño de letra">A+</button>
+          <button id="themeButton" type="button" class="icon-button" aria-label="Cambiar modo claro u oscuro" title="Cambiar modo">◐</button>
+        </div>
+      </header>
+
+      <section id="bookView" class="view-panel">
+        <div class="subnav" aria-label="Herramientas del libro">
+          <button class="subnav-button is-active" type="button" data-book-mode="read">Lectura</button>
+          <button class="subnav-button" type="button" data-book-mode="practice">Práctica</button>
+        </div>
+
+        <section id="readMode" class="book-content">
+          <div class="reader-intro-card">
+            <div>
+              <p class="eyebrow">LECTURA ACTIVA</p>
+              <h3>Lee en inglés con apoyo inmediato</h3>
+              <p>Selecciona una palabra, frase, oración o párrafo para traducir, escuchar, resaltar, copiar o guardar.</p>
+            </div>
+            <div class="reading-status">
+              <span id="currentSectionProgress">0%</span>
+              <small>avance de esta sección</small>
+            </div>
+          </div>
+
+          <article class="reader-paper" aria-live="polite">
+            <header class="section-header">
+              <div>
+                <p id="sectionMeta" class="section-meta"></p>
+                <h2 id="sectionTitle"></h2>
+                <p id="sectionPageRange" class="section-page-range"></p>
+              </div>
+              <button id="favoriteSectionButton" type="button" class="favorite-button" aria-pressed="false">☆ Guardar</button>
+            </header>
+
+            <div class="section-actions" aria-label="Herramientas de la sección">
+              <button id="markStudiedButton" type="button" class="primary-button">Marcar como estudiado</button>
+              <button id="addNoteButton" type="button" class="secondary-button">Crear nota</button>
+              <button id="showSectionWordsButton" type="button" class="secondary-button">Palabras guardadas</button>
+              <button id="reviewSectionExercisesButton" type="button" class="secondary-button">Revisar ejercicios</button>
+            </div>
+
+            <div id="readerContent" class="reader-content" tabindex="0" aria-label="Contenido de lectura"></div>
+
+            <section class="notes-section" aria-labelledby="notesTitle">
+              <div class="notes-title-row">
+                <div>
+                  <p class="eyebrow">NOTAS PERSONALES</p>
+                  <h3 id="notesTitle">Notas de esta sección</h3>
+                </div>
+                <button id="addNoteInlineButton" type="button" class="secondary-button">+ Nueva nota</button>
+              </div>
+              <div id="notesList" class="notes-list"></div>
+            </section>
+          </article>
+        </section>
+
+        <section id="practiceMode" class="practice-content" hidden>
+          <div class="practice-head">
+            <div>
+              <p class="eyebrow">EJERCICIOS DEL MATERIAL</p>
+              <h3>Práctica por avance</h3>
+              <p>Las preguntas, opciones y retroalimentación proceden de los controles y actividades del paquete. Las respuestas se muestran solo después de verificar.</p>
+            </div>
+            <div class="practice-stats" id="practiceStats" aria-label="Estado de ejercicios"></div>
+          </div>
+
+          <div class="practice-controls">
+            <label>Unidad
+              <select id="practiceModuleFilter" aria-label="Filtrar práctica por módulo"></select>
+            </label>
+            <div class="level-tabs" role="tablist" aria-label="Niveles de práctica">
+              <button type="button" class="level-tab is-active" data-practice-level="1" role="tab">Nivel 1<br><small>Lectura inicial</small></button>
+              <button type="button" class="level-tab" data-practice-level="2" role="tab">Nivel 2<br><small>Comprensión</small></button>
+              <button type="button" class="level-tab" data-practice-level="3" role="tab">Nivel 3<br><small>Repaso</small></button>
+              <button type="button" class="level-tab" data-practice-level="4" role="tab">Nivel 4<br><small>Evaluación</small></button>
+            </div>
+          </div>
+
+          <div id="practiceDescription" class="practice-description"></div>
+          <div id="practiceList" class="practice-list"></div>
+        </section>
+      </section>
+
+      <section id="glossaryView" class="view-panel" hidden>
+        <div class="glossary-hero">
+          <div>
+            <p class="eyebrow">GLOSARIO INTELIGENTE</p>
+            <h2>71 términos del material complementario</h2>
+            <p>Las definiciones están tomadas del PDF de glosario. La traducción al español se solicita a la integración configurada; no se inventan traducciones locales.</p>
+          </div>
+          <div class="glossary-stats" id="glossaryStats"></div>
+        </div>
+
+        <div class="subnav glossary-subnav" aria-label="Vistas de glosario">
+          <button class="subnav-button is-active" type="button" data-glossary-mode="entries">Entradas</button>
+          <button class="subnav-button" type="button" data-glossary-mode="flashcards">Tarjetas</button>
+          <button class="subnav-button" type="button" data-glossary-mode="personal">Mis palabras</button>
+        </div>
+
+        <section id="glossaryEntriesMode">
+          <div class="glossary-filters">
+            <label class="filter-search">
+              <span class="sr-only">Buscar término o definición</span>
+              <input id="glossarySearch" type="search" placeholder="Buscar término o definición…" />
+            </label>
+            <label>Capítulo
+              <select id="glossaryModuleFilter" aria-label="Filtrar glosario por capítulo"></select>
+            </label>
+            <label>Avance
+              <select id="glossaryStatusFilter" aria-label="Filtrar por avance">
+                <option value="all">Todos</option>
+                <option value="new">Palabras nuevas</option>
+                <option value="pending">Pendientes</option>
+                <option value="learned">Aprendidas</option>
+                <option value="review">Repasar después</option>
+              </select>
+            </label>
+          </div>
+          <div id="glossaryList" class="glossary-list"></div>
+        </section>
+
+        <section id="flashcardsMode" hidden>
+          <div class="flashcard-toolbar">
+            <p id="flashcardCount"></p>
+            <button id="shuffleFlashcardsButton" type="button" class="secondary-button">Mezclar tarjetas</button>
+          </div>
+          <div id="flashcardStage" class="flashcard-stage"></div>
+        </section>
+
+        <section id="personalWordsMode" hidden>
+          <div class="personal-words-head">
+            <div>
+              <p class="eyebrow">SELECCIONES DEL LECTOR</p>
+              <h3>Palabras y fragmentos guardados</h3>
+              <p>Agrega elementos desde el menú que aparece al seleccionar texto en el Libro.</p>
+            </div>
+            <label>Sección
+              <select id="personalWordsSectionFilter" aria-label="Filtrar palabras guardadas por sección"></select>
+            </label>
+          </div>
+          <div id="personalWordsList" class="glossary-list"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="selectionToolbar" class="selection-toolbar" hidden role="toolbar" aria-label="Opciones de texto seleccionado">
+    <button type="button" data-selection-action="translate">Traducir</button>
+    <button type="button" data-selection-action="glossary">Guardar</button>
+    <button type="button" data-selection-action="listen">Escuchar</button>
+    <button type="button" data-selection-action="highlight">Resaltar</button>
+    <button type="button" data-selection-action="copy">Copiar</button>
+  </div>
+
+  <dialog id="translationDialog" class="app-dialog">
+    <form method="dialog">
+      <button class="dialog-close" value="cancel" aria-label="Cerrar">×</button>
+      <p class="eyebrow">TRADUCCIÓN</p>
+      <h3>Texto seleccionado</h3>
+      <div class="translation-original">
+        <p class="label">Original (English)</p>
+        <p id="translationOriginal"></p>
+      </div>
+      <div class="translation-result">
+        <p class="label">Español</p>
+        <p id="translationResult">Preparando traducción…</p>
+      </div>
+      <p id="translationStatus" class="helper-text"></p>
+    </form>
+  </dialog>
+
+  <dialog id="noteDialog" class="app-dialog note-dialog">
+    <form id="noteForm" method="dialog">
+      <button class="dialog-close" type="button" id="closeNoteDialogButton" aria-label="Cerrar">×</button>
+      <p class="eyebrow">NOTA PERSONAL</p>
+      <h3 id="noteDialogTitle">Nueva nota</h3>
+      <input id="noteTitleInput" type="text" maxlength="100" placeholder="Título de la nota" required />
+      <textarea id="noteBodyInput" rows="7" placeholder="Escribe tu nota…" required></textarea>
+      <div class="dialog-actions">
+        <button type="button" id="cancelNoteButton" class="secondary-button">Cancelar</button>
+        <button type="submit" class="primary-button">Guardar nota</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="coverageDialog" class="app-dialog coverage-dialog">
+    <form method="dialog">
+      <button class="dialog-close" value="cancel" aria-label="Cerrar">×</button>
+      <p class="eyebrow">COBERTURA DEL MATERIAL</p>
+      <h3>Notas de extracción</h3>
+      <ul>
+        <li>Se cargaron los 5 módulos, 24 lecciones, resúmenes y 38 preguntas/actividades identificadas en el paquete principal.</li>
+        <li>Las respuestas y los feedback del PDF se trasladaron a Práctica para evitar que aparezcan antes del intento.</li>
+        <li>Las figuras, fotografías, diagramas y la maquetación exacta de tablas complejas no se incrustaron; se mantiene su título, texto extraíble y página de origen.</li>
+        <li>El propio paquete indica que los ejercicios calificados por computadora, videos y otras actividades están disponibles únicamente en el curso online; no forman parte del PDF y no se incluyen aquí.</li>
+        <li>El glosario se genera a partir del PDF complementario de 6 páginas y conserva la definición original en inglés.</li>
+      </ul>
+    </form>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <script src="script.js"></script>
+</body>
+</html>
