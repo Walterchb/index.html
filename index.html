@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Lector de estudio móvil para Investment Foundations Course 1." />
+  <meta name="theme-color" content="#102448" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>IF Course 1 · Study Reader</title>
+</head>
+<body data-theme="light">
+  <a class="skip-link" href="#mainContent">Saltar al contenido principal</a>
+
+  <div class="app-shell">
+    <aside id="courseSidebar" class="course-sidebar" aria-label="Mapa del curso">
+      <div class="sidebar-brand">
+        <div class="brand-orb" aria-hidden="true">01</div>
+        <div>
+          <p class="sidebar-eyebrow">INVESTMENT FOUNDATIONS</p>
+          <h1>Study Reader</h1>
+          <p>Industry Overview<br />&amp; Structure</p>
+        </div>
+      </div>
+
+      <div class="sidebar-progress-card" aria-label="Avance del curso">
+        <div class="sidebar-progress-head">
+          <span>Avance del paquete</span>
+          <strong id="courseProgressValue">0%</strong>
+        </div>
+        <div class="progress-track progress-track-dark"><span id="courseProgressBar"></span></div>
+        <p id="courseProgressCopy">0 de 157 páginas completadas</p>
+      </div>
+
+      <div class="sidebar-section-head">
+        <span>CONTENIDO</span>
+        <button id="coverageButton" class="icon-button icon-button-inverse" type="button" aria-label="Ver cobertura del contenido" title="Cobertura del contenido"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>
+      </div>
+      <nav id="courseNav" class="course-nav" aria-label="Índice del documento"></nav>
+
+      <div class="sidebar-bottom-actions">
+        <button id="continueButton" class="continue-button" type="button"><i class="fa-solid fa-play" aria-hidden="true"></i> Continuar lectura</button>
+        <button id="resetButton" class="sidebar-link-button" type="button">Restablecer datos locales</button>
+      </div>
+    </aside>
+
+    <main id="mainContent" class="workspace">
+      <header class="topbar">
+        <div class="topbar-main">
+          <button id="mobileMenuButton" class="icon-button mobile-menu-button" type="button" aria-label="Abrir contenido" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+          <div class="course-context">
+            <p id="topBreadcrumb" class="top-breadcrumb">Module 1 · Lesson 1</p>
+            <h2 id="topTitle">What Is the Financial Services Industry?</h2>
+          </div>
+        </div>
+
+        <div class="topbar-tools">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label class="sr-only" for="courseSearch">Buscar en el contenido</label>
+            <input id="courseSearch" type="search" autocomplete="off" placeholder="Buscar término, frase o capítulo" />
+            <div id="searchResults" class="search-results" role="listbox" aria-label="Resultados de búsqueda"></div>
+          </div>
+          <button id="fontDecreaseButton" class="icon-button desktop-tool" type="button" title="Reducir tamaño de lectura" aria-label="Reducir tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><i class="fa-solid fa-minus mini-icon" aria-hidden="true"></i></button>
+          <button id="fontIncreaseButton" class="icon-button desktop-tool" type="button" title="Aumentar tamaño de lectura" aria-label="Aumentar tamaño de lectura"><i class="fa-solid fa-font" aria-hidden="true"></i><i class="fa-solid fa-plus mini-icon" aria-hidden="true"></i></button>
+          <button id="readerSettingsButton" class="icon-button" type="button" title="Ajustes de lectura" aria-label="Ajustes de lectura"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>
+          <button id="themeButton" class="icon-button" type="button" title="Cambiar apariencia" aria-label="Cambiar apariencia"><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
+        </div>
+      </header>
+
+      <nav class="workspace-tabs" aria-label="Áreas de estudio">
+        <button class="workspace-tab is-active" data-view="reader" type="button"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Lectura</span></button>
+        <button class="workspace-tab" data-view="source" type="button"><i class="fa-solid fa-file-image" aria-hidden="true"></i><span>Fuente visual</span></button>
+        <button class="workspace-tab" data-view="practice" type="button"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></button>
+        <button class="workspace-tab" data-view="glossary" type="button"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></button>
+      </nav>
+
+      <section id="readerView" class="view-panel">
+        <div class="reader-overview">
+          <div>
+            <p id="readerModuleLabel" class="eyebrow">MODULE 1</p>
+            <h3 id="readerSectionTitle">What Is the Financial Services Industry?</h3>
+            <p id="readerSectionMeta">Página fuente 5 · lectura adaptada para móvil</p>
+          </div>
+          <div class="reader-overview-actions">
+            <button id="chapterTopButton" class="compact-button" type="button"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Inicio del capítulo</button>
+            <button id="favoritePageButton" class="compact-button" type="button" aria-pressed="false"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Guardar</button>
+            <button id="markPageButton" class="primary-button" type="button"><i class="fa-solid fa-check" aria-hidden="true"></i> Marcar estudiada</button>
+          </div>
+        </div>
+
+        <div class="reading-layout">
+          <aside class="page-rail" aria-label="Navegación de páginas de la sección">
+            <p class="rail-label">RITMO DE LECTURA</p>
+            <div class="page-number-display"><strong id="currentPageNumber">p. 5</strong><span id="currentPageCount">de 6</span></div>
+            <p id="currentPagePosition">Página 1 de la sección</p>
+            <div class="progress-track"><span id="sectionProgressBar"></span></div>
+            <p id="sectionProgressCopy">0% de esta sección</p>
+            <button id="listenPageButton" class="rail-action" type="button"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Escuchar esta página</button>
+            <button id="openSourceFromReaderButton" class="rail-action" type="button"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Ver página fuente</button>
+            <button id="addNoteButton" class="rail-action" type="button"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i> Escribir nota</button>
+          </aside>
+
+          <article id="readerPaper" class="reader-paper" aria-live="polite">
+            <div id="readerLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Preparando página…</div>
+            <header class="source-page-bar">
+              <div><span class="source-dot"></span><span id="readerSourceLabel">TEXTO REFLUIDO + VISUALES FIELES</span></div>
+              <button id="visualReferenceButton" class="text-button" type="button"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i> Ver página completa</button>
+            </header>
+            <div id="readerContent" class="reader-content" tabindex="0" aria-label="Lectura en inglés"></div>
+            <footer class="reader-page-footer">
+              <span id="readerWordCount"></span>
+              <span>Selecciona texto para traducir, escuchar, resaltar o guardar.</span>
+            </footer>
+          </article>
+
+          <aside class="study-rail" aria-label="Herramientas de estudio">
+            <section class="study-rail-card">
+              <p class="rail-label">EN ESTA PÁGINA</p>
+              <p id="pageFocusHint">Lee en bloques cortos. Los cuadros y gráficos aparecen junto al texto que los explica.</p>
+            </section>
+            <section class="study-rail-card">
+              <p class="rail-label">ESTUDIO RÁPIDO</p>
+              <button id="quickTranslateButton" class="study-tool" type="button"><i class="fa-solid fa-language" aria-hidden="true"></i> Traducir selección</button>
+              <button id="sectionPracticeButton" class="study-tool" type="button"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Practicar lección</button>
+              <button id="viewSavedTermsButton" class="study-tool" type="button"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Palabras guardadas</button>
+            </section>
+            <section id="pageNotesCard" class="study-rail-card notes-mini-card">
+              <p class="rail-label">MIS NOTAS</p>
+              <div id="pageNotesSummary"></div>
+            </section>
+          </aside>
+        </div>
+
+        <div class="page-navigation">
+          <button id="previousPageButton" class="page-nav-button" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span><small>ANTERIOR</small><strong>Volver una página</strong></span></button>
+          <button id="nextPageButton" class="page-nav-button page-nav-next" type="button"><span><small>SIGUIENTE</small><strong>Continuar lectura</strong></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        </div>
+      </section>
+
+      <section id="sourceView" class="view-panel" hidden>
+        <div class="source-view-header">
+          <div>
+            <p class="eyebrow">PÁGINA FUENTE INTEGRADA</p>
+            <h3 id="sourceTitle">Página 5 del paquete</h3>
+            <p>Referencia visual completa sin salir de la herramienta. Úsala para revisar el diseño original o un elemento no refluido.</p>
+          </div>
+          <div class="source-header-actions">
+            <div class="source-zoom-control" aria-label="Zoom de página fuente">
+              <button id="sourceZoomOutButton" type="button" aria-label="Alejar"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+              <span id="sourceZoomValue">100%</span>
+              <button id="sourceZoomInButton" type="button" aria-label="Acercar"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </div>
+        <div id="sourceStageWrap" class="source-stage-wrap">
+          <div id="sourceStage" class="source-stage"><img id="sourcePageImage" alt="Página fuente del documento" loading="lazy" decoding="async" /></div>
+        </div>
+        <div class="page-navigation source-navigation">
+          <button id="sourcePreviousButton" class="page-nav-button" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span><small>ANTERIOR</small><strong>Página anterior</strong></span></button>
+          <button id="sourceNextButton" class="page-nav-button page-nav-next" type="button"><span><small>SIGUIENTE</small><strong>Página siguiente</strong></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        </div>
+      </section>
+
+      <section id="practiceView" class="view-panel" hidden>
+        <div class="practice-hero">
+          <div>
+            <p class="eyebrow">PRÁCTICA DEL MATERIAL</p>
+            <h3>Recuerda antes de revisar.</h3>
+            <p>Las preguntas y la retroalimentación provienen de los knowledge checks del packet. La respuesta aparece únicamente después de tu intento.</p>
+          </div>
+          <div id="practiceStats" class="practice-stats" aria-label="Estado de práctica"></div>
+        </div>
+
+        <div class="practice-control-bar">
+          <label>Unidad
+            <select id="practiceModuleFilter" aria-label="Filtrar práctica por módulo"></select>
+          </label>
+          <div class="practice-levels" role="tablist" aria-label="Nivel de práctica">
+            <button class="practice-level is-active" type="button" data-practice-level="1"><span>01</span> Lectura inicial</button>
+            <button class="practice-level" type="button" data-practice-level="2"><span>02</span> Comprensión</button>
+            <button class="practice-level" type="button" data-practice-level="3"><span>03</span> Repaso</button>
+            <button class="practice-level" type="button" data-practice-level="4"><span>04</span> Evaluación</button>
+          </div>
+        </div>
+
+        <div id="practiceLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Preparando práctica…</div>
+        <section id="practiceRunner" class="practice-runner" aria-live="polite"></section>
+      </section>
+
+      <section id="glossaryView" class="view-panel" hidden>
+        <div class="glossary-header">
+          <div>
+            <p class="eyebrow">GLOSARIO DEL CURSO</p>
+            <h3>Vocabulario para leer con menos fricción.</h3>
+            <p>Definiciones originales del PDF complementario. Traduce, escucha y marca términos para repasar.</p>
+          </div>
+        </div>
+
+        <div class="glossary-toolbar">
+          <label class="glossary-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="glossarySearch" type="search" placeholder="Buscar término en inglés" /></label>
+          <select id="glossaryModuleFilter" aria-label="Filtrar glosario por módulo"></select>
+          <div class="status-filters" role="group" aria-label="Estado de términos">
+            <button type="button" class="status-filter is-active" data-glossary-status="all">Todos</button>
+            <button type="button" class="status-filter" data-glossary-status="new">Nuevos</button>
+            <button type="button" class="status-filter" data-glossary-status="review">Repasar</button>
+            <button type="button" class="status-filter" data-glossary-status="learned">Aprendidos</button>
+          </div>
+        </div>
+
+        <div class="glossary-mode-tabs" role="tablist">
+          <button class="glossary-mode-tab is-active" type="button" data-glossary-mode="terms"><i class="fa-solid fa-list" aria-hidden="true"></i> Términos</button>
+          <button class="glossary-mode-tab" type="button" data-glossary-mode="cards"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Tarjetas</button>
+          <button class="glossary-mode-tab" type="button" data-glossary-mode="saved"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Mis selecciones</button>
+        </div>
+        <div id="glossaryLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Cargando términos…</div>
+        <div id="glossaryContent"></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
+    <button class="mobile-nav-item is-active" type="button" data-view="reader"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Leer</span></button>
+    <button class="mobile-nav-item" type="button" data-view="source"><i class="fa-solid fa-file-image" aria-hidden="true"></i><span>Visual</span></button>
+    <button class="mobile-nav-item" type="button" data-view="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar</span></button>
+    <button class="mobile-nav-item" type="button" data-view="glossary"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></button>
+  </nav>
+
+  <div id="selectionToolbar" class="selection-toolbar" hidden role="toolbar" aria-label="Acciones para texto seleccionado">
+    <button type="button" data-selection-action="translate"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Traducir</span></button>
+    <button type="button" data-selection-action="save"><i class="fa-solid fa-bookmark" aria-hidden="true"></i><span>Guardar</span></button>
+    <button type="button" data-selection-action="listen"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span>Escuchar</span></button>
+    <button type="button" data-selection-action="highlight"><i class="fa-solid fa-highlighter" aria-hidden="true"></i><span>Resaltar</span></button>
+    <button type="button" data-selection-action="copy"><i class="fa-regular fa-copy" aria-hidden="true"></i><span>Copiar</span></button>
+  </div>
+
+  <dialog id="translationDialog" class="app-dialog translation-dialog">
+    <form method="dialog">
+      <button class="dialog-close" value="cancel" aria-label="Cerrar traducción"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="eyebrow">TRADUCCIÓN DE APOYO</p>
+      <h3>Fragmento seleccionado</h3>
+      <div class="translation-card"><span>ORIGINAL · ENGLISH</span><p id="translationOriginal"></p></div>
+      <div class="translation-card translation-card-result"><span>ESPAÑOL</span><p id="translationResult">Preparando traducción…</p></div>
+      <p id="translationStatus" class="dialog-helper"></p>
+    </form>
+  </dialog>
+
+  <dialog id="noteDialog" class="app-dialog note-dialog">
+    <form id="noteForm" method="dialog">
+      <button id="noteCloseButton" class="dialog-close" type="button" aria-label="Cerrar nota"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="eyebrow">NOTA PERSONAL</p>
+      <h3 id="noteDialogTitle">Nueva nota</h3>
+      <input id="noteTitleInput" type="text" maxlength="100" placeholder="Idea principal, duda o recordatorio" required />
+      <textarea id="noteBodyInput" rows="7" placeholder="Escribe tu nota…" required></textarea>
+      <div class="dialog-actions"><button id="noteCancelButton" class="compact-button" type="button">Cancelar</button><button class="primary-button" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar nota</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="readerSettingsDialog" class="app-dialog settings-dialog">
+    <form method="dialog">
+      <button id="readerSettingsCloseButton" class="dialog-close" value="cancel" aria-label="Cerrar ajustes"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="eyebrow">AJUSTES DE LECTURA</p>
+      <h3>Haz la página cómoda para ti.</h3>
+      <label class="setting-control" for="readerFontRange"><span><i class="fa-solid fa-font" aria-hidden="true"></i> Tamaño de texto</span><output id="readerFontOutput">19 px</output></label>
+      <input id="readerFontRange" type="range" min="16" max="24" step="1" value="19" />
+      <label class="setting-control" for="readerLineHeightSelect"><span><i class="fa-solid fa-text-height" aria-hidden="true"></i> Interlineado</span></label>
+      <select id="readerLineHeightSelect"><option value="1.62">Compacto</option><option value="1.76">Equilibrado</option><option value="1.92">Espacioso</option></select>
+      <label class="setting-control" for="readerWidthSelect"><span><i class="fa-solid fa-arrows-left-right-to-line" aria-hidden="true"></i> Ancho de lectura</span></label>
+      <select id="readerWidthSelect"><option value="64">Enfocado</option><option value="72">Equilibrado</option><option value="82">Amplio</option></select>
+      <p class="dialog-helper">Los ajustes se guardan en este dispositivo.</p>
+    </form>
+  </dialog>
+
+  <dialog id="visualDialog" class="visual-dialog">
+    <div class="visual-dialog-head">
+      <div><p id="visualDialogMeta" class="eyebrow">FUENTE VISUAL</p><h3 id="visualDialogTitle">Exhibit</h3></div>
+      <div class="visual-dialog-actions">
+        <button id="visualZoomOutButton" class="icon-button" type="button" aria-label="Alejar"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
+        <span id="visualZoomValue">100%</span>
+        <button id="visualZoomInButton" class="icon-button" type="button" aria-label="Acercar"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+        <button id="visualCloseButton" class="icon-button" type="button" aria-label="Cerrar visual"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div id="visualStageWrap" class="visual-stage-wrap"><div id="visualStage" class="visual-stage"><img id="visualImage" alt="" /></div></div>
+    <p id="visualDialogCaption" class="visual-dialog-caption"></p>
+  </dialog>
+
+  <dialog id="coverageDialog" class="app-dialog coverage-dialog">
+    <form method="dialog">
+      <button class="dialog-close" value="cancel" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="eyebrow">COBERTURA Y VELOCIDAD</p>
+      <h3>Texto refluido, visuales fieles.</h3>
+      <div class="coverage-grid">
+        <div><strong>157</strong><span>páginas fuente</span></div>
+        <div><strong>41</strong><span>secciones navegables</span></div>
+        <div><strong>21</strong><span>visuales inline</span></div>
+      </div>
+      <p>El lector conserva cada página en reflow y mantiene los exhibits, tablas, diagramas, fotografías y cuadros complejos en su forma visual original, en la parte de la lectura donde aportan contexto.</p>
+      <p>La web carga una página de texto y su recurso visual bajo demanda. Esto evita saturarla ahora y permite sumar otros cursos usando el mismo formato de contenido.</p>
+    </form>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    // Use only for short selected fragments. For regular/high-volume use, route a
+    // provider through a private proxy / Cloudflare Worker. Never add a paid key here.
+    window.TRANSLATION_CONFIG = {
+      PROVIDER: "mymemory", // mymemory | proxy | libretranslate
+      PROXY_URL: "",
+      LIBRETRANSLATE_URL: "",
+      MAX_CHARS: 1400,
+      TIMEOUT_MS: 9000
+    };
+  </script>
+  <script src="data/course-manifest.js"></script>
+  <script src="data/page-registry.js"></script>
+  <script src="data/content-registry.js"></script>
+  <script src="data/visual-registry.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
