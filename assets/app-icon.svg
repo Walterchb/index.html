@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Course 1 Study Reader">
+  <rect width="256" height="256" rx="56" fill="#0d1b3d"/>
+  <rect x="34" y="34" width="188" height="188" rx="38" fill="#2f73de"/>
+  <path d="M83 70h89v17H83zm0 34h89v17H83zm0 34h65v17H83zm0 34h89v17H83z" fill="#eef5ff"/>
+  <circle cx="187" cy="179" r="24" fill="#67d5b4"/>
+  <path d="M179 179l6 6 12-14" fill="none" stroke="#0d1b3d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
