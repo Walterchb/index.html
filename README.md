@@ -17,47 +17,56 @@ No se requieren servidores, instalaciones ni conexión para leer el contenido, u
 - `script.js`: contenido extraído, navegación, práctica, glosario y persistencia local.
 - `assets/`: reservada para recursos locales adicionales. No se han vuelto a empaquetar los PDFs originales.
 
-## Configurar traducción al español
+## Traducción al español: ya activada en modo gratuito
 
-La web no incluye ninguna clave real. La configuración está al inicio de `script.js`:
+La versión actual usa **MyMemory** de forma predeterminada para traducir el texto que selecciones. No requiere cuenta ni clave para usarlo en modo personal. La página necesita conexión a internet solo al traducir; la lectura, el glosario y el progreso continúan funcionando localmente.
+
+- Puedes seleccionar una palabra, frase, oración o párrafo corto y elegir **Traducir**.
+- La aplicación envía únicamente el fragmento seleccionado al servicio; no envía el libro completo.
+- MyMemory permite hasta **5,000 caracteres diarios** en uso anónimo. Si deseas mayor uso, se puede configurar un correo en `MYMEMORY_EMAIL`; consulta sus condiciones antes de hacerlo.
+- Para evitar solicitudes excesivas, la web limita cada traducción a 1,800 caracteres.
+
+La configuración está al inicio de `script.js`:
 
 ```js
 const TRANSLATION_CONFIG = {
+  PROVIDER: "mymemory",
   TRANSLATION_API_URL: "",
   API_KEY: "",
   SOURCE_LANGUAGE: "en",
-  TARGET_LANGUAGE: "es"
+  TARGET_LANGUAGE: "es",
+  MYMEMORY_EMAIL: "",
+  MAX_CHARS_PER_REQUEST: 1800
 };
 ```
 
-Para producción, configura `TRANSLATION_API_URL` con la URL de un **proxy propio del lado del servidor** que proteja la clave de tu proveedor de traducción. No coloques una clave privada directamente en una página HTML estática.
+### Alternativa sin cuotas de un servicio público: LibreTranslate local
 
-La implementación realiza un `POST` JSON genérico:
+Para usar una solución gratuita y autoalojada, instala Docker Desktop y ejecuta:
 
-```json
-{
-  "q": "text to translate",
-  "source": "en",
-  "target": "es",
-  "format": "text"
-}
+```bash
+docker run --rm -p 5000:5000 libretranslate/libretranslate --load-only en,es
 ```
 
-Reconoce respuestas de estas formas:
+Después cambia la configuración a:
 
-```json
-{ "translatedText": "..." }
+```js
+const TRANSLATION_CONFIG = {
+  PROVIDER: "libretranslate",
+  TRANSLATION_API_URL: "http://localhost:5000/translate",
+  API_KEY: "",
+  SOURCE_LANGUAGE: "en",
+  TARGET_LANGUAGE: "es",
+  MYMEMORY_EMAIL: "",
+  MAX_CHARS_PER_REQUEST: 1800
+};
 ```
 
-```json
-{ "translation": "..." }
-```
+LibreTranslate es software libre y se ejecuta en tu equipo. La primera ejecución puede descargar modelos de idiomas; después podrás utilizarlo desde la web local mientras el contenedor esté activo.
 
-```json
-{ "data": { "translations": [{ "translatedText": "..." }] } }
-```
+### Opción de mejor calidad con clave protegida
 
-Mientras `TRANSLATION_API_URL` permanezca vacío, la web muestra un **modo de prueba** claramente identificado: conserva el texto original y explica que la traducción no está configurada. De esa manera no agrega traducciones ni contenido académico que no figure en los documentos.
+DeepL API Free ofrece hasta 500,000 caracteres mensuales gratuitos, pero necesita una clave. No coloques esa clave en `script.js`, porque cualquier persona podría verla. Para esa alternativa, configura un proxy del lado del servidor —por ejemplo, un Cloudflare Worker— y usa `PROVIDER: "proxy"` junto con la URL del Worker.
 
 ## Cobertura del material
 

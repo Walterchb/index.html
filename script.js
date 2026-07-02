@@ -8,19 +8,29 @@ const COURSE_DATA = {"modules":[{"id":"m1","number":"Module 1","title":"Industry
 /*
   Translation configuration
   -------------------------
-  Leave TRANSLATION_API_URL empty to use the clearly marked fallback.
-  For real use, point this to your own server-side proxy. A static HTML file cannot
-  securely hide a provider API key, so do not put a production key in this code.
-  Expected generic request: POST JSON { q, source: "en", target: "es", format: "text" }.
-  Accepted generic response shapes include:
-  { translatedText: "..." }, { translation: "..." }, or
-  { data: { translations: [{ translatedText: "..." }] } }.
+  Default: MyMemory, a public service that does not require an API key for short
+  personal-study translations. Its anonymous quota is limited, so the reader sends
+  only the text that the learner selects — never the full book.
+
+  Provider options:
+  - "mymemory": works immediately online, no key. Best for words, sentences, and
+    short paragraphs. Anonymous quota: 5,000 characters/day.
+  - "libretranslate": use a local/self-hosted LibreTranslate endpoint. Example:
+    TRANSLATION_API_URL: "http://localhost:5000/translate"
+  - "proxy": use your own backend proxy (for example, a Cloudflare Worker that keeps
+    a DeepL key private). It must accept the generic POST payload documented below.
+
+  Never place a private DeepL, Google, Azure, or other production key in this static
+  file. Those providers must be called through a server-side proxy.
 */
 const TRANSLATION_CONFIG = {
+  PROVIDER: "mymemory", // "mymemory" | "libretranslate" | "proxy"
   TRANSLATION_API_URL: "",
   API_KEY: "",
   SOURCE_LANGUAGE: "en",
-  TARGET_LANGUAGE: "es"
+  TARGET_LANGUAGE: "es",
+  MYMEMORY_EMAIL: "", // Optional. Leave empty to avoid sharing an email address.
+  MAX_CHARS_PER_REQUEST: 1800
 };
 
 const STORAGE_KEY = "course1StudyReader.v1";
@@ -896,36 +906,78 @@ function cacheTranslation(cacheKey, translation) {
 }
 
 async function requestTranslation(text) {
-  if (!TRANSLATION_CONFIG.TRANSLATION_API_URL) {
+  const selectedText = normalizeText(text);
+  if (!selectedText) {
     return {
       translatedText: "",
       mode: "fallback",
-      message: "Modo de prueba: no hay una API de traducción configurada. El texto original se mantiene sin alteraciones. Configura TRANSLATION_API_URL con un proxy propio para obtener la traducción al español."
+      message: "Selecciona una palabra, frase, oración o párrafo antes de traducir."
     };
   }
+
+  if (selectedText.length > TRANSLATION_CONFIG.MAX_CHARS_PER_REQUEST) {
+    return {
+      translatedText: "",
+      mode: "fallback",
+      message: `El texto seleccionado supera el límite de ${TRANSLATION_CONFIG.MAX_CHARS_PER_REQUEST.toLocaleString("es-PE")} caracteres por solicitud. Selecciona un fragmento más corto para traducirlo.`
+    };
+  }
+
+  const provider = TRANSLATION_CONFIG.PROVIDER || "mymemory";
+
   try {
+    if (provider === "mymemory") {
+      const url = new URL("https://api.mymemory.translated.net/get");
+      url.searchParams.set("q", selectedText);
+      url.searchParams.set("langpair", `${TRANSLATION_CONFIG.SOURCE_LANGUAGE}|${TRANSLATION_CONFIG.TARGET_LANGUAGE}`);
+      if (TRANSLATION_CONFIG.MYMEMORY_EMAIL) {
+        url.searchParams.set("de", TRANSLATION_CONFIG.MYMEMORY_EMAIL);
+      }
+
+      const response = await fetch(url.toString(), { method: "GET" });
+      if (!response.ok) throw new Error(`MyMemory respondió con el estado ${response.status}`);
+      const data = await response.json();
+      const translatedText = data.responseData?.translatedText || data.translatedText || data.translation;
+      if (!translatedText) throw new Error("MyMemory no devolvió una traducción reconocible.");
+
+      return {
+        translatedText,
+        mode: "mymemory",
+        message: "Traducción obtenida con MyMemory (modo gratuito). Se envió únicamente el texto seleccionado."
+      };
+    }
+
+    if (!TRANSLATION_CONFIG.TRANSLATION_API_URL) {
+      throw new Error("Falta TRANSLATION_API_URL para el proveedor seleccionado.");
+    }
+
     const headers = { "Content-Type": "application/json" };
     if (TRANSLATION_CONFIG.API_KEY) headers.Authorization = `Bearer ${TRANSLATION_CONFIG.API_KEY}`;
     const response = await fetch(TRANSLATION_CONFIG.TRANSLATION_API_URL, {
       method: "POST",
       headers,
       body: JSON.stringify({
-        q: text,
+        q: selectedText,
         source: TRANSLATION_CONFIG.SOURCE_LANGUAGE,
         target: TRANSLATION_CONFIG.TARGET_LANGUAGE,
         format: "text"
       })
     });
-    if (!response.ok) throw new Error(`Translation request failed (${response.status})`);
+    if (!response.ok) throw new Error(`La API de traducción respondió con el estado ${response.status}`);
     const data = await response.json();
     const translatedText = data.translatedText || data.translation || data.data?.translations?.[0]?.translatedText;
-    if (!translatedText) throw new Error("The translation response did not contain a recognized translated text field.");
-    return { translatedText, mode: "api", message: "Traducción obtenida desde la API configurada." };
+    if (!translatedText) throw new Error("La API no devolvió un campo de traducción reconocido.");
+
+    const providerLabel = provider === "libretranslate" ? "LibreTranslate" : "la API configurada";
+    return { translatedText, mode: provider, message: `Traducción obtenida desde ${providerLabel}.` };
   } catch (error) {
+    const help = provider === "mymemory"
+      ? "Verifica tu conexión. Si el navegador bloquea el servicio o agotas su cuota, usa LibreTranslate local o un proxy propio."
+      : "Revisa la URL del servicio, la configuración de CORS y las credenciales del proxy.";
     return {
       translatedText: "",
       mode: "fallback",
-      message: `No se pudo obtener la traducción configurada. Modo de prueba activo. ${error.message}`
+      message: `No se pudo traducir el fragmento. ${help} Detalle: ${error.message}`
     };
   }
 }
