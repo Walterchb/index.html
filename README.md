@@ -1,100 +1,122 @@
-# Course 1 · Study Reader — edición optimizada
+# Course 1 Study Reader - edición de lectura móvil
 
-Este lector está diseñado para abrirse localmente desde `index.html`, sin servidor ni instalación. La edición actual mejora la interfaz de lectura y práctica, y separa el contenido académico en bloques pequeños que se cargan solo cuando el usuario los necesita.
+Lector de estudio local para **Investment Foundations - Course 1: Industry Overview and Structure**. Está pensado para reemplazar la fricción de navegar un PDF largo desde el celular: muestra texto refluido y legible, pero conserva una vista visual exacta de cada página cuando necesites revisar un cuadro, tabla, imagen, figura, respuesta o detalle de diseño del material original.
 
-## Abrir la web
+## Abrirlo
 
-1. Descomprime el archivo ZIP sin modificar la estructura de carpetas.
-2. Abre `index.html` en Chrome, Edge o Firefox.
-3. Mantén la carpeta `data/` junto a `index.html`: contiene las lecturas, ejercicios, glosario e índice de búsqueda.
+1. Descomprime el ZIP sin cambiar la estructura de carpetas.
+2. Abre `index.html` con Chrome, Edge o Firefox.
+3. Mantén `assets/` y `data/` en la misma carpeta que `index.html`.
 
-## Qué cambió en esta versión
+La lectura, el índice, las prácticas, el glosario, las notas y el progreso funcionan sin conexión. La traducción requiere internet o un servicio local configurado.
 
-- **Lector más estructurado**: cabecera de sección, métrica de palabras, estado de avance, tarjetas de contenido, panel lateral de estudio y modo enfoque.
-- **Prácticas más claras**: ruta visual de cuatro niveles, filtros por unidad, tarjetas de respuesta, feedback después del intento y evaluación con puntaje.
-- **Glosario más ágil**: carga al abrirlo, muestra inicial limitada a 24 entradas y botón “Mostrar más”.
-- **Rendimiento escalable**: al abrir la web no se carga el libro completo, los ejercicios, el glosario ni el buscador de texto completo.
-- **Caché de traducciones**: las traducciones ya solicitadas se guardan en IndexedDB del navegador; no vuelven a requerir una llamada a la API.
-- **Estado ligero**: notas, progreso, favoritos y respuestas se guardan de forma compacta en `localStorage`.
+## Qué contiene
 
-## Arquitectura de contenido bajo demanda
+- **157 páginas del reading packet**, mapeadas una por una.
+- **Lectura refluida**: texto del PDF con tipografía, ancho de línea, espacio y jerarquía pensados para pantallas pequeñas.
+- **Fuente visual**: las 157 páginas originales están incluidas como imágenes WebP locales de alta resolución. Ahí se ven las tablas, exhibits, diagramas, fotos, cuadros, respuestas y composición original tal como aparece en el PDF.
+- **PDF original local**: está en `assets/source/course-1-original.pdf`; también se incluye el PDF del glosario.
+- **Prácticas y glosario**: mantienen el material disponible en los documentos, con progreso guardado en el navegador.
 
-| Recurso | Cuándo se carga |
+> La lectura refluida prioriza la comodidad. Para cualquier tabla, figura, layout complejo o detalle que deba verificarse visualmente, usa la pestaña **Fuente visual**. El botón **PDF original** abre el documento local en la página correspondiente.
+
+## Uso recomendado para estudiar en trayectos
+
+- Usa **Lectura** como modo principal: una página por vez, texto grande y controles de tamaño.
+- Toca **Marcar leída** antes de avanzar; el progreso se conserva localmente.
+- Guarda páginas importantes con el icono de guardado y añade una nota corta con la idea que debas repasar.
+- Selecciona una palabra, frase o párrafo para traducir, escucharlo, copiarlo, resaltarlo o guardarlo.
+- Cuando un párrafo mencione un *Exhibit*, una tabla o una imagen, abre **Fuente visual** para verla sin salir de la página actual.
+- En la pestaña **Práctica**, responde primero y recién después revisa la explicación y la referencia de origen.
+
+## Rendimiento y carga progresiva
+
+El lector no descarga todo al abrirse:
+
+| Recurso | Momento de carga |
 |---|---|
-| `data/content-manifest.js` | Al iniciar. Solo contiene metadatos de navegación. |
-| `data/sections/*.js` | Al abrir una sección concreta. |
-| `data/exercises/*.js` | Al entrar a Práctica y elegir una unidad. |
-| `data/glossary.js` | Al abrir el Glosario. |
-| `data/search-index.js` | Solo la primera vez que se usa el buscador global. |
+| Interfaz, índice y mapa de páginas | Al iniciar |
+| Texto refluido | Solo el bloque del módulo que estás leyendo |
+| Página visual, tabla o imagen | Solo al abrir **Fuente visual** de esa página |
+| Ejercicios de una unidad | Al entrar a Práctica |
+| Glosario | Al abrir Glosario |
+| Índice de búsqueda completo | Solo cuando usas la búsqueda global |
 
-Esta estructura permite añadir lecturas extensas sin convertir `script.js` en un archivo pesado. Para una nueva lectura, agrega sus secciones como nuevos archivos dentro de `data/sections/` y actualiza el manifiesto. Consulta `ARCHITECTURE.md` para el esquema recomendado y una alternativa mediante API.
+Esta organización evita que una biblioteca futura de lecturas se convierta en un único archivo pesado. Las páginas visitadas quedan en la caché del navegador cuando la app se sirve desde un origen privado con HTTPS.
+
+## Uso móvil y sin conexión
+
+Para el uso más cómodo en un teléfono, publica esta carpeta **en un origen privado con HTTPS** y abre la web una vez con Wi-Fi. El `service-worker.js` guardará la interfaz y las páginas que visites; las páginas visuales se almacenan cuando las abres. Luego puedes usar el lector en el bus o taxi incluso si pierdes la señal, siempre que esos recursos ya se hayan visitado.
+
+Abrir `index.html` directamente también funciona para lectura local en computadora. Algunos navegadores no permiten instalar una aplicación web ni usar caché avanzada desde `file://`; por eso el modo privado con HTTPS es mejor para el celular.
 
 ## Traducción
 
-La configuración está al inicio de `script.js`, en `TRANSLATION_CONFIG`.
+La configuración está al final de `index.html`, dentro de `window.TRANSLATION_CONFIG`.
 
-### Opción actual: MyMemory sin clave
-
-```js
-PROVIDER: "mymemory"
-```
-
-Funciona para palabras, oraciones y párrafos cortos. Es un servicio público compartido, por lo que puede responder lento o tener límites temporales. Por eso el lector envía únicamente el fragmento seleccionado, cancela solicitudes anteriores y guarda resultados locales.
-
-### Opción rápida en tu red: LibreTranslate local
-
-Con Docker instalado, ejecuta:
-
-```bash
-docker run -d --name libretranslate -p 5000:5000 libretranslate/libretranslate
-```
-
-Luego reemplaza la configuración en `script.js` por:
+### Opción incluida: MyMemory
 
 ```js
-PROVIDER: "libretranslate",
-TRANSLATION_API_URL: "http://localhost:5000/translate",
-API_KEY: "",
+window.TRANSLATION_CONFIG = {
+  PROVIDER: "mymemory",
+  PROXY_URL: "",
+  LIBRETRANSLATE_URL: "",
+  MAX_CHARS: 1400,
+  TIMEOUT_MS: 9000
+};
 ```
 
-Esto evita depender de un servicio público. El rendimiento dependerá de tu computadora; es la alternativa más privada para traducción local.
+El lector envía únicamente el fragmento seleccionado. Cada traducción se guarda en IndexedDB para no repetir la consulta. MyMemory es útil para fragmentos cortos, pero puede tener límites y respuesta variable al ser un servicio público.
 
-### Opción recomendada para una web publicada: proxy propio
+### Alternativa privada: proxy propio o LibreTranslate
 
-No coloques claves de DeepL, Google, Azure u otro proveedor dentro de `script.js`. Configura un proxy o Cloudflare Worker y usa:
-
-```js
-PROVIDER: "proxy",
-TRANSLATION_API_URL: "https://tu-dominio.com/api/translate",
-API_KEY: "",
-```
-
-El proxy debe recibir un JSON con `q`, `source`, `target` y `format`, y responder al menos con:
+No pongas claves de DeepL, Google, Azure u otros proveedores dentro de los archivos del navegador. Para una biblioteca privada, crea un proxy que reciba `q`, `source`, `target` y `format`, y devuelva:
 
 ```json
 { "translatedText": "traducción en español" }
 ```
 
-## API de contenido para una biblioteca grande
-
-El modo local es el predeterminado porque funciona al abrir el archivo. Si publicas muchas lecturas, cambia la configuración incluida en `index.html`:
+Luego cambia la configuración:
 
 ```js
-window.CONTENT_CONFIG = {
-  MODE: "remote-api",
-  API_BASE_URL: "https://tu-dominio.com/api"
+window.TRANSLATION_CONFIG = {
+  PROVIDER: "proxy",
+  PROXY_URL: "https://tu-dominio-privado.com/api/translate",
+  LIBRETRANSLATE_URL: "",
+  MAX_CHARS: 1400,
+  TIMEOUT_MS: 9000
 };
 ```
 
-El lector solicitará solo los endpoints que necesita:
+## API privada opcional
 
-- `GET /sections/:id`
-- `GET /exercises?module=m1`
-- `GET /glossary`
-- `GET /search-index`
+La edición incluida usa archivos locales bajo demanda y no necesita una API para un solo curso. Para una biblioteca privada de muchos cursos, puedes activar el cargador remoto antes de los scripts de contenido en `index.html`:
 
-En `api/` hay un Worker de Cloudflare de referencia y una utilidad para exportar los bloques locales a JSON antes de subirlos a KV o R2.
+```html
+<script>
+  window.COURSE_DATA_CONFIG = {
+    MODE: "remote-api",
+    API_BASE_URL: "https://tu-dominio-privado.com/api",
+    COURSE_ID: "course-1"
+  };
+</script>
+```
 
-## Privacidad
+En ese modo el lector pide únicamente el grupo de páginas, ejercicios, glosario o índice que se necesita. `api/worker.private.example.js` documenta el contrato de endpoints y debe estar protegido con autenticación. Las imágenes fuente y PDFs pueden permanecer en una ruta privada de almacenamiento/CDN, actualizando las rutas del manifiesto.
 
-El contenido de los PDFs no se envía automáticamente a internet. Solo el fragmento que elijas traducir se transmite al proveedor de traducción configurado. Progreso, notas, favoritos, palabras guardadas y traducciones quedan almacenados en el navegador local.
+## Datos guardados en el navegador
+
+- Página actual y páginas completadas.
+- Guardados, notas, resaltados y palabras personales.
+- Resultados de práctica y progreso de tarjetas.
+- Traducciones ya solicitadas.
+
+Para reiniciar el lector, borra los datos del sitio desde la configuración del navegador. Las notas y avances no se sincronizan entre dispositivos en esta edición local.
+
+## Material y uso privado
+
+Esta herramienta incorpora copias locales de los archivos que proporcionaste para tu estudio personal. Mantén los PDFs, las páginas fuente y cualquier publicación privada conforme a los términos de uso y derechos aplicables al material del curso. No publiques ni compartas el paquete si esos términos no lo permiten.
+
+## Escalar a más lecturas
+
+Consulta `ARCHITECTURE.md`. El formato actual ya separa contenido, visuales, ejercicios, glosario y búsqueda. Para una biblioteca grande, puede migrarse a almacenamiento privado + API sin cargar todo el corpus en cada sesión.
