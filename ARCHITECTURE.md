@@ -1,4 +1,4 @@
-# Arquitectura v9: lector ligero, fiel y escalable
+# Arquitectura v10: lector ligero, fiel y escalable
 
 ## Principio de producto
 

@@ -1110,3 +1110,83 @@ body[data-theme="dark"] {
   .practice-level { min-height: 80px; padding: 9px; }
   .practice-map-item { width: 32px; height: 32px; }
 }
+
+/* v10 — navigation hierarchy and desktop return action */
+/* Keep the page buttons visually contained and separate them from the next lesson. */
+.section-page-grid {
+  border-bottom: 1px dotted rgba(255, 255, 255, .34);
+}
+
+/* On wider screens, progress and study aids read as calm, tangible panels instead of floating text. */
+@media (min-width: 1280px) {
+  .page-rail {
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--forest);
+    border-bottom-color: var(--line);
+    background: var(--paper);
+    box-shadow: var(--shadow-subtle);
+  }
+}
+
+@media (min-width: 1480px) {
+  .study-rail-card {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--sage);
+    border-radius: var(--radius-xs);
+    background: var(--paper);
+    box-shadow: var(--shadow-subtle);
+  }
+  .study-rail-card.page-focus-card { border-left-color: var(--forest); }
+}
+
+/* The mobile return action remains in the bottom bar. On laptop/desktop it becomes a small fixed control, only when useful. */
+.desktop-top-button {
+  position: fixed;
+  z-index: 70;
+  right: 22px;
+  bottom: 22px;
+  display: none;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  color: var(--ink-strong);
+  background: var(--paper);
+  box-shadow: var(--shadow-panel);
+  font-size: 11px;
+  font-weight: 780;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity .16s ease, transform .16s ease, background .16s ease, border-color .16s ease;
+}
+.desktop-top-button i { color: var(--forest); }
+.desktop-top-button:hover {
+  border-color: var(--forest);
+  color: var(--forest);
+  background: var(--forest-soft);
+}
+.desktop-top-button.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+@media (min-width: 768px) {
+  .desktop-top-button { display: inline-flex; }
+}
+
+@media (min-width: 1020px) {
+  .desktop-top-button {
+    right: 28px;
+    bottom: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-top-button { transition: none; }
+}
+

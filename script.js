@@ -1,5 +1,5 @@
 /*
-  Course 1 Study Reader - v9
+  Course 1 Study Reader - v10
   --------------------------
   UI shell is intentionally independent from the course corpus. Text lives in lazy
   module chunks, semantic tables and cropped exhibits remain separate lazy files.
@@ -651,6 +651,14 @@ function scrollToViewStart(view = ui.view) {
   const headerOffset = $(".topbar")?.getBoundingClientRect().height || 0;
   const top = window.scrollY + panel.getBoundingClientRect().top - headerOffset - 10;
   window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function updateDesktopTopButton() {
+  const button = $("#desktopTopButton");
+  if (!button) return;
+  const isDesktopOrLaptop = window.matchMedia("(min-width: 768px)").matches;
+  // Keep it out of the way at the start of a view, then make it available after a meaningful scroll.
+  button.classList.toggle("is-visible", isDesktopOrLaptop && window.scrollY > 260);
 }
 
 function scrollToPracticeQuestion() {
@@ -1494,6 +1502,9 @@ function bindEvents() {
   $("#readerWidthSelect").addEventListener("change", (event) => { state.readerWidth = Number(event.target.value); applyReaderPreferences(); persistState(); });
   $("#chapterTopButton").addEventListener("click", scrollToReaderStart);
   $("#mobileTopNavButton").addEventListener("click", () => scrollToViewStart());
+  $("#desktopTopButton").addEventListener("click", () => scrollToViewStart());
+  window.addEventListener("scroll", updateDesktopTopButton, { passive: true });
+  window.addEventListener("resize", updateDesktopTopButton);
 
   $("#markPageButton").addEventListener("click", () => {
     if (isPageComplete(ui.currentPage)) {
@@ -1678,6 +1689,7 @@ async function initialize() {
     .concat(MANIFEST.modules.filter((module) => /^m\d+$/.test(module.id)).map((module) => `<option value="${module.id}">${escapeHtml(module.number)} · ${escapeHtml(module.title)}</option>`)).join("");
   $("#practiceModuleFilter").value = ui.practice.moduleId;
   bindEvents();
+  updateDesktopTopButton();
   registerServiceWorker();
   await renderReader();
 }
