@@ -48,6 +48,7 @@
 
       <div class="sidebar-bottom-actions">
         <button id="continueButton" class="continue-button" type="button"><i class="fa-solid fa-play" aria-hidden="true"></i><span>Continuar lectura</span></button>
+        <button id="sidebarSavedPagesButton" class="sidebar-link-button sidebar-library-button" type="button"><i class="fa-solid fa-bookmark" aria-hidden="true"></i><span>Páginas guardadas</span><strong id="sidebarSavedPagesCount">0</strong></button>
         <button id="resetButton" class="sidebar-link-button" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Restablecer datos locales</button>
       </div>
     </aside>
@@ -126,10 +127,23 @@
 
           <div class="mobile-study-actions" aria-label="Herramientas de estudio">
             <button type="button" data-reader-action="listen"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span>Escuchar</span></button>
-            <button type="button" data-reader-action="note"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>Nota</span></button>
+            <button type="button" data-reader-action="note"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>Nueva nota</span></button>
             <button type="button" data-reader-action="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar</span></button>
             <button type="button" data-reader-action="visual" id="mobileVisualAction" hidden><i class="fa-solid fa-expand" aria-hidden="true"></i><span>Visual</span></button>
           </div>
+
+          <section class="mobile-study-library" aria-label="Tu estudio">
+            <button id="mobileNotesButton" class="mobile-study-library-button" type="button">
+              <i class="fa-solid fa-note-sticky" aria-hidden="true"></i>
+              <span><strong>Mis notas</strong><small id="mobileNotesCount">0 notas</small></span>
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+            <button id="mobileSavedPagesButton" class="mobile-study-library-button" type="button">
+              <i class="fa-solid fa-bookmark" aria-hidden="true"></i>
+              <span><strong>Páginas guardadas</strong><small id="mobileSavedPagesCount">0 páginas</small></span>
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          </section>
 
           <div class="page-navigation" aria-label="Navegación entre páginas">
             <button id="previousPageButton" class="page-nav-button" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span><small>ANTERIOR</small><strong>Volver una página</strong></span></button>
@@ -147,9 +161,10 @@
               <button id="quickTranslateButton" class="study-tool" type="button"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Traducir selección</span></button>
               <button id="sectionPracticeButton" class="study-tool" type="button"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar lección</span></button>
               <button id="viewSavedTermsButton" class="study-tool" type="button"><i class="fa-solid fa-bookmark" aria-hidden="true"></i><span>Palabras guardadas</span></button>
+              <button id="viewSavedPagesButton" class="study-tool" type="button"><i class="fa-solid fa-bookmark" aria-hidden="true"></i><span>Páginas guardadas</span><small id="desktopSavedPagesCount" class="study-tool-count">0</small></button>
             </section>
             <section id="pageNotesCard" class="study-rail-card notes-mini-card">
-              <p class="rail-label">MIS NOTAS</p>
+              <div class="study-rail-card-head"><p class="rail-label">MIS NOTAS</p><button id="viewAllNotesButton" class="study-rail-link" type="button">Ver todas</button></div>
               <div id="pageNotesSummary"></div>
             </section>
           </aside>
@@ -266,6 +281,26 @@
       <input id="noteTitleInput" type="text" maxlength="100" placeholder="Idea principal, duda o recordatorio" required />
       <textarea id="noteBodyInput" rows="7" placeholder="Escribe tu nota…" required></textarea>
       <div class="dialog-actions"><button id="noteCancelButton" class="compact-button" type="button">Cancelar</button><button class="primary-button" type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar nota</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="notesOverviewDialog" class="app-dialog study-overview-dialog">
+    <form method="dialog">
+      <button id="notesOverviewCloseButton" class="dialog-close" value="cancel" aria-label="Cerrar mis notas"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="eyebrow">TU ESTUDIO</p>
+      <h3>Mis notas</h3>
+      <p class="dialog-helper">Tus notas se guardan en este dispositivo. Toca una nota para volver a su página.</p>
+      <div id="notesOverviewContent" class="study-overview-list" aria-live="polite"></div>
+    </form>
+  </dialog>
+
+  <dialog id="savedPagesDialog" class="app-dialog study-overview-dialog">
+    <form method="dialog">
+      <button id="savedPagesCloseButton" class="dialog-close" value="cancel" aria-label="Cerrar páginas guardadas"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <p class="eyebrow">TU ESTUDIO</p>
+      <h3>Páginas guardadas</h3>
+      <p class="dialog-helper">Usa tus marcadores para retomar rápidamente las páginas que quieres revisar.</p>
+      <div id="savedPagesContent" class="study-overview-list" aria-live="polite"></div>
     </form>
   </dialog>
 

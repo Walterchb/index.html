@@ -1,4 +1,4 @@
-# Course 1 Study Reader — Pro v10
+# Course 1 Study Reader — Pro v11
 
 Lector de estudio local para **Investment Foundations – Course 1: Industry Overview and Structure**. Está pensado para leer en trayectos, practicar y revisar vocabulario desde móvil sin depender del formato rígido de un PDF.
 
@@ -10,8 +10,11 @@ Lector de estudio local para **Investment Foundations – Course 1: Industry Ove
 
 La lectura, índice, ejercicios, glosario, marcadores, notas, resaltados y progreso funcionan localmente. La traducción necesita conexión o un servicio configurado.
 
-## Novedades de v10
+## Novedades de v11
 
+- **Mis notas** ahora están disponibles también en móvil y tablet mediante el panel **Tu estudio**. Desde allí puedes abrir una nota y volver a su página de origen.
+- **Páginas guardadas** cuenta con un acceso visible en el índice, en lectura y en el panel móvil. Cada marcador muestra su página y abre directamente ese punto del curso.
+- En **Mis selecciones**, el botón **Abrir en contexto** lleva la lectura a la ubicación guardada y resalta el fragmento. Para las nuevas selecciones, la web guarda además el bloque exacto donde se realizó la selección.
 - El acceso a **Inicio** ya no flota sobre el contenido: en móvil está integrado con **Leer**, **Práctica** y **Glosario** en la navegación inferior.
 - La práctica se organizó como un flujo claro: **configura unidad y tipo → consulta el mapa → responde → revisa → avanza**.
 - El mapa de preguntas muestra cuál es la actual, cuáles están pendientes, cuáles fueron correctas y cuáles necesitan refuerzo.

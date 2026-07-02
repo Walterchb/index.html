@@ -1,5 +1,5 @@
 /*
-  Course 1 Study Reader - v10
+  Course 1 Study Reader - v11
   --------------------------
   UI shell is intentionally independent from the course corpus. Text lives in lazy
   module chunks, semantic tables and cropped exhibits remain separate lazy files.
@@ -263,6 +263,7 @@ function toggleFavorite(page) {
   }
   persistState();
   updateReaderChrome();
+  updateStudyLibraryUI();
 }
 
 function getNotes(page = ui.currentPage) {
@@ -270,6 +271,38 @@ function getNotes(page = ui.currentPage) {
   return Array.isArray(notes) ? notes : [];
 }
 
+function getFavoritePages() {
+  return [...new Set((state.favorites || []).map(Number).filter((page) => Number.isInteger(page) && page >= 1 && page <= MAX_PAGE))]
+    .sort((a, b) => a - b);
+}
+
+function getAllNotes() {
+  return Object.entries(state.notes || {})
+    .flatMap(([page, notes]) => (Array.isArray(notes) ? notes : []).map((note) => ({ ...note, page: Number(page) })))
+    .filter((note) => Number.isInteger(note.page) && note.page >= 1 && note.page <= MAX_PAGE)
+    .sort((a, b) => Number(b.updatedAt || b.createdAt || 0) - Number(a.updatedAt || a.createdAt || 0));
+}
+
+function pluralize(count, singular, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function updateStudyLibraryUI() {
+  const favoritePages = getFavoritePages();
+  const noteCount = getAllNotes().length;
+  const updateText = (selector, text) => {
+    const element = $(selector);
+    if (element) element.textContent = text;
+  };
+
+  updateText("#sidebarSavedPagesCount", String(favoritePages.length));
+  updateText("#desktopSavedPagesCount", String(favoritePages.length));
+  updateText("#mobileSavedPagesCount", pluralize(favoritePages.length, "página"));
+  updateText("#mobileNotesCount", pluralize(noteCount, "nota"));
+
+  const savedButton = $("#viewSavedPagesButton");
+  if (savedButton) savedButton.setAttribute("aria-label", `Abrir ${pluralize(favoritePages.length, "página")} guardada${favoritePages.length === 1 ? "" : "s"}`);
+}
 
 function sectionLabel(section) {
   const module = modulesById.get(section.moduleId);
@@ -369,13 +402,13 @@ function stripListMarker(text) {
   return text.replace(/^[•●○ο]\s*/, "").trim();
 }
 
-function renderListBlock(text, indent = 0) {
+function renderListBlock(text, indent = 0, blockAttribute = "") {
   const split = text
     .split(/\n(?=[•●○ο]\s*)|(?=\s[•●○ο]\s*)/)
     .map((entry) => stripListMarker(entry))
     .filter(Boolean);
-  if (split.length <= 1) return `<p class="content-block content-block-indent-${indent}">${escapeHtml(stripListMarker(text))}</p>`;
-  return `<ul class="content-list content-block-indent-${indent}">${split.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("")}</ul>`;
+  if (split.length <= 1) return `<p class="content-block content-block-indent-${indent}" ${blockAttribute}>${escapeHtml(stripListMarker(text))}</p>`;
+  return `<ul class="content-list content-block-indent-${indent}" ${blockAttribute}>${split.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("")}</ul>`;
 }
 
 function blockHtml(block, index) {
@@ -406,7 +439,7 @@ function blockHtml(block, index) {
   if (block.kind === "question") {
     return `<div class="content-question content-callout" ${blockAttribute}>${escapeHtml(text)}</div>`;
   }
-  if (block.kind === "bullets") return renderListBlock(block.text, indent);
+  if (block.kind === "bullets") return renderListBlock(block.text, indent, blockAttribute);
   return `<p class="${prefix}" ${blockAttribute}>${escapeHtml(text)}</p>`;
 }
 
@@ -556,15 +589,18 @@ function updateReaderChrome() {
   const nextLabel = ui.currentPage < MAX_PAGE ? `Ir a p. ${ui.currentPage + 1}` : "Fin del curso";
   $("#previousPageButton strong").textContent = previousLabel;
   $("#nextPageButton strong").textContent = nextLabel;
+  updateStudyLibraryUI();
 }
 function renderPageNotes() {
   const notes = getNotes();
   const target = $("#pageNotesSummary");
   if (!notes.length) {
     target.innerHTML = `<p class="notes-summary-empty">Sin notas en esta página. Guarda ideas, dudas o conexiones mientras lees.</p>`;
+    updateStudyLibraryUI();
     return;
   }
   target.innerHTML = notes.slice(0, 3).map((note) => `<div class="note-mini"><strong>${escapeHtml(note.title)}</strong><span>${escapeHtml(note.body)}</span><div class="note-mini-actions"><button type="button" data-edit-note="${escapeHtml(note.id)}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Editar</button><button type="button" data-delete-note="${escapeHtml(note.id)}"><i class="fa-solid fa-trash" aria-hidden="true"></i> Eliminar</button></div></div>`).join("");
+  updateStudyLibraryUI();
 }
 
 function escapeRegExp(value) {
@@ -617,18 +653,26 @@ function highlightSearchMatches(root, query) {
 function applySearchTargetToReader(pageNumber) {
   const target = ui.searchTarget;
   if (!target || Number(target.page) !== Number(pageNumber) || !target.query) return;
-  const matches = highlightSearchMatches($("#readerContent"), target.query);
+
+  const reader = $("#readerContent");
+  let scope = reader;
+  if (target.blockIndex !== undefined && target.blockIndex !== null) {
+    const scopedBlock = $$("[data-content-block]", reader).find((block) => String(block.dataset.contentBlock) === String(target.blockIndex));
+    if (scopedBlock) scope = scopedBlock;
+  }
+
+  const matches = highlightSearchMatches(scope, target.query);
   if (!matches.length) {
     showToast(`Abrí la p. ${pageNumber}, pero no encontré la coincidencia exacta dentro de la lectura refluida.`, "warning");
     ui.searchTarget = null;
     return;
   }
 
-  const firstMatch = matches[0];
-  firstMatch.classList.add("is-active");
+  const selectedMatch = matches[clamp(Number(target.matchIndex) || 0, 0, matches.length - 1)];
+  selectedMatch.classList.add("is-active");
   requestAnimationFrame(() => {
-    firstMatch.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-    window.setTimeout(() => firstMatch.classList.remove("is-active"), 1800);
+    selectedMatch.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    window.setTimeout(() => selectedMatch.classList.remove("is-active"), 2200);
   });
   ui.searchTarget = null;
 }
@@ -793,6 +837,7 @@ function saveNote(event) {
   persistState();
   $("#noteDialog").close();
   renderPageNotes();
+  updateStudyLibraryUI();
   showToast(ui.noteEditing ? "Nota actualizada." : "Nota guardada.", "success");
 }
 
@@ -803,7 +848,49 @@ function deleteNote(noteId) {
   else delete state.notes[key];
   persistState();
   renderPageNotes();
+  updateStudyLibraryUI();
   showToast("Nota eliminada.");
+}
+
+function selectionContext(text) {
+  const selection = window.getSelection();
+  const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+  if (!range || !$("#readerContent").contains(range.commonAncestorContainer)) return {};
+
+  const sourceNode = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+    ? range.commonAncestorContainer
+    : range.commonAncestorContainer.parentElement;
+  const block = sourceNode?.closest?.("[data-content-block]");
+  if (!block) return {};
+
+  const clean = normalize(text).toLowerCase();
+  const blockText = normalize(block.textContent).toLowerCase();
+  let selectionStart = -1;
+  try {
+    const precedingRange = document.createRange();
+    precedingRange.selectNodeContents(block);
+    precedingRange.setEnd(range.startContainer, range.startOffset);
+    selectionStart = normalize(precedingRange.toString()).toLowerCase().length;
+  } catch {
+    selectionStart = blockText.indexOf(clean);
+  }
+
+  let matchIndex = 0;
+  if (selectionStart > 0 && clean) {
+    let cursor = 0;
+    while (true) {
+      const previous = blockText.indexOf(clean, cursor);
+      if (previous < 0 || previous >= selectionStart) break;
+      matchIndex += 1;
+      cursor = previous + clean.length;
+    }
+  }
+
+  return {
+    blockIndex: block.dataset.contentBlock ?? null,
+    matchIndex,
+    context: normalize(block.textContent).slice(0, 180)
+  };
 }
 
 function addPersonalWord(text) {
@@ -814,21 +901,108 @@ function addPersonalWord(text) {
     showToast("Ese fragmento ya está guardado en tus selecciones.");
     return;
   }
+  const context = selectionContext(clean);
   state.personalWords.unshift({
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     text: clean,
     page: ui.currentPage,
+    blockIndex: context.blockIndex ?? null,
+    matchIndex: Number(context.matchIndex) || 0,
+    context: context.context || "",
     createdAt: Date.now(),
     status: "new"
   });
   persistState();
-  showToast("Guardado en Mis selecciones.", "success");
+  showToast("Guardado en Mis selecciones. Podrás volver exactamente a este fragmento.", "success");
+}
+
+function openSavedSelectionInContext(item) {
+  if (!item || !item.text) return;
+  ui.searchTarget = {
+    page: Number(item.page),
+    query: item.text,
+    blockIndex: item.blockIndex ?? null,
+    matchIndex: Number(item.matchIndex) || 0
+  };
+  setPage(Number(item.page), { view: "reader" });
 }
 
 function deletePersonalWord(id) {
   state.personalWords = state.personalWords.filter((item) => item.id !== id);
   persistState();
   void renderGlossary();
+}
+
+function renderNotesOverview() {
+  const notes = getAllNotes();
+  const target = $("#notesOverviewContent");
+  if (!notes.length) {
+    target.innerHTML = `<div class="study-overview-empty"><i class="fa-regular fa-note-sticky" aria-hidden="true"></i><strong>Aún no tienes notas guardadas.</strong><span>Crea una nota durante la lectura y aparecerá aquí para volver a ella desde cualquier página.</span></div>`;
+    return;
+  }
+  target.innerHTML = notes.map((note) => {
+    const section = sectionForPage(note.page);
+    return `<article class="study-overview-item">
+      <div class="study-overview-item-copy">
+        <p class="study-overview-meta">P. ${note.page} · ${escapeHtml(section.label)}</p>
+        <h4>${escapeHtml(note.title)}</h4>
+        <p>${escapeHtml(note.body)}</p>
+      </div>
+      <div class="study-overview-item-actions">
+        <button type="button" class="compact-button" data-note-open-page="${note.page}"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Ir a lectura</button>
+        <button type="button" class="text-button" data-note-edit-id="${escapeHtml(note.id)}" data-note-edit-page="${note.page}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Editar</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function renderSavedPagesOverview() {
+  const pages = getFavoritePages();
+  const target = $("#savedPagesContent");
+  if (!pages.length) {
+    target.innerHTML = `<div class="study-overview-empty"><i class="fa-regular fa-bookmark" aria-hidden="true"></i><strong>Aún no tienes páginas guardadas.</strong><span>Usa Guardar mientras lees y tendrás tus marcadores disponibles aquí.</span></div>`;
+    return;
+  }
+  target.innerHTML = pages.map((page) => {
+    const section = sectionForPage(page);
+    const module = moduleForPage(page);
+    return `<article class="study-overview-item study-overview-bookmark">
+      <div class="study-overview-item-copy">
+        <p class="study-overview-meta">${escapeHtml(module?.number || "READING PACKET")} · P. ${page}</p>
+        <h4>${escapeHtml(section.title)}</h4>
+        <p>${escapeHtml(section.label)} · Página ${page} de ${section.pageEnd - section.pageStart + 1} en esta lección.</p>
+      </div>
+      <div class="study-overview-item-actions">
+        <button type="button" class="primary-button" data-saved-page-open="${page}"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Abrir página</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function openNotesOverview() {
+  closeSidebar();
+  renderNotesOverview();
+  const dialog = $("#notesOverviewDialog");
+  if (!dialog.open) dialog.showModal();
+}
+
+function openSavedPagesOverview() {
+  closeSidebar();
+  renderSavedPagesOverview();
+  const dialog = $("#savedPagesDialog");
+  if (!dialog.open) dialog.showModal();
+}
+
+function closeStudyOverviews() {
+  [$("#notesOverviewDialog"), $("#savedPagesDialog")].forEach((dialog) => {
+    if (dialog?.open) dialog.close();
+  });
+}
+
+function openReadingPageFromLibrary(page) {
+  closeStudyOverviews();
+  setPage(page, { view: "reader" });
+  window.setTimeout(scrollToReaderStart, 60);
 }
 
 function selectedText() {
@@ -1330,7 +1504,7 @@ function renderFlashcards(entries) {
 function renderSavedSelections() {
   const words = state.personalWords;
   if (!words.length) return `<div class="practice-empty">Selecciona una palabra o una frase durante la lectura y pulsa Guardar. Aparecerá aquí para tus repasos.</div>`;
-  return `<div class="saved-selection-grid">${words.map((item) => `<article class="saved-selection"><p>${escapeHtml(item.text)}</p><small><i class="fa-solid fa-book-open" aria-hidden="true"></i> Guardado desde la página ${item.page}</small><div class="glossary-card-actions"><button class="term-action" type="button" data-personal-action="translate" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-language" aria-hidden="true"></i> Traducir</button><button class="term-action" type="button" data-personal-action="listen" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Escuchar</button><button class="term-action" type="button" data-personal-action="source" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Ir a lectura</button><button class="term-action" type="button" data-personal-action="delete" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-trash" aria-hidden="true"></i> Eliminar</button></div></article>`).join("")}</div>`;
+  return `<div class="saved-selection-grid">${words.map((item) => `<article class="saved-selection"><p>${escapeHtml(item.text)}</p><small><i class="fa-solid fa-book-open" aria-hidden="true"></i> Guardado desde la página ${item.page}${item.blockIndex !== undefined && item.blockIndex !== null ? " · ubicación registrada" : ""}</small><div class="glossary-card-actions"><button class="term-action" type="button" data-personal-action="translate" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-language" aria-hidden="true"></i> Traducir</button><button class="term-action" type="button" data-personal-action="listen" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> Escuchar</button><button class="term-action" type="button" data-personal-action="source" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> Abrir en contexto</button><button class="term-action" type="button" data-personal-action="delete" data-id="${escapeHtml(item.id)}"><i class="fa-solid fa-trash" aria-hidden="true"></i> Eliminar</button></div></article>`).join("")}</div>`;
 }
 
 async function renderGlossary() {
@@ -1484,6 +1658,7 @@ function bindEvents() {
     updateProgressUI();
     applyTheme();
     applyReaderPreferences();
+    updateStudyLibraryUI();
     setPage(FIRST_READING_PAGE, { view: "reader" });
     showToast("Datos locales restablecidos.");
   });
@@ -1525,6 +1700,27 @@ function bindEvents() {
   $("#quickTranslateButton").addEventListener("click", () => openTranslationDialog(selectedText() || ui.selectionText));
   $("#sectionPracticeButton").addEventListener("click", () => { ui.practice.moduleId = sectionForPage(ui.currentPage).moduleId; ui.practice.level = "1"; ui.practice.index = 0; setView("practice"); });
   $("#viewSavedTermsButton").addEventListener("click", () => { ui.glossary.mode = "saved"; setView("glossary"); });
+  $("#viewSavedPagesButton").addEventListener("click", openSavedPagesOverview);
+  $("#sidebarSavedPagesButton").addEventListener("click", openSavedPagesOverview);
+  $("#mobileNotesButton").addEventListener("click", openNotesOverview);
+  $("#mobileSavedPagesButton").addEventListener("click", openSavedPagesOverview);
+  $("#viewAllNotesButton").addEventListener("click", openNotesOverview);
+  $("#notesOverviewContent").addEventListener("click", (event) => {
+    const open = event.target.closest("[data-note-open-page]");
+    if (open) { openReadingPageFromLibrary(Number(open.dataset.noteOpenPage)); return; }
+    const edit = event.target.closest("[data-note-edit-id]");
+    if (edit) {
+      const page = Number(edit.dataset.noteEditPage);
+      const id = edit.dataset.noteEditId;
+      closeStudyOverviews();
+      setPage(page, { view: "reader" });
+      window.setTimeout(() => openNoteDialog(id), 80);
+    }
+  });
+  $("#savedPagesContent").addEventListener("click", (event) => {
+    const open = event.target.closest("[data-saved-page-open]");
+    if (open) openReadingPageFromLibrary(Number(open.dataset.savedPageOpen));
+  });
   $(".mobile-study-actions").addEventListener("click", (event) => {
     const action = event.target.closest("[data-reader-action]")?.dataset.readerAction;
     if (!action) return;
@@ -1645,7 +1841,7 @@ function bindEvents() {
       if (!item) return;
       if (personal.dataset.personalAction === "translate") openTranslationDialog(item.text);
       if (personal.dataset.personalAction === "listen") speak(item.text);
-      if (personal.dataset.personalAction === "source") setPage(item.page, { view: "reader" });
+      if (personal.dataset.personalAction === "source") openSavedSelectionInContext(item);
       if (personal.dataset.personalAction === "delete") deletePersonalWord(item.id);
     }
   });
@@ -1684,6 +1880,7 @@ async function initialize() {
   applyReaderPreferences();
   renderCourseNav();
   updateProgressUI();
+  updateStudyLibraryUI();
   renderGlossaryFilters();
   $("#practiceModuleFilter").innerHTML = ["<option value=\"all\">Todo el curso</option>"]
     .concat(MANIFEST.modules.filter((module) => /^m\d+$/.test(module.id)).map((module) => `<option value="${module.id}">${escapeHtml(module.number)} · ${escapeHtml(module.title)}</option>`)).join("");
