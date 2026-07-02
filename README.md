@@ -1,78 +1,100 @@
-# Course 1 Study Reader
+# Course 1 · Study Reader — edición optimizada
 
-Lector local para **Investment Foundations — Course 1: Industry Overview and Structure**.
+Este lector está diseñado para abrirse localmente desde `index.html`, sin servidor ni instalación. La edición actual mejora la interfaz de lectura y práctica, y separa el contenido académico en bloques pequeños que se cargan solo cuando el usuario los necesita.
 
-## Abrir localmente
+## Abrir la web
 
-1. Descarga y descomprime `course1-study-reader.zip`.
-2. Abre la carpeta resultante.
-3. Haz doble clic en `index.html`.
+1. Descomprime el archivo ZIP sin modificar la estructura de carpetas.
+2. Abre `index.html` en Chrome, Edge o Firefox.
+3. Mantén la carpeta `data/` junto a `index.html`: contiene las lecturas, ejercicios, glosario e índice de búsqueda.
 
-No se requieren servidores, instalaciones ni conexión para leer el contenido, usar el glosario, responder los ejercicios, guardar notas, marcar palabras o conservar el progreso. Todo se guarda en `localStorage` del navegador usado.
+## Qué cambió en esta versión
 
-## Archivos
+- **Lector más estructurado**: cabecera de sección, métrica de palabras, estado de avance, tarjetas de contenido, panel lateral de estudio y modo enfoque.
+- **Prácticas más claras**: ruta visual de cuatro niveles, filtros por unidad, tarjetas de respuesta, feedback después del intento y evaluación con puntaje.
+- **Glosario más ágil**: carga al abrirlo, muestra inicial limitada a 24 entradas y botón “Mostrar más”.
+- **Rendimiento escalable**: al abrir la web no se carga el libro completo, los ejercicios, el glosario ni el buscador de texto completo.
+- **Caché de traducciones**: las traducciones ya solicitadas se guardan en IndexedDB del navegador; no vuelven a requerir una llamada a la API.
+- **Estado ligero**: notas, progreso, favoritos y respuestas se guardan de forma compacta en `localStorage`.
 
-- `index.html`: estructura de la interfaz.
-- `styles.css`: estilos responsive, modo claro/oscuro y accesibilidad.
-- `script.js`: contenido extraído, navegación, práctica, glosario y persistencia local.
-- `assets/`: reservada para recursos locales adicionales. No se han vuelto a empaquetar los PDFs originales.
+## Arquitectura de contenido bajo demanda
 
-## Traducción al español: ya activada en modo gratuito
+| Recurso | Cuándo se carga |
+|---|---|
+| `data/content-manifest.js` | Al iniciar. Solo contiene metadatos de navegación. |
+| `data/sections/*.js` | Al abrir una sección concreta. |
+| `data/exercises/*.js` | Al entrar a Práctica y elegir una unidad. |
+| `data/glossary.js` | Al abrir el Glosario. |
+| `data/search-index.js` | Solo la primera vez que se usa el buscador global. |
 
-La versión actual usa **MyMemory** de forma predeterminada para traducir el texto que selecciones. No requiere cuenta ni clave para usarlo en modo personal. La página necesita conexión a internet solo al traducir; la lectura, el glosario y el progreso continúan funcionando localmente.
+Esta estructura permite añadir lecturas extensas sin convertir `script.js` en un archivo pesado. Para una nueva lectura, agrega sus secciones como nuevos archivos dentro de `data/sections/` y actualiza el manifiesto. Consulta `ARCHITECTURE.md` para el esquema recomendado y una alternativa mediante API.
 
-- Puedes seleccionar una palabra, frase, oración o párrafo corto y elegir **Traducir**.
-- La aplicación envía únicamente el fragmento seleccionado al servicio; no envía el libro completo.
-- MyMemory permite hasta **5,000 caracteres diarios** en uso anónimo. Si deseas mayor uso, se puede configurar un correo en `MYMEMORY_EMAIL`; consulta sus condiciones antes de hacerlo.
-- Para evitar solicitudes excesivas, la web limita cada traducción a 1,800 caracteres.
+## Traducción
 
-La configuración está al inicio de `script.js`:
+La configuración está al inicio de `script.js`, en `TRANSLATION_CONFIG`.
+
+### Opción actual: MyMemory sin clave
 
 ```js
-const TRANSLATION_CONFIG = {
-  PROVIDER: "mymemory",
-  TRANSLATION_API_URL: "",
-  API_KEY: "",
-  SOURCE_LANGUAGE: "en",
-  TARGET_LANGUAGE: "es",
-  MYMEMORY_EMAIL: "",
-  MAX_CHARS_PER_REQUEST: 1800
-};
+PROVIDER: "mymemory"
 ```
 
-### Alternativa sin cuotas de un servicio público: LibreTranslate local
+Funciona para palabras, oraciones y párrafos cortos. Es un servicio público compartido, por lo que puede responder lento o tener límites temporales. Por eso el lector envía únicamente el fragmento seleccionado, cancela solicitudes anteriores y guarda resultados locales.
 
-Para usar una solución gratuita y autoalojada, instala Docker Desktop y ejecuta:
+### Opción rápida en tu red: LibreTranslate local
+
+Con Docker instalado, ejecuta:
 
 ```bash
-docker run --rm -p 5000:5000 libretranslate/libretranslate --load-only en,es
+docker run -d --name libretranslate -p 5000:5000 libretranslate/libretranslate
 ```
 
-Después cambia la configuración a:
+Luego reemplaza la configuración en `script.js` por:
 
 ```js
-const TRANSLATION_CONFIG = {
-  PROVIDER: "libretranslate",
-  TRANSLATION_API_URL: "http://localhost:5000/translate",
-  API_KEY: "",
-  SOURCE_LANGUAGE: "en",
-  TARGET_LANGUAGE: "es",
-  MYMEMORY_EMAIL: "",
-  MAX_CHARS_PER_REQUEST: 1800
+PROVIDER: "libretranslate",
+TRANSLATION_API_URL: "http://localhost:5000/translate",
+API_KEY: "",
+```
+
+Esto evita depender de un servicio público. El rendimiento dependerá de tu computadora; es la alternativa más privada para traducción local.
+
+### Opción recomendada para una web publicada: proxy propio
+
+No coloques claves de DeepL, Google, Azure u otro proveedor dentro de `script.js`. Configura un proxy o Cloudflare Worker y usa:
+
+```js
+PROVIDER: "proxy",
+TRANSLATION_API_URL: "https://tu-dominio.com/api/translate",
+API_KEY: "",
+```
+
+El proxy debe recibir un JSON con `q`, `source`, `target` y `format`, y responder al menos con:
+
+```json
+{ "translatedText": "traducción en español" }
+```
+
+## API de contenido para una biblioteca grande
+
+El modo local es el predeterminado porque funciona al abrir el archivo. Si publicas muchas lecturas, cambia la configuración incluida en `index.html`:
+
+```js
+window.CONTENT_CONFIG = {
+  MODE: "remote-api",
+  API_BASE_URL: "https://tu-dominio.com/api"
 };
 ```
 
-LibreTranslate es software libre y se ejecuta en tu equipo. La primera ejecución puede descargar modelos de idiomas; después podrás utilizarlo desde la web local mientras el contenedor esté activo.
+El lector solicitará solo los endpoints que necesita:
 
-### Opción de mejor calidad con clave protegida
+- `GET /sections/:id`
+- `GET /exercises?module=m1`
+- `GET /glossary`
+- `GET /search-index`
 
-DeepL API Free ofrece hasta 500,000 caracteres mensuales gratuitos, pero necesita una clave. No coloques esa clave en `script.js`, porque cualquier persona podría verla. Para esa alternativa, configura un proxy del lado del servidor —por ejemplo, un Cloudflare Worker— y usa `PROVIDER: "proxy"` junto con la URL del Worker.
+En `api/` hay un Worker de Cloudflare de referencia y una utilidad para exportar los bloques locales a JSON antes de subirlos a KV o R2.
 
-## Cobertura del material
+## Privacidad
 
-- Se incorporan los 5 módulos, 24 lecciones y los resúmenes del paquete principal.
-- Se identifican 38 preguntas y actividades del material, incluidas las actividades de Big Data y riesgos de seguros que aparecen dentro de las lecciones.
-- Las respuestas/feedback del PDF se muestran únicamente después de verificar una respuesta en Práctica.
-- El glosario contiene las 71 entradas del PDF complementario.
-- Las imágenes, fotografías, diagramas y el diseño de tablas complejas del PDF no se incrustaron; el lector conserva títulos, texto disponible y páginas de origen.
-- El paquete señala que los ejercicios calificados por computadora, videos y otras actividades se encuentran solo en el curso online. Esos recursos no están en los PDFs y no se añadieron.
+El contenido de los PDFs no se envía automáticamente a internet. Solo el fragmento que elijas traducir se transmite al proveedor de traducción configurado. Progreso, notas, favoritos, palabras guardadas y traducciones quedan almacenados en el navegador local.
