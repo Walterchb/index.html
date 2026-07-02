@@ -1,6 +1,6 @@
-# Course 1 Study Reader — Pro v7
+# Course 1 Study Reader — Pro v8
 
-**Diseño editorial premium y responsive (v7).** Esta entrega conserva el contenido y los recursos visuales de v6; cambia la capa de experiencia: sistema visual más sobrio, lectura más legible y tamaños/espaciados recalibrados para móvil, tablet y escritorio.
+**Diseño editorial premium y responsive (v8).** Esta entrega conserva el contenido y los recursos visuales de la versión anterior y mejora la capa de experiencia: sistema visual más sobrio, lectura más legible y tamaños/espaciados recalibrados para móvil, tablet y escritorio.
 
 Cambios de interfaz: paleta verde bosque y crema, contornos rectos y discretos, jerarquía tipográfica editorial, layout de escritorio sin columnas comprimidas y controles táctiles recalibrados para móviles.
 
@@ -15,7 +15,12 @@ Lector de estudio local para **Investment Foundations – Course 1: Industry Ove
 
 La lectura, índice, ejercicios, glosario, marcadores, notas, resaltados y progreso funcionan localmente. La traducción necesita una conexión o un servicio configurado.
 
-## Qué incluye esta versión
+## Qué incluye
+
+- Búsqueda contextual: los resultados resaltan la coincidencia en amarillo y llevan al fragmento dentro de la página.
+- Botón flotante de Inicio cuando se desplaza por una lectura larga.
+- Navegación Anterior/Siguiente alineada exactamente con el contenedor de lectura.
+- Títulos de lección normalizados y notas alineadas al borde de lectura.
 
 - **Sin PDF ni 157 capturas de páginas**: el paquete ya no incluye copias completas de las hojas ni los archivos PDF originales. Esto reduce el tamaño aproximado de 19 MB a menos de 4 MB.
 - **Todas las 157 páginas siguen disponibles** como texto refluido, una página de lectura a la vez.
@@ -71,9 +76,12 @@ Estos datos no se sincronizan entre dispositivos. Puedes limpiarlos desde **Rest
 La herramienta usa exclusivamente el texto y los visuales necesarios de los documentos proporcionados para estudio personal. Los recursos se mantienen locales y no deben publicarse de forma abierta si el material tiene restricciones de uso.
 
 
-## Ajustes de interfaz de v7
+## Ajustes de interfaz de v8
 
 - El panel de resultados de búsqueda permanece oculto hasta que haya una búsqueda válida.
-- Los títulos y el texto de lectura se alinean al borde de lectura, sin centrado interno.
-- Los controles de tamaño de texto, navegación Anterior/Siguiente e índice por páginas se ajustaron para una alineación más consistente.
-- El modo oscuro ahora usa superficies y acentos específicos en tablas, notas, visuales y controles.
+- Los títulos de lección se renderizan como encabezados principales incluso cuando el PDF los entrega como párrafos.
+- Las notas no heredan sangrías de la extracción y se alinean al borde de lectura.
+- Anterior/Siguiente comparten exactamente el ancho del contenedor de lectura en móvil, tablet y escritorio.
+- Un acceso flotante de Inicio aparece al desplazarte en una página de lectura larga.
+- Al tocar un resultado, la coincidencia se resalta en amarillo y se centra automáticamente dentro de la lectura.
+- El modo oscuro conserva contrastes específicos para notas, visuales, tablas y resaltados de búsqueda.

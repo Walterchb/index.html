@@ -1,5 +1,5 @@
 /*
-  Course 1 Study Reader - v7
+  Course 1 Study Reader - v8
   --------------------------
   UI shell is intentionally independent from the course corpus. Text lives in lazy
   module chunks, semantic tables and cropped exhibits remain separate lazy files.
@@ -70,6 +70,7 @@ const ui = {
   expandedSections: new Set(["m1-l1"]),
   selectionText: "",
   noteEditing: null,
+  searchTarget: null,
   practice: {
     moduleId: "m1",
     level: "1",
@@ -380,25 +381,31 @@ function blockHtml(block, index) {
   const indent = Number(block.indent || 0);
   if (!text) return "";
   const prefix = `content-block content-block-indent-${indent}`;
+  const blockAttribute = `data-content-block="${index}"`;
+  const isPageTitle = index === 0 && /^(lesson|module|introduction)/i.test(text);
 
+  // Some packet pages start with a lesson/module label parsed as a paragraph.
+  // It is still the page title, so it should always be styled consistently.
+  if (isPageTitle) {
+    return `<h1 class="content-block content-page-title" ${blockAttribute}>${escapeHtml(text)}</h1>`;
+  }
   if (block.kind === "heading") {
-    const tag = index === 0 && /^(lesson|module|introduction)/i.test(text) ? "h1" : "h2";
-    return `<${tag} class="${prefix}">${escapeHtml(text)}</${tag}>`;
+    return `<h2 class="${prefix}" ${blockAttribute}>${escapeHtml(text)}</h2>`;
   }
   if (block.kind === "exhibit") {
-    return `<div class="content-exhibit ${prefix}">${escapeHtml(text)}</div>`;
+    return `<div class="content-exhibit ${prefix}" ${blockAttribute}>${escapeHtml(text)}</div>`;
   }
   if (block.kind === "note") {
-    return `<aside class="content-note ${prefix}">${escapeHtml(text)}</aside>`;
+    return `<aside class="content-note content-callout" ${blockAttribute}>${escapeHtml(text)}</aside>`;
   }
   if (block.kind === "example") {
-    return `<aside class="content-example ${prefix}">${escapeHtml(text)}</aside>`;
+    return `<aside class="content-example content-callout" ${blockAttribute}>${escapeHtml(text)}</aside>`;
   }
   if (block.kind === "question") {
-    return `<div class="content-question ${prefix}">${escapeHtml(text)}</div>`;
+    return `<div class="content-question content-callout" ${blockAttribute}>${escapeHtml(text)}</div>`;
   }
   if (block.kind === "bullets") return renderListBlock(block.text, indent);
-  return `<p class="${prefix}">${escapeHtml(text)}</p>`;
+  return `<p class="${prefix}" ${blockAttribute}>${escapeHtml(text)}</p>`;
 }
 
 function semanticTableHtml(tableId) {
@@ -558,6 +565,88 @@ function renderPageNotes() {
   target.innerHTML = notes.slice(0, 3).map((note) => `<div class="note-mini"><strong>${escapeHtml(note.title)}</strong><span>${escapeHtml(note.body)}</span><div class="note-mini-actions"><button type="button" data-edit-note="${escapeHtml(note.id)}"><i class="fa-solid fa-pen" aria-hidden="true"></i> Editar</button><button type="button" data-delete-note="${escapeHtml(note.id)}"><i class="fa-solid fa-trash" aria-hidden="true"></i> Eliminar</button></div></div>`).join("");
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightSearchMatches(root, query) {
+  const clean = normalize(query);
+  if (!root || !clean) return [];
+
+  const matcher = new RegExp(escapeRegExp(clean), "ig");
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!node.nodeValue?.trim() || !parent) return NodeFilter.FILTER_REJECT;
+      if (parent.closest("script, style, mark.search-match")) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+
+  const nodes = [];
+  let node;
+  while ((node = walker.nextNode())) nodes.push(node);
+
+  const matches = [];
+  nodes.forEach((textNode) => {
+    const text = textNode.nodeValue;
+    matcher.lastIndex = 0;
+    if (!matcher.test(text)) return;
+    matcher.lastIndex = 0;
+    const fragment = document.createDocumentFragment();
+    let cursor = 0;
+    let match;
+    while ((match = matcher.exec(text))) {
+      if (match.index > cursor) fragment.appendChild(document.createTextNode(text.slice(cursor, match.index)));
+      const mark = document.createElement("mark");
+      mark.className = "search-match";
+      mark.textContent = match[0];
+      fragment.appendChild(mark);
+      matches.push(mark);
+      cursor = match.index + match[0].length;
+    }
+    if (cursor < text.length) fragment.appendChild(document.createTextNode(text.slice(cursor)));
+    textNode.parentNode.replaceChild(fragment, textNode);
+  });
+
+  return matches;
+}
+
+function applySearchTargetToReader(pageNumber) {
+  const target = ui.searchTarget;
+  if (!target || Number(target.page) !== Number(pageNumber) || !target.query) return;
+  const matches = highlightSearchMatches($("#readerContent"), target.query);
+  if (!matches.length) {
+    showToast(`Abrí la p. ${pageNumber}, pero no encontré la coincidencia exacta dentro de la lectura refluida.`, "warning");
+    ui.searchTarget = null;
+    return;
+  }
+
+  const firstMatch = matches[0];
+  firstMatch.classList.add("is-active");
+  requestAnimationFrame(() => {
+    firstMatch.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    window.setTimeout(() => firstMatch.classList.remove("is-active"), 1800);
+  });
+  ui.searchTarget = null;
+}
+
+function scrollToReaderStart() {
+  const reader = $("#readerPaper");
+  if (!reader) return;
+  const headerOffset = $(".topbar")?.getBoundingClientRect().height || 0;
+  const top = window.scrollY + reader.getBoundingClientRect().top - headerOffset - 14;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function updateFloatingTopButton() {
+  const button = $("#floatingChapterTopButton");
+  if (!button) return;
+  const shouldShow = ui.view === "reader" && window.scrollY > 520;
+  button.classList.toggle("is-visible", shouldShow);
+  button.tabIndex = shouldShow ? 0 : -1;
+}
+
 async function renderReader() {
   const myToken = ++renderToken;
   const reader = $("#readerContent");
@@ -571,6 +660,7 @@ async function renderReader() {
     if (myToken !== renderToken || ui.view !== "reader") return;
     ui.currentPageData = page;
     reader.innerHTML = renderReaderPage(page);
+    applySearchTargetToReader(page.page);
     $("#readerWordCount").textContent = `${page.wordCount.toLocaleString("es-PE")} palabras en esta página`;
     const visual = VISUALS[Number(page.page)];
     $("#pageFocusHint").textContent = visual
@@ -610,6 +700,7 @@ function setView(view) {
     $$(`[data-view="${name}"]`).forEach((button) => button.classList.toggle("is-active", name === view));
   });
   closeSidebar();
+  updateFloatingTopButton();
 
   if (view === "reader") void renderReader();
   if (view === "practice") void renderPractice();
@@ -1148,7 +1239,7 @@ function highlightSnippet(text, query) {
   const q = normalize(query);
   if (!q) return safe;
   const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "ig");
-  return safe.replace(regex, "<em>$1</em>");
+  return safe.replace(regex, "<mark class=\"search-snippet-highlight\">$1</mark>");
 }
 
 function closeCourseSearch({ clear = false } = {}) {
@@ -1183,7 +1274,7 @@ async function searchCourse(query) {
       const source = `${item.sectionTitle} ${item.text}`;
       const position = source.toLowerCase().indexOf(lower);
       const snippet = position >= 0 ? source.slice(Math.max(0, position - 82), position + clean.length + 120) : source.slice(0, 190);
-      return `<button class="search-result" type="button" data-search-page="${item.page}"><strong>p. ${item.page} · ${escapeHtml(item.sectionTitle)}</strong><span>${highlightSnippet(`${position > 82 ? "…" : ""}${snippet}${source.length > position + clean.length + 120 ? "…" : ""}`, clean)}</span></button>`;
+      return `<button class="search-result" type="button" data-search-page="${item.page}" data-search-query="${escapeHtml(clean)}"><strong>p. ${item.page} · ${escapeHtml(item.sectionTitle)}</strong><span>${highlightSnippet(`${position > 82 ? "…" : ""}${snippet}${source.length > position + clean.length + 120 ? "…" : ""}`, clean)}</span></button>`;
     }).join("");
   } catch (error) {
     console.error(error);
@@ -1270,7 +1361,9 @@ function bindEvents() {
   $("#readerFontRange").addEventListener("input", (event) => { state.readerFont = Number(event.target.value); applyReaderPreferences(); persistState(); });
   $("#readerLineHeightSelect").addEventListener("change", (event) => { state.readerLineHeight = Number(event.target.value); applyReaderPreferences(); persistState(); });
   $("#readerWidthSelect").addEventListener("change", (event) => { state.readerWidth = Number(event.target.value); applyReaderPreferences(); persistState(); });
-  $("#chapterTopButton").addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  $("#chapterTopButton").addEventListener("click", scrollToReaderStart);
+  $("#floatingChapterTopButton").addEventListener("click", scrollToReaderStart);
+  window.addEventListener("scroll", updateFloatingTopButton, { passive: true });
 
   $("#markPageButton").addEventListener("click", () => {
     if (isPageComplete(ui.currentPage)) {
@@ -1401,8 +1494,11 @@ function bindEvents() {
   $("#searchResults").addEventListener("click", (event) => {
     const button = event.target.closest("[data-search-page]");
     if (!button) return;
+    const page = Number(button.dataset.searchPage);
+    const query = normalize(button.dataset.searchQuery || $("#courseSearch").value);
+    ui.searchTarget = { page, query };
     closeCourseSearch({ clear: true });
-    setPage(Number(button.dataset.searchPage), { view: "reader" });
+    setPage(page, { view: "reader" });
   });
 
   window.addEventListener("keydown", (event) => {
@@ -1427,6 +1523,7 @@ async function initialize() {
   $("#practiceModuleFilter").value = ui.practice.moduleId;
   bindEvents();
   registerServiceWorker();
+  updateFloatingTopButton();
   await renderReader();
 }
 

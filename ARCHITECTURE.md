@@ -1,4 +1,4 @@
-# Arquitectura v7: lector ligero, fiel y escalable
+# Arquitectura v8: lector ligero, fiel y escalable
 
 ## Principio de producto
 

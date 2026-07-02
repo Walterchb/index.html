@@ -110,6 +110,7 @@
             <button id="addNoteButton" class="rail-action" type="button"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>Crear nota</span></button>
           </aside>
 
+          <div class="reader-column">
           <article id="readerPaper" class="reader-paper" aria-live="polite">
             <div id="readerLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Preparando página…</div>
             <header class="reader-paper-head">
@@ -122,6 +123,19 @@
               <span>Selecciona texto para traducir, escuchar, resaltar o guardar.</span>
             </footer>
           </article>
+
+          <div class="mobile-study-actions" aria-label="Herramientas de estudio">
+            <button type="button" data-reader-action="listen"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span>Escuchar</span></button>
+            <button type="button" data-reader-action="note"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>Nota</span></button>
+            <button type="button" data-reader-action="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar</span></button>
+            <button type="button" data-reader-action="visual" id="mobileVisualAction" hidden><i class="fa-solid fa-expand" aria-hidden="true"></i><span>Visual</span></button>
+          </div>
+
+          <div class="page-navigation" aria-label="Navegación entre páginas">
+            <button id="previousPageButton" class="page-nav-button" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span><small>ANTERIOR</small><strong>Volver una página</strong></span></button>
+            <button id="nextPageButton" class="page-nav-button page-nav-next" type="button"><span><small>SIGUIENTE</small><strong>Continuar lectura</strong></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+          </div>
+          </div>
 
           <aside class="study-rail" aria-label="Herramientas de estudio">
             <section class="study-rail-card page-focus-card">
@@ -139,18 +153,6 @@
               <div id="pageNotesSummary"></div>
             </section>
           </aside>
-        </div>
-
-        <div class="mobile-study-actions" aria-label="Herramientas de estudio">
-          <button type="button" data-reader-action="listen"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span>Escuchar</span></button>
-          <button type="button" data-reader-action="note"><i class="fa-solid fa-note-sticky" aria-hidden="true"></i><span>Nota</span></button>
-          <button type="button" data-reader-action="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Practicar</span></button>
-          <button type="button" data-reader-action="visual" id="mobileVisualAction" hidden><i class="fa-solid fa-expand" aria-hidden="true"></i><span>Visual</span></button>
-        </div>
-
-        <div class="page-navigation">
-          <button id="previousPageButton" class="page-nav-button" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span><small>ANTERIOR</small><strong>Volver una página</strong></span></button>
-          <button id="nextPageButton" class="page-nav-button page-nav-next" type="button"><span><small>SIGUIENTE</small><strong>Continuar lectura</strong></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
         </div>
       </section>
 
@@ -216,6 +218,10 @@
     <button class="mobile-nav-item" type="button" data-view="practice"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></button>
     <button class="mobile-nav-item" type="button" data-view="glossary"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></button>
   </nav>
+
+  <button id="floatingChapterTopButton" class="scroll-top-fab" type="button" aria-label="Volver al inicio de la lectura" title="Volver al inicio">
+    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i><span>Inicio</span>
+  </button>
 
   <div id="selectionToolbar" class="selection-toolbar" hidden role="toolbar" aria-label="Acciones para texto seleccionado">
     <button type="button" data-selection-action="translate"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Traducir</span></button>

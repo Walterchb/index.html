@@ -648,3 +648,122 @@ body[data-theme="dark"] .content-note { background: var(--paper-note); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* v8 refinements: title consistency, exact reader-column alignment, focused search */
+:root {
+  --search-highlight: #f6dd81;
+  --search-highlight-active: #ebbc45;
+  --search-highlight-text: #252011;
+}
+
+body[data-theme="dark"] {
+  --search-highlight: #7f6427;
+  --search-highlight-active: #bb9136;
+  --search-highlight-text: #fff7da;
+}
+
+/* The page stack owns both the paper and its navigation. This guarantees identical edges. */
+.reader-column {
+  min-width: 0;
+}
+
+.reader-column .page-navigation {
+  width: 100%;
+  margin: 12px 0 0;
+}
+
+/* Source pages with a Lesson/Module label parsed as a paragraph use the same hierarchy as all other titles. */
+.reader-content .content-page-title {
+  width: min(100%, var(--reader-measure));
+  margin: 0 0 .84em !important;
+  padding-left: 0 !important;
+  color: var(--ink-strong);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: 760;
+  line-height: 1.1;
+  letter-spacing: -.048em;
+  text-align: left;
+}
+
+/* Callouts intentionally share the reading column's left edge and never inherit source indentation. */
+.reader-content .content-callout {
+  width: min(100%, var(--reader-measure)) !important;
+  max-width: none;
+  margin-right: auto !important;
+  margin-left: 0 !important;
+  padding-left: 18px;
+  text-align: left;
+}
+
+.search-match,
+.search-snippet-highlight {
+  padding: 0 .08em;
+  border-radius: 1px;
+  color: var(--search-highlight-text);
+  background: var(--search-highlight);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.search-match {
+  font-style: normal;
+  font-weight: inherit;
+  transition: background .18s ease, box-shadow .18s ease;
+}
+
+.search-match.is-active {
+  background: var(--search-highlight-active);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--search-highlight-active) 34%, transparent);
+}
+
+.search-snippet-highlight {
+  font-style: normal;
+  font-weight: 760;
+}
+
+/* Persistent return action is available only after the learner has scrolled. */
+.scroll-top-fab {
+  position: fixed;
+  z-index: 64;
+  right: 14px;
+  bottom: calc(80px + var(--safe-bottom));
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--on-accent);
+  background: var(--forest);
+  box-shadow: var(--shadow-panel);
+  font-size: 11px;
+  font-weight: 760;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity .16s ease, transform .16s ease, background .16s ease;
+}
+
+.scroll-top-fab:hover { background: var(--forest-deep); }
+.scroll-top-fab.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+@media (min-width: 640px) {
+  .reader-column .page-navigation { margin-top: 16px; }
+  .scroll-top-fab { right: 22px; bottom: 22px; }
+}
+
+@media (min-width: 1280px) {
+  .reading-layout > .reader-column { grid-column: 2; }
+  .reading-layout > .study-rail { grid-column: 3; }
+  .reader-column .page-navigation { width: 100%; margin-top: 16px; }
+}
+
+@media (min-width: 1480px) {
+  .reader-column .page-navigation { width: 100%; }
+}
+
+@media (max-width: 430px) {
+  .scroll-top-fab { right: 12px; min-height: 38px; padding-inline: 10px; }
+}
