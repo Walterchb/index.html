@@ -21,6 +21,13 @@ const STORAGE_KEY = "course1StudyReader.v5";
 const LEGACY_STORAGE_KEYS = ["course1StudyReader.v4", "course1StudyReader.v3", "course1StudyReader.v2"];
 const MAX_PAGE = Number(MANIFEST.course.mainPages || 157);
 const FIRST_READING_PAGE = 5;
+const PAGE_ROUTES = {
+  reader: "index.html",
+  practice: "practica.html",
+  glossary: "glosario.html"
+};
+const CURRENT_PAGE_VIEW = document.body.dataset.page || "reader";
+
 
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
@@ -264,7 +271,7 @@ let activeVisual = null;
 let visualZoom = 1;
 
 const ui = {
-  view: "reader",
+  view: CURRENT_PAGE_VIEW,
   currentPage: FIRST_READING_PAGE,
   currentPageData: null,
   collapsedModules: new Set(MANIFEST.modules.map((module) => module.id).filter((id) => id !== "m1")),
@@ -295,7 +302,26 @@ const ui = {
 };
 
 let state = loadState();
-ui.currentPage = clamp(Number(state.currentPage) || FIRST_READING_PAGE, 1, MAX_PAGE);
+const initialUrlParams = new URLSearchParams(window.location.search);
+const requestedPage = Number(initialUrlParams.get("page"));
+ui.currentPage = clamp(Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : (Number(state.currentPage) || FIRST_READING_PAGE), 1, MAX_PAGE);
+state.currentPage = ui.currentPage;
+if (CURRENT_PAGE_VIEW === "reader") {
+  const initialSection = sectionForPage(ui.currentPage);
+  if (["m1", "m2", "m3", "m4", "m5"].includes(initialSection.moduleId)) ui.practice.moduleId = initialSection.moduleId;
+}
+if (CURRENT_PAGE_VIEW === "practice") {
+  const requestedModule = initialUrlParams.get("module");
+  const requestedLevel = initialUrlParams.get("level");
+  if (requestedModule === "all" || modulesById.has(requestedModule)) ui.practice.moduleId = requestedModule;
+  if (["1", "2", "3", "4"].includes(requestedLevel)) ui.practice.level = requestedLevel;
+}
+if (CURRENT_PAGE_VIEW === "glossary") {
+  const requestedModule = initialUrlParams.get("module");
+  const requestedMode = initialUrlParams.get("mode");
+  if (requestedModule === "all" || modulesById.has(requestedModule)) ui.glossary.moduleId = requestedModule;
+  if (["terms", "cards", "saved"].includes(requestedMode)) ui.glossary.mode = requestedMode;
+}
 
 function cloneDefaultState() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -958,25 +984,68 @@ function closeSidebar() {
   setSidebarOpen(false);
 }
 
+function viewUrl(view, overrides = {}) {
+  const route = PAGE_ROUTES[view] || PAGE_ROUTES.reader;
+  const params = new URLSearchParams();
+  if (view === "reader") {
+    const page = Number(overrides.page ?? ui.currentPage);
+    if (page && page !== FIRST_READING_PAGE) params.set("page", String(page));
+  }
+  if (view === "practice") {
+    const moduleId = overrides.moduleId ?? ui.practice.moduleId;
+    const level = overrides.level ?? ui.practice.level;
+    if (moduleId && moduleId !== "m1") params.set("module", moduleId);
+    if (level && level !== "1") params.set("level", String(level));
+  }
+  if (view === "glossary") {
+    const moduleId = overrides.moduleId ?? ui.glossary.moduleId;
+    const mode = overrides.mode ?? ui.glossary.mode;
+    if (moduleId && moduleId !== "all") params.set("module", moduleId);
+    if (mode && mode !== "terms") params.set("mode", mode);
+  }
+  const query = params.toString();
+  return query ? `${route}?${query}` : route;
+}
+
+function syncPageShell(view) {
+  document.body.dataset.page = view;
+  $$('[data-page-link]').forEach((link) => {
+    const targetView = link.dataset.pageLink;
+    const active = targetView === view;
+    link.classList.toggle("is-active", active);
+    link.href = viewUrl(targetView);
+    if (active) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+  const chip = $("#topPageChip");
+  if (chip) chip.hidden = view !== "reader";
+  if (view === "practice") {
+    $("#topBreadcrumb").textContent = "PRÁCTICA DEL MATERIAL";
+    $("#topTitle").textContent = "Ruta de práctica";
+  } else if (view === "glossary") {
+    $("#topBreadcrumb").textContent = "GLOSARIO DEL CURSO";
+    $("#topTitle").textContent = "Vocabulario y tarjetas";
+  }
+}
+
 function setView(view) {
   const valid = ["reader", "practice", "glossary"];
   if (!valid.includes(view)) return;
-  const previousView = ui.view;
+  if (view !== CURRENT_PAGE_VIEW) {
+    window.location.href = viewUrl(view);
+    return;
+  }
   ui.view = view;
   valid.forEach((name) => {
-    $(`#${name}View`).hidden = name !== view;
-    $$(`[data-view="${name}"]`).forEach((button) => button.classList.toggle("is-active", name === view));
+    const panel = $(`#${name}View`);
+    if (panel) panel.hidden = name !== view;
   });
+  syncPageShell(view);
   closeSidebar();
 
   if (view === "reader") void renderReader();
   if (view === "practice") void renderPractice();
   if (view === "glossary") void renderGlossary();
-
-  // Each main area starts at a clear point instead of inheriting a deep scroll position.
-  if (previousView !== view && view !== "reader") {
-    requestAnimationFrame(() => scrollToViewStart(view));
-  }
 }
 
 function setPage(page, { autoCompletePrevious = false, view = ui.view } = {}) {
@@ -989,11 +1058,21 @@ function setPage(page, { autoCompletePrevious = false, view = ui.view } = {}) {
   ui.expandedSections.add(section.id);
   if (["m1", "m2", "m3", "m4", "m5"].includes(section.moduleId)) ui.practice.moduleId = section.moduleId;
   persistState();
+
+  if (view !== CURRENT_PAGE_VIEW) {
+    window.location.href = viewUrl(view, { page: nextPage, moduleId: section.moduleId });
+    return;
+  }
+
   renderCourseNav();
   updateProgressUI();
-  if (view !== ui.view) setView(view);
-  else if (ui.view === "reader") void renderReader();
-  else updateReaderChrome();
+  if (ui.view === "reader") {
+    const url = viewUrl("reader", { page: nextPage });
+    window.history.pushState({ page: nextPage }, "", url);
+    void renderReader();
+  } else {
+    updateReaderChrome();
+  }
 }
 
 function nextPage() {
@@ -1858,7 +1937,7 @@ async function searchCourse(query) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && /^(http:|https:)$/.test(location.protocol)) {
-    navigator.serviceWorker.register("service-worker.js?v=21.0.0", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {
+    navigator.serviceWorker.register("service-worker.js?v=22.0.0", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {
       // The reader still works normally if a host does not allow service workers.
     });
   }
@@ -1942,6 +2021,16 @@ function bindEvents() {
   $("#desktopTopButton").addEventListener("click", () => scrollToViewStart());
   window.addEventListener("scroll", updateDesktopTopButton, { passive: true });
   window.addEventListener("resize", updateDesktopTopButton);
+  window.addEventListener("popstate", () => {
+    if (CURRENT_PAGE_VIEW !== "reader") return;
+    const params = new URLSearchParams(window.location.search);
+    const page = clamp(Number(params.get("page")) || FIRST_READING_PAGE, 1, MAX_PAGE);
+    ui.currentPage = page;
+    state.currentPage = page;
+    renderCourseNav();
+    updateProgressUI();
+    void renderReader();
+  });
 
   $("#markPageButton").addEventListener("click", () => {
     if (isPageComplete(ui.currentPage)) {
@@ -2032,6 +2121,8 @@ function bindEvents() {
     ui.practice.transientFeedback = {};
     ui.practice.retrying.clear();
     ui.practice.focusAfterRender = true;
+    if (CURRENT_PAGE_VIEW === "practice") window.history.replaceState({}, "", viewUrl("practice"));
+    syncPageShell(CURRENT_PAGE_VIEW);
     void renderPractice();
   });
   $$('[data-practice-level]').forEach((button) => button.addEventListener("click", () => {
@@ -2040,6 +2131,8 @@ function bindEvents() {
     ui.practice.transientFeedback = {};
     ui.practice.retrying.clear();
     ui.practice.focusAfterRender = true;
+    if (CURRENT_PAGE_VIEW === "practice") window.history.replaceState({}, "", viewUrl("practice"));
+    syncPageShell(CURRENT_PAGE_VIEW);
     syncPracticeLevelControls();
     void renderPractice();
   }));
@@ -2078,9 +2171,9 @@ function bindEvents() {
   });
 
   $("#glossarySearch").addEventListener("input", (event) => { ui.glossary.search = event.target.value; ui.glossary.limit = 24; void renderGlossary(); });
-  $("#glossaryModuleFilter").addEventListener("change", (event) => { ui.glossary.moduleId = event.target.value; ui.glossary.limit = 24; ui.glossary.flashIndex = 0; void renderGlossary(); });
+  $("#glossaryModuleFilter").addEventListener("change", (event) => { ui.glossary.moduleId = event.target.value; ui.glossary.limit = 24; ui.glossary.flashIndex = 0; if (CURRENT_PAGE_VIEW === "glossary") window.history.replaceState({}, "", viewUrl("glossary")); syncPageShell(CURRENT_PAGE_VIEW); void renderGlossary(); });
   $$("[data-glossary-status]").forEach((button) => button.addEventListener("click", () => { ui.glossary.status = button.dataset.glossaryStatus; ui.glossary.limit = 24; ui.glossary.flashIndex = 0; void renderGlossary(); }));
-  $$("[data-glossary-mode]").forEach((button) => button.addEventListener("click", () => { ui.glossary.mode = button.dataset.glossaryMode; ui.glossary.flashIndex = 0; ui.glossary.flashRevealed = false; void renderGlossary(); }));
+  $$("[data-glossary-mode]").forEach((button) => button.addEventListener("click", () => { ui.glossary.mode = button.dataset.glossaryMode; ui.glossary.flashIndex = 0; ui.glossary.flashRevealed = false; if (CURRENT_PAGE_VIEW === "glossary") window.history.replaceState({}, "", viewUrl("glossary")); syncPageShell(CURRENT_PAGE_VIEW); void renderGlossary(); }));
   $("#glossaryContent").addEventListener("click", (event) => {
     const loadMore = event.target.closest("#glossaryLoadMore");
     if (loadMore) { ui.glossary.limit += 24; void renderGlossary(); return; }
@@ -2158,6 +2251,8 @@ function bindEvents() {
 async function initialize() {
   applyTheme();
   applyReaderPreferences();
+  syncPageShell(CURRENT_PAGE_VIEW);
+  window.history.replaceState({ page: ui.currentPage }, "", viewUrl(CURRENT_PAGE_VIEW));
   renderCourseNav();
   updateProgressUI();
   updateStudyLibraryUI();
@@ -2165,12 +2260,16 @@ async function initialize() {
   $("#practiceModuleFilter").innerHTML = ["<option value=\"all\">Todo el curso</option>"]
     .concat(MANIFEST.modules.filter((module) => /^m\d+$/.test(module.id)).map((module) => `<option value="${module.id}">${escapeHtml(module.number)} · ${escapeHtml(module.title)}</option>`)).join("");
   $("#practiceModuleFilter").value = ui.practice.moduleId;
+  $("#glossaryModuleFilter").value = ui.glossary.moduleId;
   bindEvents();
   ensureCustomSelectBackdrop();
   refreshCustomSelects(document);
   updateDesktopTopButton();
   registerServiceWorker();
-  await renderReader();
+
+  if (CURRENT_PAGE_VIEW === "reader") await renderReader();
+  if (CURRENT_PAGE_VIEW === "practice") await renderPractice();
+  if (CURRENT_PAGE_VIEW === "glossary") await renderGlossary();
 }
 
 void initialize();

@@ -1,0 +1,9 @@
+Versión 22 — páginas independientes
+
+- Lectura permanece en index.html.
+- Práctica ahora tiene su propia página: practica.html.
+- Glosario ahora tiene su propia página: glosario.html.
+- La navegación superior e inferior usa enlaces reales entre páginas.
+- Se preservan la página de lectura, la unidad de práctica y el modo del glosario mediante parámetros en la URL.
+- Se agregó 404.html con accesos de retorno a las tres áreas.
+- Se actualizó el service worker y su caché.

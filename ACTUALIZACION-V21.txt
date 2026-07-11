@@ -1,8 +1,0 @@
-Versión 21 — respuestas y buscador enfocado
-
-- Los controles de selección de las alternativas ahora quedan alineados al extremo derecho.
-- Se eliminó una función duplicada que estaba aplicando la estructura anterior de las respuestas.
-- En escritorio, el buscador se abre centrado en la pantalla.
-- Se añadió un overlay al buscador en escritorio y móvil para reducir distracciones.
-- En móvil se conserva la posición y funcionamiento existente del buscador; solo se añadió el overlay.
-- Se actualizó la caché del service worker.

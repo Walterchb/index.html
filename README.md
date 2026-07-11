@@ -1,30 +1,24 @@
-# Course 1 Study Reader — Pro v11
+# Course 1 Study Reader — Pro v22
 
 Lector de estudio local para **Investment Foundations – Course 1: Industry Overview and Structure**. Está pensado para leer en trayectos, practicar y revisar vocabulario desde móvil sin depender del formato rígido de un PDF.
 
 ## Abrirlo
 
 1. Descomprime el ZIP completo.
-2. Conserva las carpetas `assets/` y `data/` junto a `index.html`.
-3. Abre `index.html` en Chrome, Edge, Firefox o Safari.
+2. Conserva las carpetas `assets/` y `data/` junto a los archivos HTML.
+3. Abre `index.html` para Lectura, `practica.html` para Práctica o `glosario.html` para Glosario.
 
 La lectura, índice, ejercicios, glosario, marcadores, notas, resaltados y progreso funcionan localmente. La traducción necesita conexión o un servicio configurado.
 
-## Novedades de v11
+## Novedades de v22
 
-- **Mis notas** ahora están disponibles también en móvil y tablet mediante el panel **Tu estudio**. Desde allí puedes abrir una nota y volver a su página de origen.
-- **Páginas guardadas** cuenta con un acceso visible en el índice, en lectura y en el panel móvil. Cada marcador muestra su página y abre directamente ese punto del curso.
-- En **Mis selecciones**, el botón **Abrir en contexto** lleva la lectura a la ubicación guardada y resalta el fragmento. Para las nuevas selecciones, la web guarda además el bloque exacto donde se realizó la selección.
-- El acceso a **Inicio** ya no flota sobre el contenido: en móvil está integrado con **Leer**, **Práctica** y **Glosario** en la navegación inferior.
-- La práctica se organizó como un flujo claro: **configura unidad y tipo → consulta el mapa → responde → revisa → avanza**.
-- El mapa de preguntas muestra cuál es la actual, cuáles están pendientes, cuáles fueron correctas y cuáles necesitan refuerzo.
-- Se añadieron controles visibles de **Anterior**, **Siguiente** e **Ir a una pregunta**. También se mantienen las flechas izquierda/derecha en escritorio para desplazarse entre preguntas.
-- Las opciones elegidas quedan visualmente marcadas antes de verificar.
-- **Intentar otra vez** ahora oculta correctamente el resultado previo para que puedas resolver de nuevo la misma pregunta.
-- Las preguntas se cargan solo al abrir Práctica y se mantienen dentro del filtro elegido para conservar velocidad en móvil.
-- El índice de páginas incorpora un separador inferior punteado para distinguir cada bloque desplegado.
-- Los paneles de **Progreso**, **En esta página**, **Estudio rápido** y **Mis notas** ahora usan superficies de lectura con fondo en escritorio ancho.
-- En laptop y PC, un botón discreto de **Inicio** aparece al desplazarte para volver al comienzo de la vista actual.
+- **Lectura**, **Práctica** y **Glosario** ahora cuentan con páginas y URL independientes.
+- La navegación superior e inferior utiliza enlaces reales entre `index.html`, `practica.html` y `glosario.html`.
+- La página de lectura puede conservar la página actual mediante `?page=`.
+- Práctica puede conservar unidad y modalidad mediante `?module=` y `?level=`.
+- Glosario puede conservar módulo y modo mediante `?module=` y `?mode=`.
+- Se añadió `404.html` para enlaces inexistentes en GitHub Pages.
+- Se mantiene el progreso local, notas, guardados, resultados de práctica y preferencias entre las tres páginas.
 
 ## Qué incluye
 
@@ -66,7 +60,7 @@ Para estudiar con mayor frecuencia, configura un proxy privado o LibreTranslate 
 
 ## Uso sin conexión / PWA
 
-El lector abre localmente con `index.html`. Para instalarlo como app y almacenar los recursos visitados, súbelo a un entorno privado con HTTPS y ábrelo al menos una vez con conexión. El service worker guarda el shell de la app y los contenidos que ya hayas visitado.
+El lector abre localmente con `index.html`, `practica.html` y `glosario.html`. Para instalarlo como app y almacenar los recursos visitados, súbelo a un entorno privado con HTTPS y ábrelo al menos una vez con conexión. El service worker guarda el shell de la app y los contenidos que ya hayas visitado.
 
 ## Datos que se guardan en este dispositivo
 

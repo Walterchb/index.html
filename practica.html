@@ -12,9 +12,9 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="styles.css?v=22.0.0" />
-  <title>Lectura · Investment Foundations Course 1</title>
+  <title>Práctica · Investment Foundations Course 1</title>
 </head>
-<body data-theme="light" data-page="reader">
+<body data-theme="light" data-page="practice">
   <a class="skip-link" href="#mainContent">Saltar al contenido principal</a>
 
   <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
@@ -80,12 +80,12 @@
       </header>
 
       <nav class="workspace-tabs" aria-label="Áreas de estudio">
-        <a class="workspace-tab is-active" data-page-link="reader" href="index.html" aria-current="page"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Lectura</span></a>
-        <a class="workspace-tab" data-page-link="practice" href="practica.html"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></a>
+        <a class="workspace-tab" data-page-link="reader" href="index.html"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Lectura</span></a>
+        <a class="workspace-tab is-active" data-page-link="practice" href="practica.html" aria-current="page"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></a>
         <a class="workspace-tab" data-page-link="glossary" href="glosario.html"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></a>
       </nav>
 
-      <section id="readerView" class="view-panel reader-view">
+      <section id="readerView" class="view-panel reader-view" hidden>
         <div class="reader-overview">
           <div class="reader-title-block">
             <p id="readerModuleLabel" class="eyebrow">MODULE 1</p>
@@ -172,7 +172,7 @@
         </div>
       </section>
 
-      <section id="practiceView" class="view-panel practice-view" hidden>
+      <section id="practiceView" class="view-panel practice-view">
         <header class="practice-hero">
           <div>
             <p class="eyebrow">PRÁCTICA DEL MATERIAL</p>
@@ -281,8 +281,8 @@
 
   <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
     <button id="mobileTopNavButton" class="mobile-nav-item mobile-nav-top" type="button" aria-label="Volver al inicio de la vista actual"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i><span>Inicio</span></button>
-    <a class="mobile-nav-item is-active" data-page-link="reader" href="index.html" aria-current="page"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Leer</span></a>
-    <a class="mobile-nav-item" data-page-link="practice" href="practica.html"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></a>
+    <a class="mobile-nav-item" data-page-link="reader" href="index.html"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Leer</span></a>
+    <a class="mobile-nav-item is-active" data-page-link="practice" href="practica.html" aria-current="page"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>Práctica</span></a>
     <a class="mobile-nav-item" data-page-link="glossary" href="glosario.html"><i class="fa-solid fa-language" aria-hidden="true"></i><span>Glosario</span></a>
   </nav>
 

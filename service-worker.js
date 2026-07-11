@@ -1,10 +1,13 @@
-/* Offline layer — v21. Network-first prevents stale interface files after an update. */
-const CACHE_NAME = "course1-study-reader-v21";
+/* Offline layer — v22. Network-first prevents stale interface files after an update. */
+const CACHE_NAME = "course1-study-reader-v22";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css?v=21.0.0",
-  "./script.js?v=21.0.0",
+  "./practica.html",
+  "./glosario.html",
+  "./404.html",
+  "./styles.css?v=22.0.0",
+  "./script.js?v=22.0.0",
   "./manifest.webmanifest",
   "./assets/app-icon.svg",
   "./data/course-manifest.js",
@@ -42,6 +45,6 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("./index.html")))
+      .catch(() => caches.match(request).then((cached) => cached || (request.mode === "navigate" ? caches.match("./404.html") : caches.match("./index.html"))))
   );
 });
