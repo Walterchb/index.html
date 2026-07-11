@@ -1,10 +1,10 @@
-/* Offline layer — v16. Network-first prevents stale interface files after an update. */
-const CACHE_NAME = "course1-study-reader-v16";
+/* Offline layer — v17. Network-first prevents stale interface files after an update. */
+const CACHE_NAME = "course1-study-reader-v17";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css?v=16.0.0",
-  "./script.js?v=16.0.0",
+  "./styles.css?v=17.0.0",
+  "./script.js?v=17.0.0",
   "./manifest.webmanifest",
   "./assets/app-icon.svg",
   "./data/course-manifest.js",

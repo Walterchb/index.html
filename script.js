@@ -101,26 +101,17 @@ function syncCustomSelect(select) {
 function placeCustomSelectMenu(controller) {
   if (!controller?.wrapper?.isConnected) return;
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
   const rect = controller.button.getBoundingClientRect();
-  const mobileSheet = viewportWidth <= 640;
-  controller.wrapper.classList.toggle('is-sheet', mobileSheet);
-  controller.wrapper.classList.remove('open-up', 'open-down');
+  controller.wrapper.classList.remove('is-sheet', 'open-up', 'open-down');
 
-  if (mobileSheet) {
-    controller.wrapper.classList.add('open-down');
-    controller.menu.style.maxHeight = `${Math.max(220, Math.floor(viewportHeight * 0.46))}px`;
-    controller.menu.style.minWidth = '';
-    return;
-  }
-
-  const estimatedHeight = Math.min(320, Math.max(180, controller.menu.scrollHeight || 240));
-  const spaceBelow = viewportHeight - rect.bottom - 14;
-  const spaceAbove = rect.top - 14;
-  const openUp = spaceBelow < Math.min(estimatedHeight, 240) && spaceAbove > spaceBelow;
+  const estimatedHeight = Math.min(300, Math.max(160, controller.menu.scrollHeight || 220));
+  const spaceBelow = viewportHeight - rect.bottom - 8;
+  const spaceAbove = rect.top - 8;
+  const openUp = spaceBelow < Math.min(estimatedHeight, 200) && spaceAbove > spaceBelow;
   controller.wrapper.classList.add(openUp ? 'open-up' : 'open-down');
+
   const available = Math.max(140, Math.floor(openUp ? spaceAbove : spaceBelow));
-  controller.menu.style.maxHeight = `${Math.min(available, 360)}px`;
+  controller.menu.style.maxHeight = `${Math.min(available, 300)}px`;
   controller.menu.style.minWidth = `${Math.max(rect.width, 180)}px`;
 }
 

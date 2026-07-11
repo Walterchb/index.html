@@ -1,0 +1,8 @@
+Versión 17 — práctica alineada al diseño original
+
+- Se eliminó el exceso de border radius y se recuperó el estilo editorial de bajo radio de la web.
+- Se retiraron todos los íconos del panel de modalidades de práctica.
+- Los dropdowns ahora abren pegados al campo que los activa, también en móvil.
+- Se eliminó el comportamiento tipo bottom sheet que desplazaba la lista demasiado abajo.
+- Se simplificaron tarjetas, navegación, opciones de respuesta e indicadores para mantener coherencia visual.
+- Se actualizó la caché del service worker.
