@@ -1,8 +1,0 @@
-Versión 19 — corrección de dropdowns y ancho de Práctica
-
-- Se corrigió el bloqueo de los desplegables dentro de los bloques sticky de escritorio.
-- Se eliminó la capa invisible que podía quedar encima de las opciones.
-- Se reforzó el nivel de apilamiento del bloque fijo cuando un desplegable está abierto.
-- El practice-control-bar ahora tiene el mismo ancho máximo que el navegador y la tarjeta de preguntas, para mantener la alineación visual.
-- En móvil no se cambió la distribución.
-- Se actualizó la caché del service worker.

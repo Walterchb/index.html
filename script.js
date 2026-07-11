@@ -1494,9 +1494,11 @@ function renderPracticeNavigator(questions) {
       <p class="practice-control-eyebrow">NAVEGACIÓN</p>
       <strong class="practice-quick-nav-title">Pregunta ${activeIndex + 1} de ${total}</strong>
       <div class="practice-navigation-controls practice-navigation-controls-frozen">
-        <button class="practice-nav-button" type="button" data-practice-action="previous" ${activeIndex === 0 ? "disabled" : ""}><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Anterior</span></button>
         <label class="practice-question-jump" for="practiceQuestionSelectSticky"><span>Pregunta actual</span><select id="practiceQuestionSelectSticky" aria-label="Ir a una pregunta">${options}</select></label>
-        <button class="practice-nav-button practice-nav-next" type="button" data-practice-action="next" ${activeIndex >= total - 1 ? "disabled" : ""}><span>Siguiente</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        <div class="practice-quick-nav-actions">
+          <button class="practice-nav-button" type="button" data-practice-action="previous" ${activeIndex === 0 ? "disabled" : ""}><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Anterior</span></button>
+          <button class="practice-nav-button practice-nav-next" type="button" data-practice-action="next" ${activeIndex >= total - 1 ? "disabled" : ""}><span>Siguiente</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        </div>
       </div>
     </section>`;
 

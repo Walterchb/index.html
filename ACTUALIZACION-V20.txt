@@ -1,0 +1,7 @@
+Versión 20 — navegación lateral de práctica
+
+- Se amplió el ancho del bloque lateral fijo en escritorio.
+- El selector de Pregunta actual ahora aparece primero.
+- Los botones Anterior y Siguiente se muestran debajo, en una misma fila.
+- No se modificó el comportamiento en móvil.
+- Se actualizó la caché del service worker.

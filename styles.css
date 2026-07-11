@@ -3011,3 +3011,32 @@ body.has-custom-select-open { overflow: visible; }
     margin-left: auto;
   }
 }
+
+
+/* v20 — wider desktop practice rail and improved quick navigation order */
+.practice-quick-nav-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.practice-quick-nav-actions .practice-nav-button {
+  width: 100%;
+  min-width: 0;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+@media (min-width: 1024px) {
+  .practice-layout {
+    grid-template-columns: minmax(310px, 340px) minmax(0, 1fr);
+    gap: 18px;
+  }
+  .practice-module-block,
+  .practice-quick-nav-card {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+  .practice-navigation-controls-frozen {
+    gap: 10px;
+  }
+}
