@@ -33,6 +33,165 @@ const escapeHtml = (value) => String(value ?? "")
 const normalize = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
+const customSelectControllers = new WeakMap();
+let activeCustomSelectController = null;
+
+function closeCustomSelect(controller, { restoreFocus = false } = {}) {
+  if (!controller || !controller.wrapper?.isConnected) return;
+  controller.wrapper.classList.remove("is-open");
+  controller.button.setAttribute("aria-expanded", "false");
+  controller.menu.hidden = true;
+  if (restoreFocus) controller.button.focus();
+  if (activeCustomSelectController === controller) activeCustomSelectController = null;
+}
+
+function closeAllCustomSelects(except = null) {
+  $$('[data-custom-select-wrapper="true"].is-open').forEach((wrapper) => {
+    const select = $('select.custom-select-native', wrapper);
+    const controller = select ? customSelectControllers.get(select) : null;
+    if (controller && controller !== except) closeCustomSelect(controller);
+  });
+}
+
+function customSelectOptionMarkup(option, index) {
+  const disabled = option.disabled ? ' disabled aria-disabled="true"' : '';
+  const selected = option.selected ? ' aria-selected="true" class="custom-select-option is-selected"' : ' aria-selected="false" class="custom-select-option"';
+  return `<button type="button" role="option"${selected} data-custom-select-option="${index}" data-value="${escapeHtml(option.value)}"${disabled}><span>${escapeHtml(option.textContent || option.label || option.value)}</span><i class="fa-solid fa-check" aria-hidden="true"></i></button>`;
+}
+
+function syncCustomSelect(select) {
+  const controller = customSelectControllers.get(select);
+  if (!controller) return;
+  const selectedOption = select.options[select.selectedIndex] || select.options[0];
+  controller.button.querySelector('[data-custom-select-label]').textContent = selectedOption ? (selectedOption.textContent || selectedOption.label || '') : 'Selecciona…';
+  controller.button.disabled = select.disabled;
+  controller.wrapper.classList.toggle('is-disabled', !!select.disabled);
+  const options = $$('[data-custom-select-option]', controller.menu);
+  options.forEach((optionButton) => {
+    const isSelected = optionButton.dataset.value === String(select.value);
+    optionButton.classList.toggle('is-selected', isSelected);
+    optionButton.setAttribute('aria-selected', String(isSelected));
+  });
+}
+
+function enhanceSelect(select) {
+  if (!(select instanceof HTMLSelectElement) || select.multiple) return;
+  const signature = Array.from(select.options).map((option) => `${option.value}::${option.textContent}::${option.disabled ? 1 : 0}`).join('|');
+  const existing = customSelectControllers.get(select);
+  if (existing && existing.signature === signature && existing.wrapper.isConnected) {
+    syncCustomSelect(select);
+    return;
+  }
+  if (existing?.wrapper?.isConnected) existing.wrapper.remove();
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'custom-select';
+  wrapper.dataset.customSelectWrapper = 'true';
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'custom-select-toggle';
+  button.setAttribute('data-custom-select-button', 'true');
+  button.setAttribute('aria-haspopup', 'listbox');
+  button.setAttribute('aria-expanded', 'false');
+  button.setAttribute('aria-label', select.getAttribute('aria-label') || select.name || 'Selecciona');
+  button.innerHTML = '<span data-custom-select-label></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
+
+  const menu = document.createElement('div');
+  menu.className = 'custom-select-menu';
+  menu.setAttribute('role', 'listbox');
+  menu.hidden = true;
+  menu.innerHTML = Array.from(select.options).map(customSelectOptionMarkup).join('');
+
+  select.classList.add('custom-select-native');
+  select.parentNode.insertBefore(wrapper, select);
+  wrapper.append(select, button, menu);
+
+  const controller = { select, wrapper, button, menu, signature };
+  customSelectControllers.set(select, controller);
+
+  const openMenu = () => {
+    if (select.disabled) return;
+    closeAllCustomSelects(controller);
+    wrapper.classList.add('is-open');
+    button.setAttribute('aria-expanded', 'true');
+    menu.hidden = false;
+    activeCustomSelectController = controller;
+  };
+
+  const commitValue = (value) => {
+    if (select.value === value) {
+      syncCustomSelect(select);
+      closeCustomSelect(controller, { restoreFocus: true });
+      return;
+    }
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    syncCustomSelect(select);
+    closeCustomSelect(controller, { restoreFocus: true });
+  };
+
+  button.addEventListener('click', () => {
+    if (wrapper.classList.contains('is-open')) {
+      closeCustomSelect(controller);
+      return;
+    }
+    openMenu();
+  });
+
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openMenu();
+      const target = $('[data-custom-select-option].is-selected:not([disabled])', menu) || $('[data-custom-select-option]:not([disabled])', menu);
+      target?.focus();
+    }
+  });
+
+  menu.addEventListener('click', (event) => {
+    const optionButton = event.target.closest('[data-custom-select-option]');
+    if (!optionButton || optionButton.disabled) return;
+    commitValue(optionButton.dataset.value ?? '');
+  });
+
+  menu.addEventListener('keydown', (event) => {
+    const options = $$('[data-custom-select-option]:not([disabled])', menu);
+    const currentIndex = options.indexOf(document.activeElement);
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeCustomSelect(controller, { restoreFocus: true });
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      options[(currentIndex + 1 + options.length) % options.length]?.focus();
+      return;
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      options[(currentIndex - 1 + options.length) % options.length]?.focus();
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      const optionButton = document.activeElement.closest('[data-custom-select-option]');
+      if (optionButton && !optionButton.disabled) commitValue(optionButton.dataset.value ?? '');
+      return;
+    }
+    if (event.key === 'Tab') closeCustomSelect(controller);
+  });
+
+  select.addEventListener('change', () => syncCustomSelect(select));
+  select.addEventListener('focus', () => button.focus());
+
+  syncCustomSelect(select);
+}
+
+function refreshCustomSelects(root = document) {
+  $$('select', root).forEach((select) => enhanceSelect(select));
+}
+
+
 const modulesById = new Map(MANIFEST.modules.map((item) => [item.id, item]));
 const sectionsById = new Map(MANIFEST.sections.map((item) => [item.id, item]));
 const frontModule = modulesById.get("front");
@@ -1355,10 +1514,12 @@ async function renderPractice() {
     if (!questions.length) {
       $("#practiceNavigator").innerHTML = "";
       $("#practiceRunner").innerHTML = `<div class="practice-empty">No hay preguntas para este filtro. Cambia de nivel o de unidad.</div>`;
+      refreshCustomSelects($("#practiceView"));
       return;
     }
     renderPracticeNavigator(questions);
     $("#practiceRunner").innerHTML = renderPracticeCard(questions[ui.practice.index]);
+    refreshCustomSelects($("#practiceView"));
     if (ui.practice.focusAfterRender) {
       ui.practice.focusAfterRender = false;
       requestAnimationFrame(scrollToPracticeQuestion);
@@ -1367,6 +1528,7 @@ async function renderPractice() {
     console.error(error);
     $("#practiceNavigator").innerHTML = "";
     $("#practiceRunner").innerHTML = `<div class="practice-empty">No se pudo abrir la práctica. Verifica que la carpeta <code>data/exercises</code> esté disponible.</div>`;
+    refreshCustomSelects($("#practiceView"));
   } finally {
     if (token === renderToken) $("#practiceLoading").hidden = true;
   }
@@ -1597,7 +1759,7 @@ async function searchCourse(query) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && /^(http:|https:)$/.test(location.protocol)) {
-    navigator.serviceWorker.register("service-worker.js").catch(() => {
+    navigator.serviceWorker.register("service-worker.js?v=13.0.0", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {
       // The reader still works normally if a host does not allow service workers.
     });
   }
@@ -1864,14 +2026,20 @@ function bindEvents() {
     setPage(page, { view: "reader" });
   });
 
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest('[data-custom-select-wrapper="true"]')) closeAllCustomSelects();
+  });
+  window.addEventListener("resize", () => closeAllCustomSelects());
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
+      closeAllCustomSelects();
       hideSelectionToolbar();
       setSidebarOpen(false);
       closeCourseSearch();
     }
-    if (event.key === "ArrowRight" && ui.view === "practice" && !event.target.matches("input, textarea, select")) movePractice(1);
-    if (event.key === "ArrowLeft" && ui.view === "practice" && !event.target.matches("input, textarea, select")) movePractice(-1);
+    const insideInteractiveControl = !!event.target.closest("input, textarea, select, [data-custom-select-wrapper='true']");
+    if (event.key === "ArrowRight" && ui.view === "practice" && !insideInteractiveControl) movePractice(1);
+    if (event.key === "ArrowLeft" && ui.view === "practice" && !insideInteractiveControl) movePractice(-1);
   });
 }
 
@@ -1886,6 +2054,7 @@ async function initialize() {
     .concat(MANIFEST.modules.filter((module) => /^m\d+$/.test(module.id)).map((module) => `<option value="${module.id}">${escapeHtml(module.number)} · ${escapeHtml(module.title)}</option>`)).join("");
   $("#practiceModuleFilter").value = ui.practice.moduleId;
   bindEvents();
+  refreshCustomSelects(document);
   updateDesktopTopButton();
   registerServiceWorker();
   await renderReader();

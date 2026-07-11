@@ -1,0 +1,7 @@
+Versión 14 — ajustes de la zona Práctica
+
+- Se suavizó el estado activo de las tarjetas de tipo de práctica.
+- Se eliminó el círculo con check.
+- Los íconos ahora viven dentro de cuadros para una apariencia más consistente.
+- Se implementaron listas desplegables propias (custom dropdowns) para evitar el estilo angosto/feíto del navegador, especialmente en iPhone.
+- Se actualizó la caché (service worker) para forzar la nueva versión visual.
