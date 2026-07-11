@@ -2985,3 +2985,29 @@ body.has-custom-select-open { overflow: visible; }
     display: none !important;
   }
 }
+
+/* v19 — desktop dropdown fix and aligned practice width */
+/* The custom dropdown already closes through the document click handler; the
+   full-page backdrop is unnecessary and could sit above sticky desktop blocks. */
+.custom-select-backdrop {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+@media (min-width: 1024px) {
+  .practice-frozen-column {
+    z-index: 70;
+  }
+  .practice-frozen-column:has(.custom-select.is-open) {
+    z-index: 85;
+  }
+  .practice-frozen-column .custom-select.is-open,
+  .practice-frozen-column .custom-select-menu {
+    z-index: 86;
+  }
+  .practice-control-bar {
+    width: min(880px, 100%);
+    margin-right: auto;
+    margin-left: auto;
+  }
+}

@@ -1,8 +1,0 @@
-Versión 18 — ajustes solicitados para la zona Práctica
-
-- El desplegable de Unidad de estudio se movió a un bloque independiente.
-- En escritorio, ese bloque queda fijo/pegajoso como los bloques de lectura.
-- Se añadió un bloque fijo independiente para Anterior / Pregunta actual / Siguiente.
-- En escritorio, la navegación rápida queda siempre visible.
-- En móvil se mantiene el flujo habitual sin navegación fija adicional.
-- Se actualizó la caché del service worker para forzar la nueva versión.
