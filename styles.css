@@ -1387,3 +1387,199 @@ body[data-theme="dark"] {
 @media (max-width: 390px) {
   .mobile-study-library { grid-template-columns: 1fr; }
 }
+
+/* v12 — clearer practice setup hierarchy */
+.practice-route-row {
+  gap: 16px;
+}
+.practice-module-filter,
+.practice-level-panel {
+  position: relative;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 88%, var(--canvas));
+}
+.practice-module-filter {
+  grid-template-rows: auto auto 1fr;
+  align-content: stretch;
+}
+.practice-field-title,
+.practice-level-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 22px;
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 10px;
+  font-weight: 830;
+  letter-spacing: .1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+.practice-field-title i,
+.practice-level-label i {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--forest) 25%, var(--line));
+  color: var(--forest);
+  background: var(--forest-soft);
+  font-size: 9px;
+}
+.practice-module-filter > small,
+.practice-level-heading > small {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-faint);
+  font-size: 9px;
+  font-weight: 620;
+  line-height: 1.35;
+}
+.practice-module-filter select {
+  align-self: end;
+  min-height: 48px;
+  margin-top: 13px;
+  padding: 0 38px 0 13px;
+  border-color: var(--line-strong);
+  color: var(--ink-strong);
+  background-color: var(--paper);
+  font-size: 12px;
+  font-weight: 730;
+  text-overflow: ellipsis;
+}
+.practice-level-panel {
+  display: grid;
+  gap: 12px;
+}
+.practice-level-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+.practice-level-heading > small {
+  margin: 0;
+  text-align: right;
+}
+.practice-levels {
+  position: relative;
+  gap: 8px;
+}
+.practice-level {
+  position: relative;
+  min-height: 92px;
+  overflow: hidden;
+  align-content: stretch;
+  gap: 0;
+  padding: 12px 13px 11px;
+  border-color: var(--line-strong);
+  background: var(--paper);
+  box-shadow: 0 1px 0 rgba(25, 41, 31, .025);
+}
+.practice-level::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  content: "";
+  background: transparent;
+  transition: background .14s ease;
+}
+.practice-level:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-subtle);
+}
+.practice-level.is-active {
+  border-color: var(--forest);
+  box-shadow: inset 0 0 0 1px var(--forest), var(--shadow-subtle);
+  background: color-mix(in srgb, var(--forest-soft) 82%, var(--paper));
+}
+.practice-level.is-active::before {
+  background: var(--forest);
+}
+.practice-level-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 9px;
+  color: var(--moss);
+}
+.practice-level-top > i {
+  color: var(--ink-faint);
+  font-size: 11px;
+  transition: color .14s ease, transform .14s ease;
+}
+.practice-level:hover .practice-level-top > i,
+.practice-level.is-active .practice-level-top > i {
+  color: var(--forest);
+  transform: translateY(-1px);
+}
+.practice-level-index {
+  display: grid;
+  width: 27px;
+  height: 23px;
+  place-items: center;
+  margin: 0;
+  border: 1px solid var(--line-strong);
+  color: var(--moss);
+  background: var(--canvas);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+.practice-level.is-active .practice-level-index {
+  color: var(--on-accent);
+  border-color: var(--forest);
+  background: var(--forest);
+}
+.practice-level strong {
+  display: block;
+  color: var(--ink-strong);
+  font-size: 12px;
+  line-height: 1.25;
+}
+.practice-level small {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-faint);
+  font-size: 9px;
+  font-weight: 590;
+  line-height: 1.35;
+}
+.practice-level.is-active small {
+  color: var(--ink-muted);
+}
+
+@media (min-width: 640px) {
+  .practice-route-row {
+    grid-template-columns: minmax(240px, 285px) minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .practice-levels {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .practice-module-filter,
+  .practice-level-panel {
+    padding: 13px;
+  }
+  .practice-level-heading {
+    display: block;
+  }
+  .practice-level-heading > small {
+    margin-top: 6px;
+    text-align: left;
+  }
+  .practice-level {
+    min-height: 88px;
+  }
+}
