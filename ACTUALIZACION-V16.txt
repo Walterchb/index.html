@@ -1,0 +1,8 @@
+Versión 16 — rediseño completo de la sección Práctica
+
+- Se reestructuró visualmente toda la zona de práctica para que el flujo sea más claro: configurar → navegar → responder.
+- Se rediseñaron el encabezado, los indicadores de sesión, la selección de unidad y las modalidades.
+- Se rehizo el panel de navegación de preguntas para que sea más cómodo y legible.
+- Se rediseñó la tarjeta de preguntas con mejor jerarquía, ayudas de contexto y opciones más amplias.
+- Se ajustaron los estilos de matching, feedback y acciones de avance.
+- Se actualizó la caché del service worker para forzar la nueva versión.

@@ -1420,10 +1420,27 @@ function renderPracticeStats(questions) {
   const answered = questions.filter((question) => state.exerciseProgress[question.id]).length;
   const correct = questions.filter((question) => state.exerciseProgress[question.id]?.correct).length;
   const wrong = Math.max(answered - correct, 0);
+  const moduleLabel = ui.practice.moduleId === "all"
+    ? "Todo el curso"
+    : `${escapeHtml(modulesById.get(ui.practice.moduleId)?.number || "Unidad")} · ${escapeHtml(modulesById.get(ui.practice.moduleId)?.title || "")}`;
+  const levelLabel = practiceLevelCopy(ui.practice.level);
+  const progressLabel = questions.length ? `${answered}/${questions.length}` : "0/0";
   $("#practiceStats").innerHTML = `
-    <div class="practice-stat"><strong>${questions.length}</strong><span>disponibles</span></div>
-    <div class="practice-stat"><strong>${correct}</strong><span>correctas</span></div>
+    <div class="practice-stat practice-stat-route"><strong>${escapeHtml(levelLabel)}</strong><span>modalidad activa</span></div>
+    <div class="practice-stat"><strong>${questions.length}</strong><span>preguntas disponibles</span></div>
+    <div class="practice-stat"><strong>${progressLabel}</strong><span>avance de sesión</span></div>
     <div class="practice-stat"><strong>${wrong}</strong><span>por reforzar</span></div>`;
+  $("#practiceStats").setAttribute("data-route", moduleLabel);
+}
+
+function exerciseInputHtml(exercise) {
+  if (exercise.type === "matching") {
+    const options = exercise.matchOptions || [];
+    return `<div class="answer-options answer-options-matching">${(exercise.pairs || []).map((pair) => `<label class="match-row"><span class="match-label"><strong>${escapeHtml(pair.key)}</strong><span>${escapeHtml(pair.label)}</span></span><select data-match-key="${escapeHtml(pair.key)}"><option value="">Selecciona…</option>${options.map(([key, label]) => `<option value="${escapeHtml(key)}">${escapeHtml(label)}</option>`).join("")}</select></label>`).join("")}</div>`;
+  }
+
+  const inputType = exercise.type === "multiple" ? "checkbox" : "radio";
+  return `<div class="answer-options">${(exercise.options || []).map(([key, label]) => `<label class="answer-option"><input type="${inputType}" name="exercise-${escapeHtml(exercise.id)}" value="${escapeHtml(key)}" /><span class="answer-option-key">${escapeHtml(key)}</span><span class="answer-option-text">${escapeHtml(label)}</span></label>`).join("")}</div>`;
 }
 
 function exerciseInputHtml(exercise) {
@@ -1466,6 +1483,9 @@ function renderPracticeNavigator(questions) {
   const completedPct = total ? Math.round((answered / total) * 100) : 0;
   const current = questions[activeIndex];
   const currentSection = current ? sectionForPage(current.page) : null;
+  const currentModule = ui.practice.moduleId === "all"
+    ? "Todo el curso"
+    : `${escapeHtml(modulesById.get(ui.practice.moduleId)?.number || "Unidad")} · ${escapeHtml(modulesById.get(ui.practice.moduleId)?.title || "")}`;
   const map = questions.map((question, index) => {
     const status = practiceStatus(question);
     const active = index === activeIndex;
@@ -1480,52 +1500,73 @@ function renderPracticeNavigator(questions) {
 
   $("#practiceNavigator").innerHTML = `
     <section class="practice-navigator-card">
-      <div class="practice-navigator-head">
-        <div>
-          <p class="practice-kicker">RUTA DE PRÁCTICA</p>
-          <h4>Pregunta ${activeIndex + 1} de ${total}</h4>
-          <p>${escapeHtml(currentSection?.title || "Knowledge check")} · Nivel ${ui.practice.level}: ${practiceLevelCopy(ui.practice.level)}</p>
+      <div class="practice-session-overview">
+        <div class="practice-session-title">
+          <p class="practice-kicker">SESIÓN ACTIVA</p>
+          <h4>${currentModule}</h4>
+          <div class="practice-session-tags">
+            <span><i class="fa-solid fa-compass" aria-hidden="true"></i>${escapeHtml(practiceLevelCopy(ui.practice.level))}</span>
+            <span><i class="fa-solid fa-bookmark" aria-hidden="true"></i>${escapeHtml(currentSection?.title || "Knowledge check")}</span>
+          </div>
         </div>
         <div class="practice-session-progress" aria-label="Avance de preguntas">
-          <div><span>${answered} resueltas</span><strong>${completedPct}%</strong></div>
+          <div><span>Progreso</span><strong>${completedPct}%</strong></div>
           <div class="progress-track"><span style="width:${completedPct}%"></span></div>
-          <small><i class="fa-solid fa-circle-check" aria-hidden="true"></i> ${correct} correctas <span aria-hidden="true">·</span> <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> ${wrong} por reforzar</small>
+          <small>${answered} resueltas · ${correct} correctas · ${wrong} por reforzar</small>
         </div>
       </div>
       <div class="practice-navigation-controls">
         <button class="practice-nav-button" type="button" data-practice-action="previous" ${activeIndex === 0 ? "disabled" : ""}><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Anterior</span></button>
-        <label class="practice-question-jump" for="practiceQuestionSelect"><span>Ir a</span><select id="practiceQuestionSelect" aria-label="Ir a una pregunta">${options}</select></label>
+        <label class="practice-question-jump" for="practiceQuestionSelect"><span>Pregunta actual</span><select id="practiceQuestionSelect" aria-label="Ir a una pregunta">${options}</select></label>
         <button class="practice-nav-button practice-nav-next" type="button" data-practice-action="next" ${activeIndex >= total - 1 ? "disabled" : ""}><span>Siguiente</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
       </div>
-      <div class="practice-question-map" role="list" aria-label="Mapa de preguntas">${map}</div>
-      <p class="practice-map-key"><span class="map-key map-key-current"></span> actual <span class="map-key map-key-correct"></span> correcta <span class="map-key map-key-wrong"></span> por reforzar <span class="map-key map-key-pending"></span> pendiente</p>
+      <div class="practice-map-wrap">
+        <div class="practice-map-head"><span>Mapa rápido</span><small>Toca cualquier pregunta para saltar a ella</small></div>
+        <div class="practice-question-map" role="list" aria-label="Mapa de preguntas">${map}</div>
+        <p class="practice-map-key"><span class="map-key map-key-current"></span> actual <span class="map-key map-key-correct"></span> correcta <span class="map-key map-key-wrong"></span> por reforzar <span class="map-key map-key-pending"></span> pendiente</p>
+      </div>
     </section>`;
 }
 
 function renderPracticeCard(exercise) {
   const feedback = currentFeedback(exercise);
-  const source = `Página fuente ${exercise.page}`;
+  const section = sectionForPage(exercise.page);
+  const source = `Página ${exercise.page}`;
   const isLast = ui.practice.index >= ui.practice.questions.length - 1;
-  const feedbackHtml = feedback?.checked ? `<div class="practice-feedback ${feedback.correct ? "is-correct" : "is-wrong"}"><strong>${feedback.correct ? "Correcto." : "Aún no."}</strong><span>${escapeHtml(exercise.feedback || "Revisa el texto indicado.")}</span></div>` : "";
+  const typeLabel = exercise.type === "multiple"
+    ? "Selección múltiple"
+    : exercise.type === "matching"
+      ? "Relacionar conceptos"
+      : "Respuesta única";
+  const helperText = exercise.type === "multiple"
+    ? "Puedes marcar más de una alternativa antes de verificar."
+    : exercise.type === "matching"
+      ? "Relaciona cada concepto con la opción correcta."
+      : "Selecciona la alternativa que mejor responde la pregunta.";
+  const feedbackHtml = feedback?.checked ? `<div class="practice-feedback ${feedback.correct ? "is-correct" : "is-wrong"}"><strong>${feedback.correct ? "¡Bien hecho!" : "Todavía no."}</strong><span>${escapeHtml(exercise.feedback || "Revisa el texto indicado.")}</span></div>` : "";
   const nextControl = feedback?.checked
     ? (isLast
-      ? `<button class="compact-button" type="button" data-practice-action="restart"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Volver a la primera</button>`
+      ? `<button class="compact-button" type="button" data-practice-action="restart"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reiniciar ruta</button>`
       : `<button class="primary-button" type="button" data-practice-action="next"><span>Siguiente pregunta</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>`)
     : "";
   return `<article class="practice-card" data-exercise="${escapeHtml(exercise.id)}">
     <header class="practice-card-top">
-      <div>
-        <span class="practice-kicker">${escapeHtml(exercise.title || "Knowledge check")}</span>
-        <h4>${escapeHtml(exercise.question)}</h4>
+      <div class="practice-card-meta-line">
+        <span class="practice-card-badge">${escapeHtml(typeLabel)}</span>
+        <span class="practice-card-badge is-subtle">${escapeHtml(source)}</span>
       </div>
-      <span class="practice-position">${ui.practice.index + 1} / ${ui.practice.questions.length}</span>
+      <div class="practice-card-headline">
+        <span class="practice-kicker">${escapeHtml(exercise.title || "Knowledge check")}</span>
+        <span class="practice-position">${ui.practice.index + 1} / ${ui.practice.questions.length}</span>
+      </div>
+      <h4>${escapeHtml(exercise.question)}</h4>
+      <p class="practice-question"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>${escapeHtml(helperText)}</span></p>
     </header>
-    <div class="practice-question"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Elige tu respuesta antes de verificar.</div>
     ${exerciseInputHtml(exercise)}
-    <div class="practice-actions"><button class="primary-button" type="button" data-practice-action="verify"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verificar respuesta</button>${feedback?.checked ? `<button class="compact-button" type="button" data-practice-action="retry"><i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i> Intentar otra vez</button>` : ""}</div>
+    <div class="practice-actions"><button class="primary-button" type="button" data-practice-action="verify"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Verificar respuesta</button>${feedback?.checked ? `<button class="compact-button" type="button" data-practice-action="retry"><i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i> Reintentar</button>` : ""}</div>
     ${feedbackHtml}
     ${nextControl ? `<div class="practice-follow-up">${nextControl}</div>` : ""}
-    <footer class="practice-card-bottom"><span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> ${source} · ${escapeHtml(sectionForPage(exercise.page).title)}</span><button class="link-button" type="button" data-practice-action="source"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Abrir referencia</button></footer>
+    <footer class="practice-card-bottom"><span><i class="fa-solid fa-file-lines" aria-hidden="true"></i> ${escapeHtml(section.title)} · ${escapeHtml(source)}</span><button class="link-button" type="button" data-practice-action="source"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Abrir referencia</button></footer>
   </article>`;
 }
 
