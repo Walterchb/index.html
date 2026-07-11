@@ -35,14 +35,38 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const customSelectControllers = new WeakMap();
 let activeCustomSelectController = null;
+let customSelectBackdrop = null;
+
+function ensureCustomSelectBackdrop() {
+  if (customSelectBackdrop?.isConnected) return customSelectBackdrop;
+  customSelectBackdrop = document.createElement("button");
+  customSelectBackdrop.type = "button";
+  customSelectBackdrop.className = "custom-select-backdrop";
+  customSelectBackdrop.hidden = true;
+  customSelectBackdrop.setAttribute("aria-hidden", "true");
+  customSelectBackdrop.tabIndex = -1;
+  customSelectBackdrop.addEventListener("click", () => closeAllCustomSelects());
+  document.body.appendChild(customSelectBackdrop);
+  return customSelectBackdrop;
+}
+
+function updateCustomSelectBackdrop() {
+  const backdrop = ensureCustomSelectBackdrop();
+  const hasOpen = !!$('[data-custom-select-wrapper="true"].is-open');
+  backdrop.hidden = !hasOpen;
+  document.body.classList.toggle("has-custom-select-open", hasOpen);
+}
 
 function closeCustomSelect(controller, { restoreFocus = false } = {}) {
   if (!controller || !controller.wrapper?.isConnected) return;
-  controller.wrapper.classList.remove("is-open");
+  controller.wrapper.classList.remove("is-open", "open-up", "open-down", "is-sheet");
   controller.button.setAttribute("aria-expanded", "false");
   controller.menu.hidden = true;
+  controller.menu.style.maxHeight = "";
+  controller.menu.style.minWidth = "";
   if (restoreFocus) controller.button.focus();
   if (activeCustomSelectController === controller) activeCustomSelectController = null;
+  updateCustomSelectBackdrop();
 }
 
 function closeAllCustomSelects(except = null) {
@@ -72,6 +96,32 @@ function syncCustomSelect(select) {
     optionButton.classList.toggle('is-selected', isSelected);
     optionButton.setAttribute('aria-selected', String(isSelected));
   });
+}
+
+function placeCustomSelectMenu(controller) {
+  if (!controller?.wrapper?.isConnected) return;
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+  const rect = controller.button.getBoundingClientRect();
+  const mobileSheet = viewportWidth <= 640;
+  controller.wrapper.classList.toggle('is-sheet', mobileSheet);
+  controller.wrapper.classList.remove('open-up', 'open-down');
+
+  if (mobileSheet) {
+    controller.wrapper.classList.add('open-down');
+    controller.menu.style.maxHeight = `${Math.max(220, Math.floor(viewportHeight * 0.46))}px`;
+    controller.menu.style.minWidth = '';
+    return;
+  }
+
+  const estimatedHeight = Math.min(320, Math.max(180, controller.menu.scrollHeight || 240));
+  const spaceBelow = viewportHeight - rect.bottom - 14;
+  const spaceAbove = rect.top - 14;
+  const openUp = spaceBelow < Math.min(estimatedHeight, 240) && spaceAbove > spaceBelow;
+  controller.wrapper.classList.add(openUp ? 'open-up' : 'open-down');
+  const available = Math.max(140, Math.floor(openUp ? spaceAbove : spaceBelow));
+  controller.menu.style.maxHeight = `${Math.min(available, 360)}px`;
+  controller.menu.style.minWidth = `${Math.max(rect.width, 180)}px`;
 }
 
 function enhanceSelect(select) {
@@ -117,6 +167,8 @@ function enhanceSelect(select) {
     button.setAttribute('aria-expanded', 'true');
     menu.hidden = false;
     activeCustomSelectController = controller;
+    placeCustomSelectMenu(controller);
+    updateCustomSelectBackdrop();
   };
 
   const commitValue = (value) => {
@@ -190,7 +242,6 @@ function enhanceSelect(select) {
 function refreshCustomSelects(root = document) {
   $$('select', root).forEach((select) => enhanceSelect(select));
 }
-
 
 const modulesById = new Map(MANIFEST.modules.map((item) => [item.id, item]));
 const sectionsById = new Map(MANIFEST.sections.map((item) => [item.id, item]));
@@ -2029,7 +2080,12 @@ function bindEvents() {
   document.addEventListener("click", (event) => {
     if (!event.target.closest('[data-custom-select-wrapper="true"]')) closeAllCustomSelects();
   });
-  window.addEventListener("resize", () => closeAllCustomSelects());
+  window.addEventListener("resize", () => {
+    if (activeCustomSelectController) placeCustomSelectMenu(activeCustomSelectController);
+  });
+  window.addEventListener("scroll", () => {
+    if (activeCustomSelectController) placeCustomSelectMenu(activeCustomSelectController);
+  }, true);
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeAllCustomSelects();
@@ -2054,6 +2110,7 @@ async function initialize() {
     .concat(MANIFEST.modules.filter((module) => /^m\d+$/.test(module.id)).map((module) => `<option value="${module.id}">${escapeHtml(module.number)} · ${escapeHtml(module.title)}</option>`)).join("");
   $("#practiceModuleFilter").value = ui.practice.moduleId;
   bindEvents();
+  ensureCustomSelectBackdrop();
   refreshCustomSelects(document);
   updateDesktopTopButton();
   registerServiceWorker();

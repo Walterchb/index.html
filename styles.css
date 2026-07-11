@@ -1852,3 +1852,131 @@ body[data-theme="dark"] {
     max-height: min(260px, 46vh);
   }
 }
+
+
+/* v15 — refined custom dropdown system */
+body.has-custom-select-open {
+  overflow-x: hidden;
+}
+.custom-select-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+.custom-select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.custom-select.is-open {
+  z-index: 40;
+}
+.custom-select-toggle {
+  min-height: 44px;
+  border-radius: 3px;
+  line-height: 1.25;
+}
+.custom-select-toggle span {
+  display: block;
+  min-width: 0;
+}
+.custom-select-menu {
+  top: calc(100% + 6px);
+  left: 0;
+  right: auto;
+  width: 100%;
+  min-width: 100%;
+  max-width: min(100vw - 24px, 520px);
+  z-index: 41;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.custom-select.open-up .custom-select-menu {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+.custom-select.open-down .custom-select-menu {
+  top: calc(100% + 6px);
+  bottom: auto;
+}
+.custom-select-option {
+  min-height: 40px;
+}
+.custom-select-option span {
+  overflow-wrap: anywhere;
+}
+.practice-module-filter,
+.practice-question-jump,
+.glossary-toolbar label,
+.settings-dialog label,
+.match-row {
+  min-width: 0;
+}
+.practice-module-filter .custom-select,
+.practice-level-panel,
+.practice-question-jump .custom-select,
+.glossary-toolbar .custom-select,
+.settings-dialog .custom-select,
+.match-row .custom-select {
+  width: 100%;
+  min-width: 0;
+}
+.practice-control-bar,
+.practice-route-row,
+.practice-navigator-card,
+.practice-navigation-controls,
+.answer-options,
+.match-row,
+.glossary-toolbar,
+.settings-dialog {
+  overflow: visible;
+}
+.practice-question-jump .custom-select-menu {
+  width: 100%;
+  min-width: 100%;
+}
+.match-row .custom-select-menu {
+  max-width: 100%;
+}
+.glossary-toolbar .custom-select-toggle,
+.settings-dialog .custom-select-toggle,
+.practice-question-jump .custom-select-toggle,
+.match-row .custom-select-toggle {
+  min-height: 40px;
+}
+.practice-module-filter .custom-select-toggle {
+  min-height: 48px;
+}
+@media (max-width: 640px) {
+  .custom-select-backdrop {
+    background: rgba(11, 16, 14, .24);
+    backdrop-filter: blur(2px);
+  }
+  .custom-select.is-sheet {
+    position: static;
+  }
+  .custom-select.is-sheet .custom-select-menu {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: calc(12px + var(--safe-bottom));
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 8px;
+    border-radius: 10px;
+    box-shadow: 0 20px 40px rgba(16, 29, 21, .18);
+  }
+  .custom-select.is-sheet .custom-select-option {
+    min-height: 46px;
+    padding: 11px 12px;
+    font-size: 12px;
+  }
+  .custom-select.is-sheet .custom-select-toggle {
+    min-height: 46px;
+  }
+}

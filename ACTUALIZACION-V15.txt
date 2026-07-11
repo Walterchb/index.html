@@ -1,0 +1,8 @@
+Versión 15 — mejora integral de listas desplegables
+
+- Se refinó el sistema de dropdowns personalizados.
+- Las listas ahora se posicionan mejor y pueden abrir hacia arriba si no hay espacio debajo.
+- En móvil/iPhone se muestran como una hoja inferior (bottom sheet) más cómoda.
+- Se agregó backdrop para evitar aperturas encimadas y mejorar el cierre al tocar fuera.
+- Se ajustaron tamaños, anchos y contenedores para que encajen mejor y no se superpongan visualmente.
+- Se actualizó la caché del service worker para forzar la nueva versión.
