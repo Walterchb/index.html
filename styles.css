@@ -2890,3 +2890,98 @@ body.has-custom-select-open { overflow: visible; }
     max-width: 100% !important;
   }
 }
+
+
+/* v18 — sticky desktop blocks for practice */
+.practice-layout {
+  display: grid;
+  gap: 14px;
+}
+.practice-frozen-column,
+.practice-main-column {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.practice-module-block,
+.practice-quick-nav-card {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  background: var(--paper);
+  box-shadow: var(--shadow-subtle);
+}
+.practice-module-block .practice-module-filter {
+  gap: 8px;
+}
+.practice-module-block .practice-field-heading {
+  margin-bottom: 2px;
+}
+.practice-module-block .custom-select-toggle {
+  min-height: 42px;
+}
+.practice-quick-nav {
+  display: none;
+}
+.practice-quick-nav-card {
+  display: grid;
+  gap: 10px;
+}
+.practice-quick-nav-title {
+  color: var(--ink-strong);
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+.practice-navigation-controls-frozen {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.practice-navigation-controls-frozen .practice-question-jump {
+  grid-column: 1;
+}
+.practice-navigation-controls-frozen .practice-nav-button,
+.practice-navigation-controls-frozen .custom-select-toggle {
+  min-height: 42px;
+}
+.practice-control-bar {
+  margin-top: 0;
+}
+.practice-route-row {
+  grid-template-columns: 1fr !important;
+  padding-top: 0;
+}
+.practice-level-panel {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (min-width: 1024px) {
+  .practice-layout {
+    grid-template-columns: minmax(250px, 280px) minmax(0, 1fr);
+    align-items: start;
+  }
+  .practice-frozen-column {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+  }
+  .practice-quick-nav {
+    display: block;
+  }
+  .practice-navigator .practice-navigation-controls {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .practice-frozen-column {
+    position: static;
+  }
+  .practice-quick-nav {
+    display: none !important;
+  }
+}

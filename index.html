@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="styles.css?v=17.0.0" />
+  <link rel="stylesheet" href="styles.css?v=18.0.0" />
   <title>Investment Foundations · Course 1 Reader</title>
 </head>
 <body data-theme="light">
@@ -181,61 +181,70 @@
           <div id="practiceStats" class="practice-stats" aria-label="Estado de práctica"></div>
         </header>
 
-        <section class="practice-control-bar" aria-label="Configurar práctica">
-          <div class="practice-control-intro">
-            <span class="practice-control-number" aria-hidden="true">01</span>
-            <div>
-              <p class="practice-control-eyebrow">CONFIGURA TU RUTA</p>
-              <p class="practice-control-copy">Primero define la unidad. Luego escoge la modalidad que mejor se adapte a tu sesión y avanza pregunta por pregunta.</p>
-            </div>
-          </div>
-          <div class="practice-route-row">
-            <label class="practice-module-filter" for="practiceModuleFilter">
-              <span class="practice-field-heading">
-                <span class="practice-field-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
-                <span><b>Unidad de estudio</b><small>Define el contenido de la sesión</small></span>
-              </span>
-              <select id="practiceModuleFilter" aria-label="Filtrar práctica por módulo"></select>
-            </label>
+        <div class="practice-layout">
+          <aside class="practice-frozen-column">
+            <section class="practice-module-block" aria-label="Seleccionar unidad de estudio">
+              <label class="practice-module-filter" for="practiceModuleFilter">
+                <span class="practice-field-heading">
+                  <span class="practice-field-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+                  <span><b>Unidad de estudio</b><small>Define el contenido de la sesión</small></span>
+                </span>
+                <select id="practiceModuleFilter" aria-label="Filtrar práctica por módulo"></select>
+              </label>
+            </section>
+            <section id="practiceQuickNav" class="practice-quick-nav" aria-label="Navegación rápida de práctica" aria-live="polite"></section>
+          </aside>
 
-            <div class="practice-level-panel">
-              <div class="practice-level-heading">
+          <div class="practice-main-column">
+            <section class="practice-control-bar" aria-label="Configurar práctica">
+              <div class="practice-control-intro">
+                <span class="practice-control-number" aria-hidden="true">01</span>
                 <div>
-                  <p class="practice-level-label">Tipo de práctica</p>
-                  <p class="practice-level-help">Cada modalidad cambia la forma de repasar el contenido.</p>
+                  <p class="practice-control-eyebrow">CONFIGURA TU RUTA</p>
+                  <p class="practice-control-copy">Primero define la modalidad. Luego avanza pregunta por pregunta.</p>
                 </div>
-                <span class="practice-level-count">4 modalidades</span>
               </div>
+              <div class="practice-route-row">
+                <div class="practice-level-panel">
+                  <div class="practice-level-heading">
+                    <div>
+                      <p class="practice-level-label">Tipo de práctica</p>
+                      <p class="practice-level-help">Cada modalidad cambia la forma de repasar el contenido.</p>
+                    </div>
+                    <span class="practice-level-count">4 modalidades</span>
+                  </div>
 
-              <div class="practice-levels" role="tablist" aria-label="Nivel de práctica">
-                <button class="practice-level is-active" type="button" data-practice-level="1" aria-selected="true">
-                  <span class="practice-level-meta"><span class="practice-level-index">01</span></span>
-                  <strong>Lectura inicial</strong>
-                  <small>Ideas clave y vocabulario</small>
-                </button>
-                <button class="practice-level" type="button" data-practice-level="2" aria-selected="false">
-                  <span class="practice-level-meta"><span class="practice-level-index">02</span></span>
-                  <strong>Comprensión</strong>
-                  <small>Relaciona conceptos</small>
-                </button>
-                <button class="practice-level" type="button" data-practice-level="3" aria-selected="false">
-                  <span class="practice-level-meta"><span class="practice-level-index">03</span></span>
-                  <strong>Repaso</strong>
-                  <small>Práctica por lección</small>
-                </button>
-                <button class="practice-level" type="button" data-practice-level="4" aria-selected="false">
-                  <span class="practice-level-meta"><span class="practice-level-index">04</span></span>
-                  <strong>Evaluación</strong>
-                  <small>Recorrido acumulativo</small>
-                </button>
+                  <div class="practice-levels" role="tablist" aria-label="Nivel de práctica">
+                    <button class="practice-level is-active" type="button" data-practice-level="1" aria-selected="true">
+                      <span class="practice-level-meta"><span class="practice-level-index">01</span></span>
+                      <strong>Lectura inicial</strong>
+                      <small>Ideas clave y vocabulario</small>
+                    </button>
+                    <button class="practice-level" type="button" data-practice-level="2" aria-selected="false">
+                      <span class="practice-level-meta"><span class="practice-level-index">02</span></span>
+                      <strong>Comprensión</strong>
+                      <small>Relaciona conceptos</small>
+                    </button>
+                    <button class="practice-level" type="button" data-practice-level="3" aria-selected="false">
+                      <span class="practice-level-meta"><span class="practice-level-index">03</span></span>
+                      <strong>Repaso</strong>
+                      <small>Práctica por lección</small>
+                    </button>
+                    <button class="practice-level" type="button" data-practice-level="4" aria-selected="false">
+                      <span class="practice-level-meta"><span class="practice-level-index">04</span></span>
+                      <strong>Evaluación</strong>
+                      <small>Recorrido acumulativo</small>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            </section>
+
+            <section id="practiceNavigator" class="practice-navigator" aria-label="Navegación de preguntas" aria-live="polite"></section>
+            <div id="practiceLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Preparando práctica…</div>
+            <section id="practiceRunner" class="practice-runner" aria-live="polite"></section>
           </div>
-        </section>
-
-        <section id="practiceNavigator" class="practice-navigator" aria-label="Navegación de preguntas" aria-live="polite"></section>
-        <div id="practiceLoading" class="reader-loading" hidden><span class="spinner" aria-hidden="true"></span> Preparando práctica…</div>
-        <section id="practiceRunner" class="practice-runner" aria-live="polite"></section>
+        </div>
       </section>
 
       <section id="glossaryView" class="view-panel" hidden>
@@ -392,6 +401,6 @@
   <script src="data/page-registry.js"></script>
   <script src="data/content-registry.js"></script>
   <script src="data/visual-registry.js"></script>
-  <script src="script.js?v=17.0.0"></script>
+  <script src="script.js?v=18.0.0"></script>
 </body>
 </html>

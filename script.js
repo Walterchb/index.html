@@ -1489,6 +1489,17 @@ function renderPracticeNavigator(questions) {
     return `<option value="${index}" ${index === activeIndex ? "selected" : ""}>Pregunta ${index + 1}${suffix}</option>`;
   }).join("");
 
+  $("#practiceQuickNav").innerHTML = `
+    <section class="practice-quick-nav-card">
+      <p class="practice-control-eyebrow">NAVEGACIÓN</p>
+      <strong class="practice-quick-nav-title">Pregunta ${activeIndex + 1} de ${total}</strong>
+      <div class="practice-navigation-controls practice-navigation-controls-frozen">
+        <button class="practice-nav-button" type="button" data-practice-action="previous" ${activeIndex === 0 ? "disabled" : ""}><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Anterior</span></button>
+        <label class="practice-question-jump" for="practiceQuestionSelectSticky"><span>Pregunta actual</span><select id="practiceQuestionSelectSticky" aria-label="Ir a una pregunta">${options}</select></label>
+        <button class="practice-nav-button practice-nav-next" type="button" data-practice-action="next" ${activeIndex >= total - 1 ? "disabled" : ""}><span>Siguiente</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+      </div>
+    </section>`;
+
   $("#practiceNavigator").innerHTML = `
     <section class="practice-navigator-card">
       <div class="practice-session-overview">
@@ -1595,6 +1606,7 @@ async function renderPractice() {
     if (token !== renderToken || ui.view !== "practice") return;
     renderPracticeStats(questions);
     if (!questions.length) {
+      $("#practiceQuickNav").innerHTML = "";
       $("#practiceNavigator").innerHTML = "";
       $("#practiceRunner").innerHTML = `<div class="practice-empty">No hay preguntas para este filtro. Cambia de nivel o de unidad.</div>`;
       refreshCustomSelects($("#practiceView"));
@@ -1609,6 +1621,7 @@ async function renderPractice() {
     }
   } catch (error) {
     console.error(error);
+    $("#practiceQuickNav").innerHTML = "";
     $("#practiceNavigator").innerHTML = "";
     $("#practiceRunner").innerHTML = `<div class="practice-empty">No se pudo abrir la práctica. Verifica que la carpeta <code>data/exercises</code> esté disponible.</div>`;
     refreshCustomSelects($("#practiceView"));
@@ -2052,6 +2065,12 @@ function bindEvents() {
   });
   $("#practiceNavigator").addEventListener("change", (event) => {
     if (event.target.id === "practiceQuestionSelect") jumpToPractice(Number(event.target.value));
+  });
+  $("#practiceQuickNav").addEventListener("click", (event) => {
+    handlePracticeAction(event.target.closest("[data-practice-action]")?.dataset.practiceAction);
+  });
+  $("#practiceQuickNav").addEventListener("change", (event) => {
+    if (event.target.id === "practiceQuestionSelectSticky") jumpToPractice(Number(event.target.value));
   });
 
   $("#glossarySearch").addEventListener("input", (event) => { ui.glossary.search = event.target.value; ui.glossary.limit = 24; void renderGlossary(); });
