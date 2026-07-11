@@ -11,7 +11,7 @@
   <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=13.0.0" />
   <title>Investment Foundations · Course 1 Reader</title>
 </head>
 <body data-theme="light">
@@ -191,31 +191,42 @@
           </div>
           <div class="practice-route-row">
             <label class="practice-module-filter" for="practiceModuleFilter">
-              <span class="practice-field-title"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Unidad</span>
-              <small>Selecciona el contenido que deseas reforzar.</small>
+              <span class="practice-field-heading">
+                <span class="practice-field-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+                <span><b>Unidad de estudio</b><small>Define el contenido de la sesión</small></span>
+              </span>
               <select id="practiceModuleFilter" aria-label="Filtrar práctica por módulo"></select>
             </label>
+
             <div class="practice-level-panel">
               <div class="practice-level-heading">
-                <p class="practice-level-label"><i class="fa-solid fa-route" aria-hidden="true"></i> Tipo de práctica</p>
-                <small>Elige la profundidad de la sesión.</small>
+                <div>
+                  <p class="practice-level-label"><i class="fa-solid fa-compass" aria-hidden="true"></i> Tipo de práctica</p>
+                  <p class="practice-level-help">Escoge una modalidad según el objetivo de tu sesión.</p>
+                </div>
+                <span class="practice-level-count">4 modalidades</span>
               </div>
+
               <div class="practice-levels" role="tablist" aria-label="Nivel de práctica">
                 <button class="practice-level is-active" type="button" data-practice-level="1" aria-selected="true">
-                  <span class="practice-level-top"><span class="practice-level-index">01</span><i class="fa-solid fa-book-open" aria-hidden="true"></i></span>
-                  <strong>Lectura inicial</strong><small>Ideas y vocabulario</small>
+                  <span class="practice-level-meta"><span class="practice-level-index">01</span><i class="fa-solid fa-book-open" aria-hidden="true"></i></span>
+                  <strong>Lectura inicial</strong>
+                  <small>Ideas clave y vocabulario</small>
                 </button>
                 <button class="practice-level" type="button" data-practice-level="2" aria-selected="false">
-                  <span class="practice-level-top"><span class="practice-level-index">02</span><i class="fa-solid fa-link" aria-hidden="true"></i></span>
-                  <strong>Comprensión</strong><small>Relaciona conceptos</small>
+                  <span class="practice-level-meta"><span class="practice-level-index">02</span><i class="fa-solid fa-diagram-project" aria-hidden="true"></i></span>
+                  <strong>Comprensión</strong>
+                  <small>Relaciona conceptos</small>
                 </button>
                 <button class="practice-level" type="button" data-practice-level="3" aria-selected="false">
-                  <span class="practice-level-top"><span class="practice-level-index">03</span><i class="fa-solid fa-rotate" aria-hidden="true"></i></span>
-                  <strong>Repaso</strong><small>Por lección</small>
+                  <span class="practice-level-meta"><span class="practice-level-index">03</span><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></span>
+                  <strong>Repaso</strong>
+                  <small>Práctica por lección</small>
                 </button>
                 <button class="practice-level" type="button" data-practice-level="4" aria-selected="false">
-                  <span class="practice-level-top"><span class="practice-level-index">04</span><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></span>
-                  <strong>Evaluación</strong><small>Vista acumulativa</small>
+                  <span class="practice-level-meta"><span class="practice-level-index">04</span><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i></span>
+                  <strong>Evaluación</strong>
+                  <small>Recorrido acumulativo</small>
                 </button>
               </div>
             </div>
@@ -381,6 +392,6 @@
   <script src="data/page-registry.js"></script>
   <script src="data/content-registry.js"></script>
   <script src="data/visual-registry.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=13.0.0"></script>
 </body>
 </html>
