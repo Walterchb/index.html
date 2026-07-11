@@ -1434,16 +1434,6 @@ function exerciseInputHtml(exercise) {
   return `<div class="answer-options">${(exercise.options || []).map(([key, label]) => `<label class="answer-option"><input type="${inputType}" name="exercise-${escapeHtml(exercise.id)}" value="${escapeHtml(key)}" /><span class="answer-option-key">${escapeHtml(key)}</span><span class="answer-option-text">${escapeHtml(label)}</span></label>`).join("")}</div>`;
 }
 
-function exerciseInputHtml(exercise) {
-  if (exercise.type === "matching") {
-    const options = exercise.matchOptions || [];
-    return `<div class="answer-options">${(exercise.pairs || []).map((pair) => `<label class="match-row"><span>${escapeHtml(pair.label)}</span><select data-match-key="${escapeHtml(pair.key)}"><option value="">Selecciona…</option>${options.map(([key, label]) => `<option value="${escapeHtml(key)}">${escapeHtml(label)}</option>`).join("")}</select></label>`).join("")}</div>`;
-  }
-
-  const inputType = exercise.type === "multiple" ? "checkbox" : "radio";
-  return `<div class="answer-options">${(exercise.options || []).map(([key, label]) => `<label class="answer-option"><input type="${inputType}" name="exercise-${escapeHtml(exercise.id)}" value="${escapeHtml(key)}" /><span><strong>${escapeHtml(key)}.</strong> ${escapeHtml(label)}</span></label>`).join("")}</div>`;
-}
-
 function currentFeedback(exercise) {
   if (ui.practice.retrying.has(exercise.id)) return null;
   return ui.practice.transientFeedback[exercise.id] || state.exerciseProgress[exercise.id] || null;
@@ -1819,10 +1809,21 @@ function closeCourseSearch({ clear = false } = {}) {
   const box = $("#searchBox");
   const panel = $("#searchResults");
   const input = $("#courseSearch");
+  const overlay = $("#courseSearchOverlay");
   box.classList.remove("is-open");
+  document.body.classList.remove("has-course-search-open");
+  if (overlay) overlay.hidden = true;
   panel.hidden = true;
   panel.innerHTML = "";
   if (clear) input.value = "";
+}
+
+function openCourseSearch() {
+  const box = $("#searchBox");
+  const overlay = $("#courseSearchOverlay");
+  box.classList.add("is-open");
+  document.body.classList.add("has-course-search-open");
+  if (overlay) overlay.hidden = false;
 }
 
 async function searchCourse(query) {
@@ -1857,7 +1858,7 @@ async function searchCourse(query) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && /^(http:|https:)$/.test(location.protocol)) {
-    navigator.serviceWorker.register("service-worker.js?v=13.0.0", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {
+    navigator.serviceWorker.register("service-worker.js?v=21.0.0", { updateViaCache: "none" }).then((registration) => registration.update()).catch(() => {
       // The reader still works normally if a host does not allow service workers.
     });
   }
@@ -1898,11 +1899,12 @@ function bindEvents() {
       closeCourseSearch();
       return;
     }
-    box.classList.add("is-open");
+    openCourseSearch();
     window.setTimeout(() => $("#courseSearch").focus(), 40);
   });
+  $("#courseSearchOverlay").addEventListener("click", () => closeCourseSearch());
   document.addEventListener("click", (event) => {
-    if (!event.target.closest("#searchBox")) closeCourseSearch();
+    if (!event.target.closest("#searchBox") && !event.target.closest("#courseSearchOverlay")) closeCourseSearch();
   });
 
   $("#continueButton").addEventListener("click", () => setPage(Number(state.currentPage) || FIRST_READING_PAGE, { view: "reader" }));
@@ -2118,6 +2120,7 @@ function bindEvents() {
     searchTimer = window.setTimeout(() => void searchCourse(event.target.value), 180);
   });
   $("#courseSearch").addEventListener("focus", (event) => {
+    openCourseSearch();
     if (normalize(event.target.value).length >= 2) void searchCourse(event.target.value);
   });
   $("#searchResults").addEventListener("click", (event) => {

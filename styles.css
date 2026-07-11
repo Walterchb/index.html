@@ -3040,3 +3040,100 @@ body.has-custom-select-open { overflow: visible; }
     gap: 10px;
   }
 }
+
+/* v21 — answer controls aligned right + focused course search */
+.answer-option {
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+.answer-option-key {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+}
+.answer-option-text {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  min-width: 0;
+}
+.answer-option input {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  order: initial !important;
+  justify-self: end !important;
+  align-self: center !important;
+  margin: 0 0 0 auto !important;
+}
+
+.course-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 72;
+  width: 100vw;
+  height: 100dvh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: rgba(15, 22, 18, .42);
+  backdrop-filter: blur(2px);
+  cursor: default;
+}
+.course-search-overlay[hidden] {
+  display: none !important;
+}
+body.has-course-search-open {
+  overflow: hidden;
+}
+.search-box.is-open {
+  z-index: 77;
+}
+.search-box.is-open input,
+.search-box.is-open .search-results {
+  z-index: 76;
+}
+
+@media (min-width: 640px) {
+  .search-box.is-open input {
+    position: fixed;
+    top: max(92px, calc(50vh - 188px));
+    left: 50%;
+    right: auto;
+    width: min(620px, calc(100vw - 48px));
+    height: 50px;
+    padding: 0 16px;
+    border-color: var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    box-shadow: var(--shadow-dialog);
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%);
+  }
+  .search-box.is-open::after {
+    display: none;
+  }
+  .search-box.is-open .search-results {
+    position: fixed;
+    top: max(148px, calc(50vh - 130px));
+    left: 50%;
+    right: auto;
+    width: min(620px, calc(100vw - 48px));
+    max-height: min(58dvh, 520px);
+    border-radius: var(--radius-sm);
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 639px) {
+  .course-search-overlay {
+    background: rgba(15, 22, 18, .38);
+    backdrop-filter: blur(1.5px);
+  }
+  .answer-option {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+  }
+  .answer-option input {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    margin: 0 0 0 auto !important;
+  }
+}
