@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Study Atlas · Guía de configuración</title><meta name="color-scheme" content="light"><style>
+:root { --ink:#172b38; --muted:#526670; --line:#dbe3e5; --green:#17634c; --navy:#102d3b; --paper:#fff; --wash:#f4f7f6; }
+* { box-sizing:border-box } html { scroll-behavior:smooth; scroll-padding-top:30px } body { margin:0; color:var(--ink); background:var(--wash); font:16px/1.7 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif } a { color:var(--green); text-underline-offset:3px; overflow-wrap:anywhere } a:hover { color:#0f4334 } a:focus-visible,summary:focus-visible { outline:3px solid #cf9d32; outline-offset:3px } .masthead { background:var(--navy); color:white; padding:35px max(24px,calc((100vw - 1280px)/2)); border-bottom:5px solid #d5b46e } .brand { letter-spacing:.16em; font-size:13px; font-weight:700; color:#c7dfd6; text-transform:uppercase } .masthead p { max-width:700px; margin:8px 0 0; color:#e0e8eb } .masthead strong { font-size:27px; font-weight:650; display:block; margin-top:5px } .wrap { max-width:1280px; margin:auto; display:grid; grid-template-columns:270px minmax(0,1fr); gap:35px; padding:40px 24px 70px } nav { position:sticky; top:25px; align-self:start; max-height:calc(100vh - 50px); overflow:auto; padding-right:15px; font-size:13px; line-height:1.45 } nav b { display:block; color:var(--muted); letter-spacing:.08em; font-size:11px; text-transform:uppercase; margin-bottom:14px } nav a { display:block; text-decoration:none; border-left:2px solid var(--line); padding:9px 13px; color:var(--muted) } nav a:hover { color:var(--green); background:#e6f0eb; border-color:var(--green) } main { min-width:0; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:42px 48px; box-shadow:0 4px 15px #17324206 } h1 { font-size:32px; line-height:1.2; margin:0 0 24px; letter-spacing:-.04em; max-width:620px } h2 { margin:54px 0 18px; padding-top:24px; border-top:1px solid var(--line); font-size:24px; line-height:1.28; letter-spacing:-.025em; color:var(--navy) } h3 { font-size:19px; margin:27px 0 12px; line-height:1.4 } p { margin:14px 0; } li { padding-left:4px; margin:10px 0 } ol,ul { padding-left:23px } strong { font-weight:650 } code { font: .87em/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; padding:.15em .35em; background:#edf2f1; color:#204f43; border-radius:4px; overflow-wrap:anywhere } pre { margin:20px 0; padding:20px; overflow:auto; background:#143441; color:#edf6f4; border-radius:8px; border-left:4px solid #72b599; line-height:1.55 } pre code { background:transparent; color:inherit; padding:0; white-space:pre; font-size:13px } .table-wrap { overflow:auto; margin:22px 0; border:1px solid var(--line); border-radius:7px } table { width:100%; border-collapse:collapse; font-size:14px; line-height:1.55 } th { text-align:left; background:#eaf1ee; color:#1d493d; font-weight:650; padding:12px 14px } td { padding:13px 14px; border-top:1px solid var(--line); vertical-align:top; min-width:145px; overflow-wrap:anywhere } tr:nth-child(even) td { background:#fbfcfb } main > p:nth-of-type(2) { border-left:4px solid #559578; padding:15px 19px; background:#edf5f0; border-radius:0 7px 7px 0; margin:24px 0 } .mobile-nav { display:none } footer { max-width:1280px; margin:auto; padding:0 24px 35px; color:var(--muted); font-size:12px } @media(max-width:1000px) { .wrap{ grid-template-columns:215px minmax(0,1fr); gap:22px } main{padding:30px} } @media(max-width:760px) { .masthead{padding:25px 20px}.wrap{display:block;padding:20px 12px 35px} nav{display:none} main{padding:28px 20px;border-radius:8px} h1{font-size:27px}h2{font-size:22px;margin-top:40px} .mobile-nav{display:block;padding:0 8px 20px} .mobile-nav summary{font-weight:650;cursor:pointer;color:var(--green);padding:10px 0} .mobile-nav a{display:block;font-size:14px;padding:5px 0}body{font-size:15px}pre{padding:14px} }
+@media print { body{background:white;font-size:10pt;line-height:1.5}nav,.mobile-nav,.masthead,footer{display:none}.wrap{display:block;max-width:none;padding:0}main{border:0;box-shadow:none;padding:0}h1{font-size:23pt}h2{font-size:16pt;margin:24px 0 10px;break-after:avoid}h3{font-size:12pt;break-after:avoid}table{font-size:9pt}pre{background:#f1f4f3;color:#172b38;white-space:pre-wrap;break-inside:avoid}pre code{white-space:pre-wrap}p,li{orphans:3;widows:3}tr{break-inside:avoid}a{color:inherit}.table-wrap{overflow:visible} }
+</style></head><body><header class="masthead"><div class="brand">Study Atlas / Puesta en marcha</div><strong>Tu espacio de estudio, conectado.</strong><p>Guía para publicar con GitHub Desktop, activar tu cuenta y conservar el avance entre dispositivos.</p></header><div class="wrap"><nav aria-label="Índice"><b>Configuración paso a paso</b><a href="#1-que-guarda-cada-servicio">1. Qué guarda cada servicio</a>
+<a href="#2-respalda-antes-de-reemplazar">2. Respalda antes de reemplazar</a>
+<a href="#3-crea-tu-proyecto-supabase">3. Crea tu proyecto Supabase</a>
+<a href="#4-configura-las-direcciones-del-login">4. Configura las direcciones del login</a>
+<a href="#5-crea-tu-cuenta-personal">5. Crea tu cuenta personal</a>
+<a href="#6-completa-config-js">6. Completa config.js</a>
+<a href="#7-copia-y-publica-con-github-desktop">7. Copia y publica con GitHub Desktop</a>
+<a href="#8-entra-importa-tu-curso-y-recupera-el-avance">8. Entra, importa tu curso y recupera el avance</a>
+<a href="#9-usa-la-estructura-de-aprendizaje">9. Usa la estructura de aprendizaje</a>
+<a href="#10-activa-la-ia-opcional">10. Activa la IA opcional</a>
+<a href="#11-que-tu-avance-se-conserve">11. Que tu avance se conserve</a>
+<a href="#12-comprobacion-final-en-dos-dispositivos">12. Comprobación final en dos dispositivos</a>
+<a href="#13-solucion-de-problemas">13. Solución de problemas</a></nav><div class="mobile-nav"><details><summary>Ver los pasos de configuración</summary><a href="#1-que-guarda-cada-servicio">1. Qué guarda cada servicio</a>
+<a href="#2-respalda-antes-de-reemplazar">2. Respalda antes de reemplazar</a>
+<a href="#3-crea-tu-proyecto-supabase">3. Crea tu proyecto Supabase</a>
+<a href="#4-configura-las-direcciones-del-login">4. Configura las direcciones del login</a>
+<a href="#5-crea-tu-cuenta-personal">5. Crea tu cuenta personal</a>
+<a href="#6-completa-config-js">6. Completa config.js</a>
+<a href="#7-copia-y-publica-con-github-desktop">7. Copia y publica con GitHub Desktop</a>
+<a href="#8-entra-importa-tu-curso-y-recupera-el-avance">8. Entra, importa tu curso y recupera el avance</a>
+<a href="#9-usa-la-estructura-de-aprendizaje">9. Usa la estructura de aprendizaje</a>
+<a href="#10-activa-la-ia-opcional">10. Activa la IA opcional</a>
+<a href="#11-que-tu-avance-se-conserve">11. Que tu avance se conserve</a>
+<a href="#12-comprobacion-final-en-dos-dispositivos">12. Comprobación final en dos dispositivos</a>
+<a href="#13-solucion-de-problemas">13. Solución de problemas</a></details></div><main><h1>Study Atlas — configuración paso a paso</h1>
+<p>Esta entrega contiene la aplicación lista para copiar a tu repositorio. Para guardar tu avance entre computadora y celular necesitas conectar tu propio proyecto Supabase y publicar la web. El ZIP no incluye cuentas, claves ni un despliegue hecho en tu nombre.</p>
+<p><strong>Ruta recomendada:</strong> respaldar tu versión anterior → crear Supabase → completar <code>config.js</code> → publicar con GitHub Desktop → iniciar sesión → importar tu curso → comprobar la sincronización. La inteligencia artificial es un paso adicional opcional.</p>
+<h2 id="1-que-guarda-cada-servicio">1. Qué guarda cada servicio</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Función</th>
+<th>Dónde queda</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GitHub Pages</td>
+<td>Publica la interfaz de estudio</td>
+<td>Tu repositorio y el sitio publicado</td>
+</tr>
+<tr>
+<td>Supabase Auth</td>
+<td>Correo, contraseña y sesión</td>
+<td>Tu proyecto Supabase</td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td>Cursos, módulos, lecciones, notas y avance</td>
+<td>Registros privados por usuario</td>
+</tr>
+<tr>
+<td>Supabase Storage</td>
+<td>Archivos PDF y otros adjuntos admitidos</td>
+<td>Bucket privado <code>cfa-documents</code></td>
+</tr>
+<tr>
+<td>Navegador</td>
+<td>Copia local y cambios pendientes</td>
+<td>El dispositivo y perfil donde estudias</td>
+</tr>
+<tr>
+<td>Función <code>study-ai</code>, opcional</td>
+<td>Genera propuestas a partir de textos seleccionados</td>
+<td>Supabase; consulta la API de OpenAI</td>
+</tr>
+</tbody></table></div>
+<p>La interfaz publicada puede visitarse sin cuenta. Tus registros y documentos en Supabase quedan protegidos por políticas de acceso por usuario. El código HTML y JavaScript publicado no es secreto.</p>
+<h2 id="2-respalda-antes-de-reemplazar">2. Respalda antes de reemplazar</h2>
+<ol>
+<li>Abre tu web actual en el navegador donde has estudiado. Guarda cualquier exportación de avance disponible y conserva capturas de tu progreso como referencia.</li>
+<li>En GitHub Desktop selecciona <code>Walterchb/index.html</code> y pulsa <strong>Fetch origin</strong>. Si hay cambios remotos, pulsa <strong>Pull origin</strong>. Conserva y revisa cualquier cambio local pendiente antes de continuar.</li>
+<li>Usa <strong>Repository → Show in Explorer</strong>. Copia la carpeta completa a otra ubicación, por ejemplo <code>CFA-respaldo-antes-de-actualizar</code>. No trabajes sobre esa copia.</li>
+<li>Descomprime el ZIP nuevo en otra carpeta. Conserva una copia de <code>migration/curso-original.json</code> fuera del repositorio: se importará desde tu disco y no debe publicarse como contenido abierto.</li>
+<li>Conserva el archivo <code>CNAME</code> si tu web usa un dominio personalizado. No cambies el dominio por seguir un ejemplo de esta guía.</li>
+</ol>
+<p><strong>El progreso anterior depende del navegador y del dominio.</strong> La migración de avance solo puede leer los datos antiguos si abres la nueva web desde el mismo origen, navegador y perfil donde usabas la anterior. <code>localhost</code>, <code>walterchb.github.io</code> y un dominio personalizado son espacios distintos. No borres los datos del sitio antes de migrar y exportar un respaldo.</p>
+<h2 id="3-crea-tu-proyecto-supabase">3. Crea tu proyecto Supabase</h2>
+<ol>
+<li>Entra en <a href="https://supabase.com/dashboard">Supabase</a>, crea una cuenta o inicia sesión.</li>
+<li>Pulsa <strong>New project</strong>. Elige tu organización y un nombre, por ejemplo <code>cfa-study-walter</code>.</li>
+<li>Genera una contraseña de base de datos larga y guárdala en tu gestor de contraseñas. Esta contraseña no se coloca en la web.</li>
+<li>Elige una región cercana a tus dispositivos y espera a que el proyecto esté listo.</li>
+<li>Abre <strong>SQL Editor → New query</strong>.</li>
+<li>En la carpeta descargada, abre <code>supabase/schema.sql</code> con un editor de texto. Copia <strong>todo</strong> su contenido en el editor SQL y pulsa <strong>Run</strong>.</li>
+<li>Comprueba que no haya errores. En <strong>Table Editor</strong> debe existir <code>study_records</code>. En <strong>Storage</strong> debe existir <code>cfa-documents</code> como bucket <strong>Private</strong>.</li>
+<li>Revisa que <code>study_records</code> tenga <strong>RLS habilitado</strong>. El script incluye las políticas para que cada persona solo lea y modifique sus propios registros y archivos. No agregues políticas de acceso público para solucionar un error.</li>
+</ol>
+<p>No necesitas crear una tabla a mano por cada curso ni subir los PDF desde el panel: la aplicación los administra. El esquema usa un tipo de registro para separar cursos, lecciones, notas y progreso dentro de la misma tabla.</p>
+<p>Las políticas RLS son la protección real de los datos; las claves públicas del navegador no sustituyen esas políticas. Consulta <a href="https://supabase.com/docs/guides/storage/security/access-control">control de acceso de Storage</a> si modificas el esquema.</p>
+<h2 id="4-configura-las-direcciones-del-login">4. Configura las direcciones del login</h2>
+<p>En Supabase abre <strong>Authentication → URL Configuration</strong>.</p>
+<p>Si mantienes el repositorio <code>Walterchb/index.html</code> y no usas dominio personalizado:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Site URL</td>
+<td><code>https://walterchb.github.io/index.html/</code></td>
+</tr>
+<tr>
+<td>Redirect URL de producción</td>
+<td><code>https://walterchb.github.io/index.html/</code></td>
+</tr>
+<tr>
+<td>Redirect URL para probar en tu computadora</td>
+<td><code>http://localhost:8080/</code></td>
+</tr>
+</tbody></table></div>
+<p>El nombre <code>index.html</code> en esa dirección es <strong>el nombre del repositorio y de la carpeta del sitio</strong>. La URL termina con <code>/</code>. No la reemplaces por <code>https://walterchb.github.io/</code> ni agregues otra ruta innecesariamente.</p>
+<p>Si abres la página escribiendo expresamente <code>https://walterchb.github.io/index.html/index.html</code>, añade también esa URL exacta a los redirects, o utiliza siempre la dirección corta de la tabla. El enlace de recuperación vuelve a la ruta desde la que lo solicitas.</p>
+<p>Con dominio personalizado, usa su dirección real como Site URL y como redirect, y conserva la entrada local para pruebas. Evita comodines amplios en producción. Estas direcciones controlan el retorno de confirmaciones y recuperación de contraseña; <a href="https://supabase.com/docs/guides/auth/redirect-urls">Supabase explica su configuración aquí</a>.</p>
+<h2 id="5-crea-tu-cuenta-personal">5. Crea tu cuenta personal</h2>
+<p>Para una herramienta de estudio personal, crea primero tu usuario desde el panel:</p>
+<ol>
+<li>Entra en <strong>Authentication → Users → Add user</strong>.</li>
+<li>Usa <strong>Create new user</strong>, si aparece, y establece tu correo y una contraseña de al menos 8 caracteres. Usa una contraseña única y más larga que el mínimo.</li>
+<li>Si el panel permite confirmar manualmente el correo, hazlo únicamente para tu propia dirección. Si eliges <strong>Invite user</strong>, necesitarás recibir el correo de invitación.</li>
+<li>En <strong>Authentication → Sign In / Providers</strong>, deja habilitado el proveedor <strong>Email</strong>.</li>
+<li>Después de tener tu cuenta, desactiva <strong>Allow new users to sign up</strong> si solo la utilizarás tú. Las cuentas existentes podrán seguir entrando. Deja desactivados los accesos anónimos de Supabase: el modo local de esta web no los necesita.</li>
+</ol>
+<p>También puedes registrarte desde la aplicación si permites nuevos usuarios y tienes configurado el envío de confirmaciones. <a href="https://supabase.com/docs/guides/auth/general-configuration">Opciones de acceso de Supabase</a>.</p>
+<h3 id="correos-de-confirmacion-y-recuperacion">Correos de confirmación y recuperación</h3>
+<p>El servidor de correo predeterminado de Supabase tiene restricciones de destinatarios, frecuencia y entrega; sirve para pruebas. Para recuperación de contraseña fiable, configura tu proveedor SMTP en <strong>Authentication → Emails → SMTP Settings</strong> con host, puerto, usuario, contraseña y remitente autorizado. Verifica tu dominio según las instrucciones de ese proveedor. Las credenciales SMTP se guardan en Supabase, nunca en <code>config.js</code>.</p>
+<p>Si el correo no llega, revisa spam, destinatario permitido, límites y registros de Auth antes de repetir solicitudes. <a href="https://supabase.com/docs/guides/auth/auth-smtp">Guía oficial de SMTP</a>.</p>
+<h2 id="6-completa-config-js">6. Completa config.js</h2>
+<ol>
+<li>Busca en el panel de Supabase la <strong>Project URL</strong> y la clave <strong>Publishable</strong>; en algunas versiones aparecen en <strong>Connect</strong> o <strong>Project Settings → API / API Keys</strong>.</li>
+<li>Abre <code>config.js</code>, en la raíz de la carpeta nueva, con Visual Studio Code o Bloc de notas.</li>
+<li>Completa los dos campos vacíos y conserva los demás:</li>
+</ol>
+<pre><code class="language-javascript">window.CFA_CONFIG = {
+  supabaseUrl: &#39;https://TU_REFERENCIA.supabase.co&#39;,
+  supabaseAnonKey: &#39;sb_publishable_TU_CLAVE_PUBLICA&#39;,
+  aiFunction: &#39;study-ai&#39;,
+  storageBucket: &#39;cfa-documents&#39;,
+  maxFileMB: 40,
+};
+</code></pre>
+<p>Puedes usar la clave pública antigua <code>anon</code> si tu proyecto la ofrece. El nombre del campo <code>supabaseAnonKey</code> acepta ambas variantes.</p>
+<p><strong>Nunca pegues una clave <code>service_role</code>, <code>sb_secret_…</code>, contraseña de base de datos o clave de OpenAI en este archivo.</strong> <code>config.js</code> se descarga al navegador y se publica con la web. La URL y la clave publishable están diseñadas para ese uso; el acceso privado depende del login y de RLS. <a href="https://supabase.com/docs/guides/getting-started/api-keys">Tipos de claves de Supabase</a>.</p>
+<p>Guarda el archivo como <code>config.js</code>, no como <code>config.js.txt</code>. No necesitas configurar GitHub Secrets para esos dos valores públicos.</p>
+<h2 id="7-copia-y-publica-con-github-desktop">7. Copia y publica con GitHub Desktop</h2>
+<ol>
+<li>Vuelve a la carpeta de trabajo que abrió <strong>Show in Explorer</strong>.</li>
+<li>Copia <strong>el contenido</strong> de la carpeta nueva a esa raíz y acepta reemplazar los archivos correspondientes. <code>index.html</code>, <code>config.js</code>, <code>app/</code>, <code>vendor/</code> y <code>.github/</code> deben quedar en la raíz del repositorio, no dentro de otra carpeta <code>cfa-study/</code>.</li>
+<li><strong>No borres ni reemplaces <code>.git/</code>.</strong> GitHub Desktop necesita esa carpeta para reconocer el repositorio y su historial. Conserva <code>CNAME</code> si lo tenías.</li>
+<li>En GitHub Desktop revisa <strong>Changes</strong>. No deben aparecer claves privadas, archivos <code>.env</code>, respaldos personales ni PDF nuevos para publicarse.</li>
+<li>El paquete incluye exclusiones y un flujo de publicación por lista permitida. Conserva <code>.gitignore</code> y <code>.github/workflows/</code>. No agregues <code>migration/curso-original.json</code> a Git por la fuerza: se importa localmente.</li>
+<li>Escribe un resumen, por ejemplo <code>Nueva plataforma CFA con login y progreso sincronizado</code>. Pulsa <strong>Commit to main</strong> —o a la rama principal real de tu repositorio— y luego <strong>Push origin</strong>.</li>
+<li>En la web de GitHub abre tu repositorio → <strong>Settings → Pages → Build and deployment → Source → GitHub Actions</strong>.</li>
+<li>Abre <strong>Actions</strong> y ejecuta el flujo de publicación incluido si no se inició automáticamente. Espera a que termine en verde. Si tu rama principal no es <code>main</code>, ajusta la rama del workflow o ejecútalo manualmente desde la rama correcta.</li>
+<li>Abre la URL que GitHub muestre en <strong>Settings → Pages</strong>. Para el repositorio indicado será normalmente <a href="https://walterchb.github.io/index.html/">https://walterchb.github.io/index.html/</a>, salvo que tengas un dominio personalizado.</li>
+</ol>
+<p>El workflow publica únicamente los archivos de la aplicación que necesita el sitio. Incluye esta guía de configuración para abrirla desde Ajustes y excluye migraciones, SQL y datos heredados. No cambies el flujo a “subir todo el repositorio”, porque esos archivos no son parte de la web pública. <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages">Cómo funcionan los workflows de GitHub Pages</a>.</p>
+<p><strong>Publicar selectivamente no vuelve privado un repositorio público.</strong> Los archivos ya subidos a GitHub pueden seguir siendo visibles en el repositorio o su historial aunque dejen de salir en Pages. Conserva tus materiales de estudio fuera del código publicado y súbelos mediante la aplicación a Storage privado. Si necesitas retirar material anteriormente publicado, revisa por separado el contenido y el historial del repositorio. El login nuevo protege los datos nuevos de Supabase; no puede ocultar archivos públicos anteriores.</p>
+<h3 id="prueba-local-opcional">Prueba local opcional</h3>
+<p>La web usa módulos JavaScript, por lo que no debes abrir <code>index.html</code> haciendo doble clic. Si tienes Python instalado, abre una terminal dentro de la carpeta y ejecuta:</p>
+<pre><code class="language-powershell">py -m http.server 8080
+</code></pre>
+<p>Si tu equipo utiliza el comando <code>python</code>:</p>
+<pre><code class="language-powershell">python -m http.server 8080
+</code></pre>
+<p>Después abre <code>http://localhost:8080/</code>. No necesitas Python ni Node para que la versión publicada funcione: este servidor solo sirve para probar en tu computadora.</p>
+<h2 id="8-entra-importa-tu-curso-y-recupera-el-avance">8. Entra, importa tu curso y recupera el avance</h2>
+<p>El contenido de tu repositorio corresponde a <strong>Investment Foundations — Course 1</strong>, no al programa completo de un nivel CFA. La conversión conserva 157 páginas, 21 figuras, 71 tarjetas de glosario y 38 actividades originales convertidas en 44 preguntas evaluables. Puedes crear y añadir otros cursos desde la nueva aplicación. El repositorio anterior no contenía el PDF fuente: la migración incluye el contenido extraído y las figuras disponibles; adjunta tus PDF originales desde la aplicación si los tienes.</p>
+<ol>
+<li>Abre la web nueva e inicia sesión con el usuario que creaste en Supabase.</li>
+<li>Confirma que la aplicación muestra tu correo y que la conexión está configurada.</li>
+<li>Abre <strong>Gestionar → Importar respaldo / curso</strong> y elige <code>migration/curso-original.json</code> desde tu disco. Elige el archivo local; no necesitas hacer público un enlace al JSON.</li>
+<li>Comprueba que aparecen el curso, sus módulos y sus lecciones. Abre varias lecciones y confirma que su contenido se corresponde con tu material.</li>
+<li>Desde el mismo navegador, perfil y origen de la web anterior, usa <strong>Ajustes → Recuperar avance anterior</strong>. Si no encuentra datos, no significa que tu progreso estuviera en Supabase: la versión previa podía guardarlo solo en ese navegador.</li>
+<li>Espera a que termine la sincronización y comprueba el indicador de cambios pendientes.</li>
+<li>Usa <strong>Ajustes → Exportar respaldo</strong> y guarda el archivo nuevo fuera del repositorio.</li>
+</ol>
+<p>La migración conserva los resúmenes históricos de ejercicios y los estados del glosario como información de recuperación. No inventa respuestas individuales, porcentajes de acierto ni un calendario de repaso a partir de esos datos. El detalle está en <code>docs/MIGRACION.md</code>.</p>
+<p>Importar un respaldo restaura sus registros: si ya existen los mismos identificadores, puede reemplazar sus valores. Exporta primero tu estado actual y evita reimportar el curso original después de corregirlo, salvo que quieras restaurar esa versión.</p>
+<h3 id="si-empezaste-como-invitado">Si empezaste como invitado</h3>
+<p>El modo local y cada cuenta tienen espacios separados. Entrar a una cuenta no sube ni mezcla automáticamente los cursos del invitado.</p>
+<p>Para trasladarlos: entra al modo local → exporta su respaldo → inicia sesión → importa ese respaldo en la cuenta deseada → espera la sincronización. Revisa el resultado antes de borrar o cambiar de dispositivo. Este paso también sirve para trasladar trabajo desde <code>localhost</code> a la web publicada.</p>
+<h2 id="9-usa-la-estructura-de-aprendizaje">9. Usa la estructura de aprendizaje</h2>
+<p>La organización es <strong>curso → módulo → lección</strong>. Crea cursos separados para programas o niveles diferentes; crea módulos para temas y divide las lecciones en sesiones manejables.</p>
+<p>Un ciclo útil:</p>
+<ol>
+<li>Crea o importa el material dentro del curso correspondiente.</li>
+<li>Revisa títulos, orden y texto reconocido antes de confirmar una importación.</li>
+<li>Estudia una lección, toma notas y practica recuperación activa con tarjetas o preguntas.</li>
+<li>Revisa las respuestas y su explicación. Corrige cualquier extracción o propuesta automática que no respete el material.</li>
+<li>Marca avance y vuelve a los repasos pendientes. Leer una lección y dominar sus conceptos son actividades distintas.</li>
+</ol>
+<p>Los PDF con texto pueden analizarse localmente. Los PDF escaneados requieren OCR; su calidad depende del escaneo. Tablas complejas, fórmulas y diagramas necesitan revisión humana. El reconocimiento no es una garantía de interpretación financiera correcta.</p>
+<p>Los archivos tienen un límite inicial de <strong>40 MB</strong>. Mantén la configuración de la aplicación y del bucket en el mismo límite. Para material extenso, importa capítulos: facilita revisar el resultado y estudiar por objetivos.</p>
+<p>La extracción local no requiere una clave de OpenAI. El OCR es explícito; la primera ejecución descarga el motor y los idiomas desde tu propia web y necesita conexión a ella. Los archivos están incluidos en el ZIP; no depende de un CDN externo. La IA remota solo se utiliza cuando eliges esa función y tienes su configuración activa. Los detalles y límites del motor están en <code>docs/IMPORTACION.md</code>.</p>
+<h2 id="10-activa-la-ia-opcional">10. Activa la IA opcional</h2>
+<p>Puedes estudiar, administrar contenido, importar textos y guardar avance sin realizar este paso. Esta función añade propuestas estructuradas a partir del texto que envías: debes revisar cada resultado antes de incorporarlo.</p>
+<h3 id="10-1-prepara-supabase">10.1 Prepara Supabase</h3>
+<ol>
+<li>En <strong>SQL Editor</strong>, ejecuta completo <code>supabase/002_ai_quota.sql</code>, después de <code>schema.sql</code>.</li>
+<li>En <strong>Edge Functions → Secrets</strong>, añade estos valores:</li>
+</ol>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Secreto</th>
+<th>Valor que debes colocar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>Tu clave privada de la API; nunca va en GitHub o en el navegador</td>
+</tr>
+<tr>
+<td><code>OPENAI_MODEL</code></td>
+<td>Opcional; el código usa <code>gpt-4.1-mini</code> si no lo cambias</td>
+</tr>
+<tr>
+<td><code>ALLOWED_ORIGINS</code></td>
+<td><code>https://walterchb.github.io</code></td>
+</tr>
+<tr>
+<td><code>AI_ALLOWED_EMAILS</code></td>
+<td>El correo exacto con el que entrarás a la web</td>
+</tr>
+</tbody></table></div>
+<p><code>ALLOWED_ORIGINS</code> contiene <strong>orígenes sin ruta y sin barra final</strong>. Es distinto de las URLs de retorno del login. Si pruebas localmente, puedes usar <code>https://walterchb.github.io,http://localhost:8080</code>. Para dominio personalizado, agrega su origen real. Para más de un correo autorizado, sepáralos con comas.</p>
+<p>Los secretos se guardan en el panel del proyecto y se leen únicamente dentro de la función. <a href="https://supabase.com/docs/guides/functions/secrets">Administración oficial de secretos</a>.</p>
+<h3 id="10-2-publica-la-funcion">10.2 Publica la función</h3>
+<p>La función no se publica al subir la web a GitHub. Debes desplegarla una vez en Supabase y repetir el despliegue cuando cambies su código.</p>
+<ol>
+<li>Instala la CLI de Supabase siguiendo su <a href="https://supabase.com/docs/guides/local-development/cli/getting-started">guía oficial</a>. No necesitas ejecutar una base de datos local para este despliegue.</li>
+<li>Abre la terminal en la raíz del proyecto, donde está la carpeta <code>supabase/</code>.</li>
+<li>Ejecuta estos comandos, uno por uno:</li>
+</ol>
+<pre><code class="language-text">supabase login
+supabase link --project-ref TU_REFERENCIA
+supabase functions deploy study-ai --no-verify-jwt
+</code></pre>
+<p><code>TU_REFERENCIA</code> es el identificador del proyecto; en <code>https://abcdefgh.supabase.co</code>, sería <code>abcdefgh</code>. No es una clave ni la URL completa.</p>
+<p>La opción <code>--no-verify-jwt</code> corresponde a esta implementación: la función valida internamente la sesión con <code>auth.getUser(token)</code> y además verifica el correo autorizado. No retires esas validaciones. El nombre desplegado debe coincidir con <code>aiFunction: &#39;study-ai&#39;</code> en <code>config.js</code>. <a href="https://supabase.com/docs/guides/functions/deploy">Despliegue de Edge Functions</a>.</p>
+<h3 id="10-3-prueba-y-controla-el-uso">10.3 Prueba y controla el uso</h3>
+<ol>
+<li>Inicia sesión en tu web y procesa un fragmento pequeño de material de prueba.</li>
+<li>Solicita la propuesta de IA y revisa la estructura, las respuestas y las referencias a las páginas.</li>
+<li>Comprueba los registros de <strong>Edge Functions → study-ai → Logs</strong> si hay un error.</li>
+<li>Ajusta los controles de gasto y alertas en tu cuenta de API. La integración usa tu cuenta de API y su consumo es independiente de la sesión de esta aplicación.</li>
+</ol>
+<p>Esta implementación limita las solicitudes por usuario a <strong>20 por día UTC</strong>. Cada lote admite como máximo <strong>40 000 caracteres y 50 páginas</strong>, y limita la salida del modelo. Si alcanzas el límite, vuelve a usar las funciones locales o espera al siguiente día UTC. Un curso largo se trabaja por secciones; no se procesa completo de manera silenciosa.</p>
+<p>Solo el texto enviado en esa acción va a la función y al proveedor de IA. Utiliza materiales que puedas procesar de esa manera y conserva el original para contrastar. El OCR y la extracción local siguen siendo opciones independientes.</p>
+<h2 id="11-que-tu-avance-se-conserve">11. Que tu avance se conserve</h2>
+<p><strong>La sincronización necesita una cuenta y conexión.</strong> El modo local es útil para empezar o trabajar temporalmente, pero los datos del navegador pueden borrarse al limpiar el sitio, cambiar de equipo o usar navegación privada.</p>
+<p>Antes de cambiar de dispositivo, espera a que no haya cambios pendientes. En el segundo dispositivo inicia sesión con el mismo correo y sincroniza. No edites la misma lección en dos dispositivos desconectados simultáneamente: si hay un conflicto de versiones, abre <strong>Ajustes → Resolver conflictos</strong> y resuélvelo antes de seguir. La aplicación conserva el conflicto para revisión en lugar de sustituir silenciosamente una versión.</p>
+<h3 id="respaldo-recomendado">Respaldo recomendado</h3>
+<ol>
+<li>Exporta un respaldo completo después de la migración, después de importaciones grandes y periódicamente mientras estudias.</li>
+<li>Guárdalo fuera de la carpeta que publicas con GitHub Desktop; conserva al menos una copia en otro dispositivo o almacenamiento privado.</li>
+<li>La exportación incluye los registros y los adjuntos. Si falta un adjunto en la copia local, intenta descargarlo desde Supabase; debe terminar sin errores para considerarla completa.</li>
+<li>Conserva también tus PDF originales. Prueba una restauración con un respaldo pequeño antes de depender de ella para todo tu material.</li>
+</ol>
+<p>Supabase ofrece copias de base de datos según el plan, pero esas copias <strong>no incluyen los objetos de Storage</strong>, solo sus metadatos. En el plan gratuito debes organizar tus exportaciones; no lo uses como único respaldo. <a href="https://supabase.com/docs/guides/platform/backups">Alcance de las copias de Supabase</a>.</p>
+<h3 id="disponibilidad-del-servicio">Disponibilidad del servicio</h3>
+<p>GitHub Pages sirve la interfaz y Supabase mantiene el acceso y los datos. El plan gratuito de Supabase puede pausar proyectos con poca actividad; si quieres evitar pausas por inactividad, utiliza un plan que lo excluya, como Pro, y revisa sus condiciones vigentes. Ningún montaje elimina todas las posibles interrupciones de internet o del proveedor. <a href="https://supabase.com/docs/guides/deployment/going-into-prod">Disponibilidad y preparación para producción</a>.</p>
+<p>Actualizar el código con GitHub Desktop no borra tus registros de Supabase. No elimines el proyecto de Supabase ni ejecutes SQL destructivo para actualizar la interfaz. Mantén tus credenciales administrativas y las cuentas de GitHub y Supabase protegidas.</p>
+<h2 id="12-comprobacion-final-en-dos-dispositivos">12. Comprobación final en dos dispositivos</h2>
+<p>Realiza esta prueba antes de trasladar todo tu estudio:</p>
+<ol>
+<li>En tu computadora, inicia sesión, crea un curso de prueba y una lección corta.</li>
+<li>Escribe una nota, marca avance y sube un PDF pequeño sin datos sensibles.</li>
+<li>Espera a que la sincronización termine sin pendientes ni errores.</li>
+<li>En tu celular u otro navegador, abre la web e inicia sesión con el mismo correo.</li>
+<li>Verifica el curso, la nota, el avance y la apertura del PDF.</li>
+<li>Modifica la nota desde el celular, sincroniza y comprueba el cambio desde la computadora.</li>
+<li>Cierra sesión. Tus datos no deben aparecer en el espacio de invitado.</li>
+<li>Si haces una prueba con otra cuenta, esta debe tener su propio espacio y no ver tu curso ni tus documentos.</li>
+<li>En Supabase confirma que el bucket sigue <strong>Private</strong>, la tabla tiene <strong>RLS</strong> y el asesor de seguridad no marca acceso público para estos datos.</li>
+<li>Exporta un respaldo y comprueba que puedes restaurarlo en un espacio local de prueba sin sobrescribir el trabajo que necesitas conservar.</li>
+</ol>
+<p>Estas verificaciones requieren tu proyecto real y tus cuentas. La entrega del código no equivale a una prueba realizada contra tu nube ni a un sitio ya publicado.</p>
+<h2 id="13-solucion-de-problemas">13. Solución de problemas</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Síntoma</th>
+<th>Qué revisar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>La web muestra la versión anterior</td>
+<td>Espera el workflow verde y recarga. Antes de limpiar datos del sitio, exporta tu progreso. Para caché antigua, desregistra el service worker en las herramientas del navegador sin borrar almacenamiento personal.</td>
+</tr>
+<tr>
+<td>Página en blanco al abrir un archivo</td>
+<td>Usa la URL publicada o un servidor local; <code>file://</code> no sirve para esta aplicación con módulos.</td>
+</tr>
+<tr>
+<td>GitHub Pages devuelve 404</td>
+<td>Comprueba <code>Settings → Pages</code>, el workflow, su rama y que <code>index.html</code> esté en la raíz del artefacto publicado. Usa <code>/index.html/</code> como carpeta del proyecto.</td>
+</tr>
+<tr>
+<td>Login sin configurar</td>
+<td>Revisa <code>config.js</code>, los nombres de campos, comillas y que no se guardara con extensión <code>.txt</code>. Vuelve a publicar el cambio.</td>
+</tr>
+<tr>
+<td>Invalid API key o error de conexión</td>
+<td>La URL y la clave pública deben pertenecer al mismo proyecto. Comprueba que el proyecto esté activo.</td>
+</tr>
+<tr>
+<td>Email not confirmed</td>
+<td>Confirma tu correo o revisa tu usuario en el panel. No desactives controles de todos los usuarios para resolver una cuenta.</td>
+</tr>
+<tr>
+<td>No llega recuperación de contraseña</td>
+<td>Revisa SMTP, destinatarios autorizados, spam, límites de envío y las URLs de retorno.</td>
+</tr>
+<tr>
+<td>El enlace de recuperación vuelve al sitio incorrecto</td>
+<td>Corrige Site URL y Redirect URLs con la ruta exacta desde la que solicitas el enlace. Solicita uno nuevo.</td>
+</tr>
+<tr>
+<td>Error RLS o permission denied al guardar</td>
+<td>Ejecuta <code>schema.sql</code> completo, entra con tu cuenta y revisa las políticas. No vuelvas público el bucket.</td>
+</tr>
+<tr>
+<td>No existe study_records o el bucket</td>
+<td>Falta ejecutar el SQL en el proyecto cuya URL tiene <code>config.js</code>.</td>
+</tr>
+<tr>
+<td>No veo el trabajo que hice antes de entrar</td>
+<td>El invitado y la cuenta son espacios separados. Exporta desde el invitado e importa después de iniciar sesión.</td>
+</tr>
+<tr>
+<td>No veo el avance en el celular</td>
+<td>Confirma que es el mismo correo y proyecto, y que el primer dispositivo terminó de sincronizar.</td>
+</tr>
+<tr>
+<td>Aparece conflicto</td>
+<td>Revisa las versiones ofrecidas, conserva un respaldo y elige cuál mantener. Sincroniza antes de continuar en otro dispositivo.</td>
+</tr>
+<tr>
+<td>Un PDF no sube</td>
+<td>Comprueba tamaño máximo de 40 MB, conexión, cuota del proyecto y que Storage siga configurado. Conserva el archivo original.</td>
+</tr>
+<tr>
+<td>Un PDF se reconoce vacío</td>
+<td>Puede ser escaneado, protegido o contener solo imágenes. Usa OCR si corresponde; procesa capítulos y revisa el texto resultante.</td>
+</tr>
+<tr>
+<td>OCR no arranca</td>
+<td>La primera descarga de worker, núcleo e idiomas necesita internet. Revisa bloqueadores y restricciones de red.</td>
+</tr>
+<tr>
+<td>IA devuelve 401 o 403</td>
+<td>Inicia sesión; revisa correo en <code>AI_ALLOWED_EMAILS</code>, origen en <code>ALLOWED_ORIGINS</code> y el despliegue indicado.</td>
+</tr>
+<tr>
+<td>IA devuelve 429</td>
+<td>Se alcanzó una cuota diaria de la función o un límite del proveedor. Revisa los registros antes de repetir.</td>
+</tr>
+<tr>
+<td>IA falla por configuración</td>
+<td>Ejecuta <code>002_ai_quota.sql</code>, confirma los secretos y revisa que la función se llame <code>study-ai</code>.</td>
+</tr>
+<tr>
+<td>Falló un respaldo</td>
+<td>No lo consideres completo. Recupera conexión, comprueba acceso a los adjuntos y exporta de nuevo.</td>
+</tr>
+</tbody></table></div>
+<p>Guía preparada para la entrega del 22 de septiembre de 2026. Los proveedores pueden cambiar los nombres de menús, límites y planes; los enlaces oficiales acompañan los pasos correspondientes.</p>
+</main></div><footer>Study Atlas · Configuración de la entrega del 22/09/2026 · Puedes imprimir esta guía con Ctrl + P.</footer></body></html>

@@ -1,50 +1,83 @@
-/* Offline layer — v22. Network-first prevents stale interface files after an update. */
-const CACHE_NAME = "course1-study-reader-v22";
-const APP_SHELL = [
+/* Cache only this application's public shell. Private records/files stay in scoped IndexedDB. */
+const PREFIX = "study-atlas-v3-";
+const CACHE = PREFIX + "20260922-1";
+const SHELL = [
   "./",
   "./index.html",
-  "./practica.html",
-  "./glosario.html",
-  "./404.html",
-  "./styles.css?v=22.0.0",
-  "./script.js?v=22.0.0",
-  "./manifest.webmanifest",
+  "./styles.css",
+  "./config.js",
+  "./app/main.js",
+  "./app/store.js",
+  "./app/auth.js",
+  "./app/learning.js",
+  "./app/seed.js",
+  "./app/legacy.js",
+  "./app/importer.js",
+  "./app/ai.js",
+  "./vendor/purify.js",
+  "./vendor/supabase.js",
   "./assets/app-icon.svg",
-  "./data/course-manifest.js",
-  "./data/page-registry.js",
-  "./data/content-registry.js",
-  "./data/visual-registry.js"
+  "./manifest.webmanifest",
 ];
-
-self.addEventListener("install", (event) => {
+self.addEventListener("install", (event) =>
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener("activate", (event) => {
+    caches
+      .open(CACHE)
+      .then((cache) => cache.addAll(SHELL))
+      .then(() => self.skipWaiting()),
+  ),
+);
+self.addEventListener("activate", (event) =>
   event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
-      .then(() => self.clients.claim())
-  );
-});
-
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter(
+              (key) =>
+                (key.startsWith(PREFIX) ||
+                  key.startsWith("course1-study-reader-")) &&
+                key !== CACHE,
+            )
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
+  ),
+);
 self.addEventListener("fetch", (event) => {
-  const request = event.request;
-  if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;
-
+  const req = event.request,
+    url = new URL(req.url),
+    base = new URL("./", self.location.href);
+  if (
+    req.method !== "GET" ||
+    url.origin !== base.origin ||
+    !url.pathname.startsWith(base.pathname)
+  )
+    return;
+  const relative = url.pathname.slice(base.pathname.length);
+  if (
+    !/^(?:$|index\.html$|styles\.css$|config\.js$|manifest\.webmanifest$|app\/|vendor\/|assets\/app-icon\.svg$|docs\/)/.test(
+      relative,
+    )
+  )
+    return;
   event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response && response.status === 200 && response.type === "basic") {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+    fetch(req)
+      .then((res) => {
+        if (res.ok && res.type === "basic") {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put(req, copy));
         }
-        return response;
+        return res;
       })
-      .catch(() => caches.match(request).then((cached) => cached || (request.mode === "navigate" ? caches.match("./404.html") : caches.match("./index.html"))))
+      .catch(async () => {
+        const cached = await caches.match(req);
+        if (cached) return cached;
+        if (req.mode === "navigate")
+          return (await caches.match("./index.html")) || Response.error();
+        return Response.error();
+      }),
   );
 });

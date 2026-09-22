@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+test-results/
+.DS_Store
+
+# Material personal: viene en el ZIP para importar, no se publica en Git.
+migration/*.json
+*respaldo*.json
+*backup*.json

@@ -1,0 +1,13 @@
+STUDY ATLAS — TU PLATAFORMA DE ESTUDIO
+
+1. Abre docs/GUIA_CONFIGURACION.html. Incluye todos los pasos con Supabase y GitHub Desktop.
+2. Para probar en Windows con Python 3 instalado: ejecuta INICIAR_WINDOWS.bat.
+3. Para publicar: copia el CONTENIDO de esta carpeta en tu repositorio, conserva .git y CNAME, configura config.js y usa GitHub Actions como origen de Pages.
+4. Importa tu material anterior desde Gestionar > Importar respaldo / curso, seleccionando migration/curso-original.json.
+5. Recupera el avance desde Ajustes > Recuperar avance anterior, en el navegador y dominio que utilizabas antes.
+
+La nueva versión no está conectada a tus cuentas ni publicada todavía. No contiene claves privadas.
+Todo lo necesario para la web, PDF y OCR está incluido. La IA generativa es opcional y requiere configuración/API aparte.
+
+No arrastres la carpeta externa Study_Atlas_CFA entera dentro de tu repositorio: copia lo que contiene, de manera que index.html quede en la raíz.
+El workflow publica solo los archivos de la aplicación. Un repositorio público sigue siendo público: revisa qué materiales conservas en él.

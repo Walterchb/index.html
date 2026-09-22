@@ -1,77 +1,58 @@
-# Course 1 Study Reader — Pro v22
+# Study Atlas
 
-Lector de estudio local para **Investment Foundations – Course 1: Industry Overview and Structure**. Está pensado para leer en trayectos, practicar y revisar vocabulario desde móvil sin depender del formato rígido de un PDF.
+Plataforma personal de aprendizaje: biblioteca de cursos y módulos, lector, notas, preguntas con una o varias respuestas, tarjetas con repaso espaciado, documentos privados y avance sincronizado.
 
-## Abrirlo
+**Empieza por [`docs/GUIA_CONFIGURACION.html`](docs/GUIA_CONFIGURACION.html)**. Es una guía visual paso a paso que puedes abrir directamente desde el ZIP.
 
-1. Descomprime el ZIP completo.
-2. Conserva las carpetas `assets/` y `data/` junto a los archivos HTML.
-3. Abre `index.html` para Lectura, `practica.html` para Práctica o `glosario.html` para Glosario.
+## Para Walter: instalación con GitHub Desktop
 
-La lectura, índice, ejercicios, glosario, marcadores, notas, resaltados y progreso funcionan localmente. La traducción necesita conexión o un servicio configurado.
+1. Guarda un respaldo de tu repositorio actual.
+2. Copia el contenido de esta carpeta a tu repositorio local `index.html`, conservando su carpeta `.git` y tu `CNAME` si usas dominio propio.
+3. Configura Supabase con `supabase/schema.sql`; completa solo las dos claves públicas indicadas en `config.js`.
+4. En GitHub Desktop, haz Commit y Push. En GitHub → Settings → Pages elige **GitHub Actions**.
+5. Abre tu web, inicia sesión e importa `migration/curso-original.json` desde **Gestionar → Importar respaldo / curso**.
+6. En el mismo navegador y dominio anterior, usa **Ajustes → Recuperar avance anterior**.
 
-## Novedades de v22
+La guía amplía cada paso, el alta del usuario, URLs, SMTP, recuperación de contraseña y comprobaciones en un segundo dispositivo. La nube real necesita tu proyecto y tu cuenta; no hay credenciales ni servicios externos ya aprovisionados en el ZIP.
 
-- **Lectura**, **Práctica** y **Glosario** ahora cuentan con páginas y URL independientes.
-- La navegación superior e inferior utiliza enlaces reales entre `index.html`, `practica.html` y `glosario.html`.
-- La página de lectura puede conservar la página actual mediante `?page=`.
-- Práctica puede conservar unidad y modalidad mediante `?module=` y `?level=`.
-- Glosario puede conservar módulo y modo mediante `?module=` y `?mode=`.
-- Se añadió `404.html` para enlaces inexistentes en GitHub Pages.
-- Se mantiene el progreso local, notas, guardados, resultados de práctica y preferencias entre las tres páginas.
+## Probar en tu computadora
 
-## Qué incluye
+En Windows con Python 3 instalado, ejecuta `INICIAR_WINDOWS.bat`. O abre una terminal en esta carpeta:
 
-- **157 páginas** de lectura refluida, una a la vez.
-- Índice desplegable por módulo, lección y página.
-- Búsqueda contextual: resalta coincidencias en amarillo y abre el fragmento dentro de la lectura.
-- **21 visuales relevantes** —exhibits, tablas, diagramas, figuras y fotografías— ubicados junto al texto que explican y ampliables con zoom.
-- Tablas simples reconstruidas semánticamente; las complejas permanecen como visuales para evitar errores de columnas o jerarquía.
-- Prácticas basadas únicamente en los knowledge checks del material.
-- Glosario, notas, favoritos, pronunciación, resaltado y progreso guardados en el dispositivo.
-- Modo claro y oscuro, con navegación y controles adaptados a móvil, tablet y escritorio.
-
-## Uso recomendado en móvil
-
-- Pulsa el menú superior para abrir el **índice** y navegar por módulo, lección o página.
-- En la barra inferior usa **Inicio** para volver al comienzo de la vista actual, **Leer** para la lectura, **Práctica** para reforzar y **Glosario** para vocabulario.
-- Mantén pulsado un fragmento de lectura y selecciona: puedes traducir, escuchar, guardar, resaltar o copiar.
-- En Práctica, elige unidad y tipo. Usa el **mapa de preguntas** o el selector **Ir a** para retomar un punto específico.
-- Cuando aparezca un exhibit, toca **Ampliar visual**. No necesitas salir de la lectura.
-- Marca una página como estudiada antes de seguir; la web guarda dónde te quedaste.
-
-## Traducción
-
-La configuración está al final de `index.html`:
-
-```js
-window.TRANSLATION_CONFIG = {
-  PROVIDER: "mymemory", // mymemory | proxy | libretranslate
-  PROXY_URL: "",
-  LIBRETRANSLATE_URL: "",
-  MAX_CHARS: 1400,
-  TIMEOUT_MS: 9000
-};
+```sh
+python -m http.server 8080
 ```
 
-La opción incluida, `mymemory`, no requiere clave y está pensada para palabras, frases y fragmentos cortos. Cada traducción se guarda en IndexedDB para no repetir una solicitud en el mismo dispositivo.
+Abre http://localhost:8080/. No abras index.html con doble clic: módulos JavaScript y OCR necesitan un servidor HTTP/HTTPS. El modo local funciona sin Supabase. Para trasladar datos locales a tu cuenta, expórtalos y luego impórtalos después de iniciar sesión.
 
-Para estudiar con mayor frecuencia, configura un proxy privado o LibreTranslate siguiendo la estructura descrita en `ARCHITECTURE.md`. No guardes una API key comercial en el HTML.
+## Contenido conservado
 
-## Uso sin conexión / PWA
+El curso anterior es **Investment Foundations — Course 1**, no un currículo completo de CFA Level I. La importación conserva 157 páginas, 21 visuales y 71 definiciones. Las 38 actividades originales se convierten en 44 preguntas funcionales: los emparejamientos y matrices se separan en decisiones evaluables y las 5 preguntas de respuesta múltiple mantienen su selección nativa. Los detalles están en `migration/auditoria-conversion.json` y `docs/MIGRACION.md`.
 
-El lector abre localmente con `index.html`, `practica.html` y `glosario.html`. Para instalarlo como app y almacenar los recursos visitados, súbelo a un entorno privado con HTTPS y ábrelo al menos una vez con conexión. El service worker guarda el shell de la app y los contenidos que ya hayas visitado.
+La publicación usa una lista explícita de archivos públicos. `migration/`, `supabase/`, pruebas y el corpus anterior no se copian al sitio. **Esto no vuelve privado un repositorio GitHub público ni su historial.** Los materiales importados a tu cuenta se guardan bajo políticas por usuario; el material ya publicado requiere revisar su repositorio y sus derechos por separado.
 
-## Datos que se guardan en este dispositivo
+## Motor de documentos
 
-- Última página y avance por página.
-- Páginas favoritas y marcadas como estudiadas.
-- Notas personales, resaltados y palabras guardadas.
-- Resultados de práctica y estado del glosario.
-- Traducciones consultadas.
+- PDF con texto, TXT y Markdown; archivos PNG/JPG/WebP con OCR inglés y español.
+- Hasta 40 MB por archivo. OCR máximo 10 páginas por importación; permite rangos.
+- Bibliotecas, modelos OCR y tipografías incluidos localmente: no depende de un CDN.
+- Extracción por página, revisión editable, detección de duplicados, avisos de columnas y conservación de fuente original.
+- IA opcional para resúmenes, tarjetas y preguntas, con fuentes, validación y revisión antes de guardar. Necesita la función Supabase, clave de OpenAI en el servidor, lista de correos permitidos y límites de consumo.
+- No se garantiza interpretación exacta de fórmulas, tablas o escaneos difíciles. Contrasta con el original.
 
-Estos datos no se sincronizan entre dispositivos. Puedes limpiarlos desde **Restablecer datos locales** en el índice.
+## Desarrollo y mantenimiento
 
-## Contenido y privacidad
+La web ya está preparada: no es obligatorio instalar Node para publicar. Las dependencias del navegador están en `vendor/` y versionadas en package-lock.json.
 
-La herramienta usa exclusivamente el texto y los visuales necesarios de los documentos proporcionados para estudio personal. Los recursos se mantienen locales y no deben publicarse de forma abierta si el material tiene restricciones de uso.
+```sh
+npm ci
+npm test
+npm run vendor
+npm run build
+```
+
+`dist/` contiene únicamente lo publicable. El workflow construye con Node22 sin instalar dependencias porque el código del navegador está preincluido. `scripts/vendor.mjs` regenera los SDK y tipografías; el motor OCR y los modelos locales se conservan en vendor/tesseract-core y vendor/tessdata (ver `docs/IMPORTACION.md` para ubicaciones exactas). Las licencias están en `vendor/licenses/`.
+
+## Validación
+
+Ver `docs/VALIDACION.md` para alcance real de las pruebas y los pasos pendientes en tu nube. No se simulan porcentajes de aprendizaje: lectura, aciertos, tarjetas y tiempo se calculan por separado con tus registros.

@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Course 1 Study Reader">
-  <rect width="256" height="256" rx="56" fill="#102b20"/>
-  <rect x="34" y="34" width="188" height="188" rx="38" fill="#315a43"/>
-  <path d="M83 70h89v17H83zm0 34h89v17H83zm0 34h65v17H83zm0 34h89v17H83z" fill="#f8f6ed"/>
-  <circle cx="187" cy="179" r="24" fill="#c6dfa8"/>
-  <path d="M179 179l6 6 12-14" fill="none" stroke="#102b20" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="30" fill="#173c34"/><path d="M29 90 57 36h15l27 54H81l-5-12H51l-5 12zm29-27h12l-6-16z" fill="#d7e9b8"/><path d="M91 20h17v17m0-17L87 41" fill="none" stroke="#d7e9b8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>

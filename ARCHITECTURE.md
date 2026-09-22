@@ -1,92 +1,34 @@
-# Arquitectura v11: lector ligero, fiel y escalable
+# Arquitectura de Study Atlas
 
-## Principio de producto
+## Aplicación estática, datos privados
 
-La web no funciona como un visor PDF. Funciona como una plataforma de aprendizaje: una página refluida por vez, visuales precisos ubicados dentro del flujo pedagógico y una navegación de páginas que permite retomar o saltar sin perderse.
+`index.html` carga módulos ES locales, sin compilación necesaria para el usuario. `app/main.js` coordina vistas y acciones; `styles.css` define el sistema visual. `app/learning.js` mantiene cálculo de métricas, búsqueda y calendario de tarjetas. La interfaz usa HTML sanitizado con DOMPurify y escapado explícito para texto.
 
-```text
-index.html + styles.css + script.js       interfaz responsive, estado y accesibilidad
-├── data/course-manifest.js               curso, módulos, lecciones y las 157 páginas
-├── data/page-registry.js                 cargador local o remoto de contenido por grupos
-├── data/page-content/<grupo>.js          texto refluido, separado por módulo
-├── data/visual-registry.js               visual y ubicación pedagógica de cada exhibit
-├── data/page-search-index.js             índice de búsqueda cargado solo al buscar
-├── data/exercises/<módulo>.js            prácticas cargadas bajo demanda
-├── data/glossary.js                      glosario cargado bajo demanda
-├── assets/visuals/*.webp                 solo exhibits, tablas, diagramas y figuras necesarios
-└── service-worker.js                     caché opcional en HTTPS
-```
+- `app/store.js`: IndexedDB independiente para invitado y cada usuario, transacciones, outbox, sincronización incremental, revisiones optimistas, tombstones, conflictos y respaldos con binarios/SHA256.
+- `app/auth.js`: Supabase Auth, sesión persistente, recuperación de contraseña y callbacks diferidos para evitar locks del SDK.
+- `app/importer.js`: PDF.js, segmentación por página, geometría de lectura, validación, OCR Tesseract y cancelación. Los cortes por página hacen revisables las referencias.
+- `app/ai.js` + `supabase/functions/study-ai/index.ts`: generación explícita, usuario verificado, correos permitidos, límites de entrada, cuota atómica y salida estructurada contrastada con páginas proporcionadas.
+- `app/legacy.js`: migración no destructiva y copia exacta del almacenamiento del lector anterior.
+- `app/seed.js`: curso de bienvenida propio; solo se inserta después de confirmar una cuenta vacía o en un invitado nuevo.
 
-## Qué no se envía al navegador
+## Modelo de datos
 
-- No se incluyen los PDFs originales.
-- No se incluye una imagen completa de cada una de las 157 páginas.
-- No se crean galerías o respaldos visuales que obliguen a descargar información duplicada.
+Tipos de registro: courses, modules, lessons, documents, cards, questions, progress, notes, attempts, sessions, settings. Cada registro tiene un ID estable. La tabla `study_records` agrega dueño, revisión del servidor, payload JSONB y borrado lógico. El RPC `apply_study_change` exige la revisión previa esperada y es idempotente ante reintentos. Las políticas RLS se aplican también a lecturas directas.
 
-Las 157 páginas se mantienen en lectura refluida. Los 21 recursos visuales se cargan únicamente en la página que los necesita y el navegador retrasa su descarga hasta que estén cerca del viewport.
+Archivos inmutables en Storage `cfa-documents`, ruta `<userId>/<fileId>`. No se suben claves secretas al navegador. Una cuenta no puede leer ni sobrescribir fuentes de otra. El borrado de la ficha no elimina físicamente fuentes: permite recuperación, pero liberar espacio requiere limpiar Storage tras un respaldo. MIME permitidos restringidos; HTML/SVG ejecutables no se abren como adjuntos.
 
-## Fidelidad: texto, tabla o visual
+La sincronización compara metadatos de revisiones y descarga solo cuerpos nuevos o cambiados. La edición local se conserva si otra versión llega antes de enviar. Conflictos explícitos se resuelven en Ajustes, con copias conservadas en el respaldo. Una edición abierta verifica que el registro no haya cambiado antes de guardar.
 
-Cada elemento se gestiona por tipo:
+## Aprendizaje
 
-1. **Texto narrativo** → bloques HTML refluibles, seleccionables y compatibles con traducción, voz, resaltado y notas.
-2. **Tabla simple** → tabla HTML semántica solo cuando se puede conservar título, encabezados, columnas y relación entre celdas.
-3. **Tabla compleja, diagrama, esquema, fotografía o layout compuesto** → recorte visual original, nítido, con título, leyenda, página de referencia, texto alternativo y zoom integrado.
-4. **Exhibit incluido como visual** → se ubica con `insertBefore` o `insertAfter` junto al texto que lo presenta. `skipBlocks` evita mostrar una extracción plana o duplicada cuando puede confundir.
+Marcar una lección como estudiada mide cobertura, no dominio. Aciertos usa todos los intentos. Práctica permite una o varias respuestas, explicación posterior y filtro de errores/sin responder. Las tarjetas usan intervalos simples adaptados de SM-2; Otra vez=10min, Difícil reduce el salto, Bien/Fácil aumentan intervalo. No es una estimación calibrada de probabilidad de aprobar un examen.
 
-Este enfoque reduce peso y evita el problema de convertir dos columnas o un layout visual en párrafos sin estructura.
+## Escala y límites
 
-## Navegación de páginas
+La biblioteca activa se representa en memoria para buscar sin servidor. Adecuada para estudio personal; bibliotecas de miles de documentos muy grandes requerirán paginación e índices del servidor. El OCR corre en WebAssembly local y puede tardar en equipos modestos. Los respaldos JSON incluyen binarios base64, por lo que pueden ser grandes y consumir memoria. Ningún plan gratuito garantiza disponibilidad perpetua: consulta la guía para planes, pausas y copias externas.
 
-`course-manifest.js` mantiene los rangos de cada sección. El índice se genera desde ese mapa:
+## Publicación y actualizaciones
 
-- cada módulo puede abrirse o cerrarse;
-- cada lección puede desplegar la grilla de sus páginas;
-- la página actual se marca con un estado visible;
-- las páginas completadas tienen su propio estado;
-- el usuario puede ir a cualquier página sin cargar todos los textos previamente.
+`node scripts/build.mjs` copia una lista explícita al directorio dist. GitHub Actions publica ese directorio. Nunca publica SQL, claves privadas, backups, corpus de migración ni node_modules. El service worker guarda únicamente recursos estáticos del propio sitio y limpia solo cachés propias o del lector anterior. Los datos privados siguen en IndexedDB por cuenta; los requests a Supabase nunca se cachean en el service worker.
 
-## Flujo de práctica y navegación
-
-La práctica se renderiza solo al abrir su vista. El estado `ui.practice` mantiene el filtro por módulo, nivel, pregunta actual y feedback temporal. La interfaz se divide en cuatro pasos visuales:
-
-1. **Configurar**: seleccionar unidad y tipo de práctica.
-2. **Orientarse**: consultar el contador, barra de avance, selector y mapa de preguntas.
-3. **Responder**: elegir una opción y verificar sin mostrar la respuesta antes del intento.
-4. **Revisar o avanzar**: usar Intentar otra vez, abrir la referencia o ir a la siguiente pregunta.
-
-El mapa de preguntas se genera con el estado local: pendiente, correcta o por reforzar. Los botones Anterior/Siguiente no hacen saltos circulares, por lo que el inicio y el final de la ruta son siempre claros. El acceso móvil a Inicio es parte de la barra inferior; no hay un botón flotante que cubra contenido.
-
-## Carga progresiva
-
-| Recurso | Cuándo se solicita |
-| --- | --- |
-| Interfaz, manifiesto y navegación | al abrir la web |
-| Texto de lectura | al abrir una página de su grupo/módulo |
-| Visual de un exhibit | cuando la página lo necesita y llega al viewport |
-| Ejercicios | al abrir Práctica |
-| Glosario | al abrir Glosario |
-| Índice de búsqueda | al escribir en Buscar |
-| Traducción | solo para el fragmento seleccionado |
-
-Los grupos de contenido locales ya tienen un modo remoto opcional en `data/page-registry.js`. Al agregar muchos cursos, conserva el mismo formato y sirve cada grupo desde una API autenticada:
-
-```text
-GET /courses/{courseId}/manifest
-GET /courses/{courseId}/page-groups/{moduleId}
-GET /courses/{courseId}/search-index
-GET /courses/{courseId}/exercises/{moduleId}
-GET /courses/{courseId}/glossary
-GET /courses/{courseId}/visuals/{visualId}.webp
-POST /translate
-POST /progress
-```
-
-## Reglas para crecer a una biblioteca privada
-
-- Mantén los PDFs fuente fuera del bundle público; úsalos para el proceso de preparación y control de calidad.
-- Versiona manifiestos y assets visuales con nombres inmutables.
-- Conserva los crops de exhibits solo cuando aportan información no reproducible con texto o tabla semántica.
-- Protege API y archivos con autenticación cuando el curso tenga derechos restringidos.
-- Sincroniza solo progreso, notas, tarjetas y preferencias; no es necesario duplicar el corpus académico en una base de datos de usuario.
-- Agrega descarga offline por módulo, no por catálogo completo.
+Al actualizar `vendor/`, fijar versiones, regenerar, revisar licencias, ejecutar auditoría de dependencias y pruebas. Al modificar la estructura persistida, subir versión IndexedDB y escribir migración compatible. Al cambiar tablas/RPC, usar una migración SQL y probar aislamiento entre dos usuarios.
