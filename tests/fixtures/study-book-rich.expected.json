@@ -1,0 +1,96 @@
+{
+  "file": "study-book-rich.pdf",
+  "pageCount": 12,
+  "title": "Investment Study Book - Rich PDF Fixture",
+  "author": "Study Atlas Test Suite",
+  "blankPages": [
+    6
+  ],
+  "frontMatterPages": [
+    1,
+    2
+  ],
+  "academicModuleStartPages": [
+    3,
+    7,
+    10
+  ],
+  "appendixPages": [
+    12
+  ],
+  "vectorGraphicPages": [
+    5
+  ],
+  "rasterGraphicPages": [
+    9
+  ],
+  "formulaPages": [
+    4
+  ],
+  "tablePages": [
+    4,
+    8,
+    12
+  ],
+  "twoColumnPages": [
+    8
+  ],
+  "outline": [
+    {
+      "title": "Investment Study Book",
+      "page": 1,
+      "level": 0
+    },
+    {
+      "title": "Contents and study instructions",
+      "page": 2,
+      "level": 1
+    },
+    {
+      "title": "Module 1: Time value of money",
+      "page": 3,
+      "level": 0
+    },
+    {
+      "title": "Lesson 1: Discount factors",
+      "page": 4,
+      "level": 1
+    },
+    {
+      "title": "Lesson 2: Rates and prices",
+      "page": 5,
+      "level": 1
+    },
+    {
+      "title": "Module 2: Risk and allocation",
+      "page": 7,
+      "level": 0
+    },
+    {
+      "title": "Lesson 1: Portfolio exposures",
+      "page": 8,
+      "level": 1
+    },
+    {
+      "title": "Lesson 2: Visual comparison",
+      "page": 9,
+      "level": 1
+    },
+    {
+      "title": "Module 3: Decision process",
+      "page": 10,
+      "level": 0
+    },
+    {
+      "title": "Lesson 1: Explain your decision",
+      "page": 11,
+      "level": 1
+    },
+    {
+      "title": "Appendix: Definitions and notes",
+      "page": 12,
+      "level": 0
+    }
+  ],
+  "testAuthored": true
+}

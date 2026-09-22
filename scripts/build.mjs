@@ -19,6 +19,7 @@ const allow = [
   "docs/GUIA_CONFIGURACION.md",
   "docs/IMPORTACION.md",
   "docs/MIGRACION.md",
+  "docs/LECTOR_PDF.md",
 ];
 for (const item of allow) {
   await mkdir(path.dirname(path.join(output, item)), { recursive: true });

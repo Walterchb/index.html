@@ -76,11 +76,90 @@ try {
     ok(recovery.id === 'user-a', 'Recovery event survives subscription after auth initialization');
     await store.initStore();
     await store.put('courses', { id: 'guest-course', title: 'Guest only' });
+    const batchEvents = []; const stopBatchEvents = store.subscribe(event => batchEvents.push(event));
+    const savedBatch = await store.putBatch([
+      { kind: 'courses', data: { id: 'book-course', title: 'Complete book' } },
+      { kind: 'modules', data: { id: 'book-module', courseId: 'book-course', title: 'Reading' } },
+      { kind: 'lessons', data: { id: 'book-page-1', courseId: 'book-course', moduleId: 'book-module', sourcePage: 1 } },
+      { kind: 'lessons', data: { id: 'book-page-2', courseId: 'book-course', moduleId: 'book-module', sourcePage: 2 } },
+    ]);
+    stopBatchEvents();
+    ok(savedBatch.length === 4 && (await store.list('lessons')).length === 2 && batchEvents.filter(event => event.source === 'local').length === 1 && batchEvents[0].changed === 4, 'Book batch saves all pages and emits one change');
+    let batchRejected = false;
+    try { await store.putBatch([{ kind: 'lessons', data: { id: 'validation-unwritten' } }, { kind: 'invalid-kind', data: { id: 'invalid' } }]); } catch { batchRejected = true; }
+    ok(batchRejected && !(await store.get('lessons', 'validation-unwritten')), 'Invalid record rejects the whole batch before writes');
+    batchRejected = false;
+    try { await store.putBatch([{ kind: 'lessons', data: { id: 'duplicate-page' } }, { kind: 'lessons', data: { id: 'duplicate-page' } }]); } catch { batchRejected = true; }
+    ok(batchRejected && !(await store.get('lessons', 'duplicate-page')), 'Duplicate batch identifiers reject without partial writes');
+    batchRejected = false;
+    try { await store.putBatch([{ kind: 'lessons', data: { id: 'collision-unwritten' } }, { kind: 'courses', data: { id: 'book-course', title: 'Must not overwrite' } }]); } catch { batchRejected = true; }
+    ok(batchRejected && !(await store.get('lessons', 'collision-unwritten')) && (await store.get('courses', 'book-course')).title === 'Complete book', 'Create-only collision preserves existing records and rolls back new ones');
+    const originalPut = IDBObjectStore.prototype.put; let queuedWrites = 0;
+    IDBObjectStore.prototype.put = function (...args) {
+      if (this.name === 'outbox' && ++queuedWrites === 2) throw new DOMException('Simulated quota failure', 'QuotaExceededError');
+      return originalPut.apply(this, args);
+    };
+    batchRejected = false;
+    try { await store.putBatch([{ kind: 'lessons', data: { id: 'rollback-first' } }, { kind: 'lessons', data: { id: 'rollback-second' } }]); } catch { batchRejected = true; }
+    finally { IDBObjectStore.prototype.put = originalPut; }
+    ok(batchRejected && !(await store.get('lessons', 'rollback-first')) && !(await store.get('lessons', 'rollback-second')), 'Mid-transaction failure rolls back every record and queue write');
+    await store.putBatch([{ kind: 'modules', data: { id: 'book-module', courseId: 'book-course', title: 'Reordered chapter' } }, { kind: 'lessons', data: { id: 'book-page-2', courseId: 'book-course', moduleId: 'book-module', sourcePage: 2, order: 1 } }], { createOnly: false });
+    ok((await store.get('modules', 'book-module')).title === 'Reordered chapter' && (await store.get('lessons', 'book-page-1')).sourcePage === 1, 'Batch upsert repartitions selected records without touching others');
+    batchRejected = false;
+    try { await store.putBatch([], { remove: [{ kind: 'modules', id: 'book-module' }] }); } catch { batchRejected = true; }
+    ok(batchRejected && (await store.get('modules', 'book-module')), 'Batch deletion requires explicit createOnly false');
+    batchRejected = false;
+    try { await store.putBatch([{ kind: 'modules', data: { id: 'book-module', title: 'Must not change' } }], { createOnly: false, remove: [{ kind: 'modules', id: 'book-module' }] }); } catch { batchRejected = true; }
+    ok(batchRejected && (await store.get('modules', 'book-module')).title === 'Reordered chapter', 'Updating and deleting the same batch target rejects before writes');
+    IDBObjectStore.prototype.put = function (...args) {
+      if (this.name === 'outbox' && args[0]?.deleted) throw new DOMException('Simulated deletion quota failure', 'QuotaExceededError');
+      return originalPut.apply(this, args);
+    };
+    batchRejected = false;
+    try { await store.putBatch([{ kind: 'modules', data: { id: 'replacement-unwritten', title: 'New chapter' } }], { createOnly: false, remove: [{ kind: 'modules', id: 'book-module' }] }); } catch { batchRejected = true; }
+    finally { IDBObjectStore.prototype.put = originalPut; }
+    ok(batchRejected && !(await store.get('modules', 'replacement-unwritten')) && (await store.get('modules', 'book-module')).title === 'Reordered chapter', 'Failure writing a tombstone rolls back deletions and earlier updates together');
+    const repartition = await store.putBatch([
+      { kind: 'modules', data: { id: 'replacement-module', courseId: 'book-course', title: 'Merged chapter' } },
+      ...await Promise.all(['book-page-1', 'book-page-2'].map(async id => ({ kind: 'lessons', data: { ...await store.get('lessons', id), moduleId: 'replacement-module' } }))),
+    ], { createOnly: false, remove: [{ kind: 'modules', id: 'book-module' }] });
+    ok(repartition.length === 3 && !(await store.get('modules', 'book-module')) && (await store.get('lessons', 'book-page-1')).moduleId === 'replacement-module' && (await store.get('lessons', 'book-page-2')).moduleId === 'replacement-module', 'Repartition moves all pages and tombstones the removed module atomically');
+    const originalGet = IDBObjectStore.prototype.get; let switching;
+    IDBObjectStore.prototype.get = function (...args) {
+      const result = originalGet.apply(this, args);
+      if (this.name === 'records' && args[0] === 'lessons:scope-unwritten') {
+        IDBObjectStore.prototype.get = originalGet;
+        queueMicrotask(() => { switching = store.initStore('batch-switch'); });
+      }
+      return result;
+    };
+    batchRejected = false;
+    try { await store.putBatch([{ kind: 'lessons', data: { id: 'scope-unwritten' } }]); } catch { batchRejected = true; }
+    finally { IDBObjectStore.prototype.get = originalGet; }
+    await switching;
+    const leakedIntoNewScope = await store.get('lessons', 'scope-unwritten');
+    await store.initStore();
+    ok(batchRejected && !leakedIntoNewScope && !(await store.get('lessons', 'scope-unwritten')), 'Account switch aborts the batch without writing either account');
     await store.initStore('user-a');
     ok((await store.list('courses')).length === 0, 'Guest data is isolated from account');
     await store.put('notes', { id: 'note-1', body: 'First note' });
     await store.sync();
     ok(store.status().pending === 0 && mock.rows.get('user-a:notes:note-1').revision === 1, 'Cloud CAS insert drains outbox');
+    await store.putBatch([{ kind: 'courses', data: { id: 'cloud-book', title: 'Book' } }, { kind: 'lessons', data: { id: 'cloud-page', courseId: 'cloud-book', sourcePage: 1 } }]);
+    await store.sync();
+    await store.putBatch([{ kind: 'lessons', data: { id: 'cloud-page', courseId: 'cloud-book', sourcePage: 1, title: 'Renamed page' } }], { createOnly: false });
+    await store.sync();
+    ok(mock.rows.get('user-a:lessons:cloud-page').revision === 2 && mock.rows.get('user-a:lessons:cloud-page').payload.title === 'Renamed page' && store.status().pending === 0, 'Batch inserts and updates use the existing cloud CAS revision contract');
+    await store.putBatch([], { createOnly: false, remove: [{ kind: 'lessons', id: 'cloud-page' }] }); await store.sync();
+    ok(mock.rows.get('user-a:lessons:cloud-page').deleted && mock.rows.get('user-a:lessons:cloud-page').revision === 3 && store.status().pending === 0, 'Batch tombstone uses the existing revision when synchronizing deletion');
+    await store.put('modules', { id: 'conflicting-module', title: 'Original chapter' }); await store.sync();
+    const remoteModule = mock.rows.get('user-a:modules:conflicting-module'); remoteModule.revision++; remoteModule.payload.title = 'Remote chapter';
+    await store.put('modules', { id: 'conflicting-module', title: 'Local chapter' }); await store.sync();
+    await store.putBatch([], { createOnly: false, remove: [{ kind: 'modules', id: 'conflicting-module' }] });
+    const deletionConflict = (await store.listConflicts()).find(c => c.id === 'conflicting-module');
+    ok(deletionConflict?.localDeleted && deletionConflict.local.id === 'conflicting-module' && !remoteModule.deleted && remoteModule.payload.title === 'Remote chapter', 'Batch deletion preserves remote conflict and records the local tombstone');
+    await store.resolveConflict('modules', 'conflicting-module', 'local'); await store.sync();
+    ok(mock.rows.get('user-a:modules:conflicting-module').deleted && mock.rows.get('user-a:modules:conflicting-module').revision === 3 && store.status().conflicts === 0, 'Batch deletion conflict resolves with the latest remote revision');
     const remote = mock.rows.get('user-a:notes:note-1'); remote.revision++; remote.payload.body = 'Edited on another device';
     await store.put('notes', { id: 'note-1', body: 'Local conflicting note' });
     await store.sync();

@@ -1,13 +1,34 @@
-STUDY ATLAS — TU PLATAFORMA DE ESTUDIO
+CFA STUDY READER — VERSIÓN 4
 
-1. Abre docs/GUIA_CONFIGURACION.html. Incluye todos los pasos con Supabase y GitHub Desktop.
-2. Para probar en Windows con Python 3 instalado: ejecuta INICIAR_WINDOWS.bat.
-3. Para publicar: copia el CONTENIDO de esta carpeta en tu repositorio, conserva .git y CNAME, configura config.js y usa GitHub Actions como origen de Pages.
-4. Importa tu material anterior desde Gestionar > Importar respaldo / curso, seleccionando migration/curso-original.json.
-5. Recupera el avance desde Ajustes > Recuperar avance anterior, en el navegador y dominio que utilizabas antes.
+Esta versión recupera el diseño del lector anterior y añade cursos completos desde PDF.
+Tu config.js ya contiene la URL y la clave pública de Supabase que proporcionaste.
+Si Supabase ya funcionaba, esta actualización NO necesita otro SQL ni un proyecto nuevo.
 
-La nueva versión no está conectada a tus cuentas ni publicada todavía. No contiene claves privadas.
-Todo lo necesario para la web, PDF y OCR está incluido. La IA generativa es opcional y requiere configuración/API aparte.
+ACTUALIZA CON GITHUB DESKTOP
+1. En la web actual, exporta un respaldo desde Ajustes. Conserva también una copia de la carpeta del repositorio.
+2. Descomprime el ZIP. Copia el CONTENIDO de CFA_Study_Reader_v4 dentro de la carpeta local de tu repositorio index.html.
+3. Acepta reemplazar archivos. Conserva .git y CNAME si tienes un dominio propio. No borres la carpeta del repositorio.
+4. index.html, config.js, app, vendor, styles.css y .github deben quedar directamente en la raíz, sin otra carpeta intermedia.
+5. En GitHub Desktop: revisa los cambios, escribe «Lector PDF y cursos completos», pulsa Commit y después Push origin.
+6. En GitHub > Settings > Pages conserva GitHub Actions. Espera a que el despliegue termine y abre la misma dirección de tu web.
+7. Actualiza la página con Ctrl+F5. Inicia sesión con la misma cuenta; tus datos existentes se conservan.
 
-No arrastres la carpeta externa Study_Atlas_CFA entera dentro de tu repositorio: copia lo que contiene, de manera que index.html quede en la raíz.
-El workflow publica solo los archivos de la aplicación. Un repositorio público sigue siendo público: revisa qué materiales conservas en él.
+PRIMER LIBRO
+1. Pulsa Cargar PDF, selecciona el libro y pulsa Crear curso de lectura.
+2. Se crea automáticamente un curso con módulos y una lectura por cada página física.
+3. Abre Ver índice y cobertura. Si hace falta, ajusta títulos y rangos desde Ajustar módulos y rangos.
+4. Lee en PDF original: sus gráficos, fórmulas, tablas y anexos permanecen en el archivo original.
+5. Marca páginas estudiadas, guarda notas y crea tarjetas. Espera a que termine la sincronización antes de cambiar de dispositivo.
+
+LÍMITES CLAROS
+Hasta 40 MB y 1.000 páginas por PDF. El texto extraído es auxiliar; la detección del índice puede necesitar correcciones.
+Un escaneo conserva todas sus páginas, pero su OCR se solicita por página desde el lector; no se reconoce todo el libro automáticamente.
+Si estás en «Solo este dispositivo», tus datos son locales: inicia sesión para usar la nube. Exporta e importa un respaldo si quieres trasladar datos del espacio local a tu cuenta.
+
+GUÍAS
+- docs/GUIA_CONFIGURACION.html: instalación inicial, Supabase, login y publicación paso a paso.
+- docs/LECTOR_PDF.md: uso del lector, cobertura, organización y OCR.
+- docs/VALIDACION.md: pruebas realizadas y alcance.
+- migration/curso-original.json: curso anterior listo para importar si todavía no está en tu biblioteca.
+
+La aplicación está preparada para publicarse. Esta entrega no realiza el despliegue ni verifica tu cuenta real de Supabase.

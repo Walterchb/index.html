@@ -1,6 +1,8 @@
-# Study Atlas — configuración paso a paso
+# CFA Study Reader — configuración paso a paso
 
-Esta entrega contiene la aplicación lista para copiar a tu repositorio. Para guardar tu avance entre computadora y celular necesitas conectar tu propio proyecto Supabase y publicar la web. El ZIP no incluye cuentas, claves ni un despliegue hecho en tu nombre.
+Esta entrega contiene Reading Companion listo para copiar a tu repositorio, con lectura directa del PDF original. Si ya configuraste Supabase, conserva tus valores de `config.js`: esta actualización del lector no requiere un proyecto nuevo ni SQL adicional. Para el uso del visor, consulta `docs/LECTOR_PDF.md`.
+
+La instalación inicial se explica a continuación. Para guardar tu avance entre computadora y celular necesitas conectar tu propio proyecto Supabase y publicar la web. La configuración pública de conexión puede conservarse en `config.js`; las contraseñas y las claves privadas no forman parte de la web. La entrega no implica un despliegue hecho en tu nombre.
 
 **Ruta recomendada:** respaldar tu versión anterior → crear Supabase → completar `config.js` → publicar con GitHub Desktop → iniciar sesión → importar tu curso → comprobar la sincronización. La inteligencia artificial es un paso adicional opcional.
 
@@ -82,7 +84,7 @@ Si el correo no llega, revisa spam, destinatario permitido, límites y registros
 
 1. Busca en el panel de Supabase la **Project URL** y la clave **Publishable**; en algunas versiones aparecen en **Connect** o **Project Settings → API / API Keys**.
 2. Abre `config.js`, en la raíz de la carpeta nueva, con Visual Studio Code o Bloc de notas.
-3. Completa los dos campos vacíos y conserva los demás:
+3. Esta entrega ya contiene la URL y la clave pública que proporcionaste. Si corresponden a tu proyecto, conserva el archivo. Solo para otro proyecto, reemplaza estos dos valores:
 
 ```javascript
 window.CFA_CONFIG = {
@@ -156,7 +158,9 @@ Para trasladarlos: entra al modo local → exporta su respaldo → inicia sesió
 
 ## 9. Usa la estructura de aprendizaje
 
-La organización es **curso → módulo → lección**. Crea cursos separados para programas o niveles diferentes; crea módulos para temas y divide las lecciones en sesiones manejables.
+La organización es **curso → módulo → lección**. Para un libro PDF completo, cada página física tiene su entrada de lectura dentro del módulo correspondiente. El índice propone una estructura editable y valida que los rangos cubran todas las páginas, sin saltos ni repeticiones. El visor muestra directamente el PDF original; el texto extraído sirve como apoyo y no sustituye su diseño, imágenes o fórmulas. Consulta `docs/LECTOR_PDF.md`.
+
+También puedes crear cursos, módulos y lecciones manualmente para programas o niveles diferentes.
 
 Un ciclo útil:
 
@@ -168,7 +172,7 @@ Un ciclo útil:
 
 Los PDF con texto pueden analizarse localmente. Los PDF escaneados requieren OCR; su calidad depende del escaneo. Tablas complejas, fórmulas y diagramas necesitan revisión humana. El reconocimiento no es una garantía de interpretación financiera correcta.
 
-Los archivos tienen un límite inicial de **40 MB**. Mantén la configuración de la aplicación y del bucket en el mismo límite. Para material extenso, importa capítulos: facilita revisar el resultado y estudiar por objetivos.
+Los archivos tienen un límite inicial de **40 MB**. Mantén la configuración de la aplicación y del bucket en el mismo límite. El modo libro completo admite hasta 1.000 páginas y conserva el PDF original; si excede esos límites, divídelo en volúmenes. El reconocimiento de materiales por rangos sigue disponible para trabajar textos y escaneos por partes.
 
 La extracción local no requiere una clave de OpenAI. El OCR es explícito; la primera ejecución descarga el motor y los idiomas desde tu propia web y necesita conexión a ella. Los archivos están incluidos en el ZIP; no depende de un CDN externo. La IA remota solo se utiliza cuando eliges esa función y tienes su configuración activa. Los detalles y límites del motor están en `docs/IMPORTACION.md`.
 

@@ -1,4 +1,4 @@
-# Arquitectura de Study Atlas
+# Arquitectura de CFA Study Reader
 
 ## Aplicación estática, datos privados
 
@@ -6,6 +6,9 @@
 
 - `app/store.js`: IndexedDB independiente para invitado y cada usuario, transacciones, outbox, sincronización incremental, revisiones optimistas, tombstones, conflictos y respaldos con binarios/SHA256.
 - `app/auth.js`: Supabase Auth, sesión persistente, recuperación de contraseña y callbacks diferidos para evitar locks del SDK.
+- `app/book-importer.js`: analiza metadatos, marcadores y etiquetas del PDF completo; cada página física permanece representada. La extracción es auxiliar, con avisos de límites y disposición compleja.
+- `app/book-course.js`: valida rangos y mapa completo, construye registros atómicos y calcula cobertura independiente del avance.
+- `app/pdf-reader.js` + CSS: renderiza el PDF original en canvas HiDPI y capa de texto; navegación, enlaces, zoom, giro y descargas. El visor se conserva al actualizar notas/avance. Caché acotada por identidad de Blob; cambio de cuenta destruye el visor activo.
 - `app/importer.js`: PDF.js, segmentación por página, geometría de lectura, validación, OCR Tesseract y cancelación. Los cortes por página hacen revisables las referencias.
 - `app/ai.js` + `supabase/functions/study-ai/index.ts`: generación explícita, usuario verificado, correos permitidos, límites de entrada, cuota atómica y salida estructurada contrastada con páginas proporcionadas.
 - `app/legacy.js`: migración no destructiva y copia exacta del almacenamiento del lector anterior.
@@ -18,6 +21,14 @@ Tipos de registro: courses, modules, lessons, documents, cards, questions, progr
 Archivos inmutables en Storage `cfa-documents`, ruta `<userId>/<fileId>`. No se suben claves secretas al navegador. Una cuenta no puede leer ni sobrescribir fuentes de otra. El borrado de la ficha no elimina físicamente fuentes: permite recuperación, pero liberar espacio requiere limpiar Storage tras un respaldo. MIME permitidos restringidos; HTML/SVG ejecutables no se abren como adjuntos.
 
 La sincronización compara metadatos de revisiones y descarga solo cuerpos nuevos o cambiados. La edición local se conserva si otra versión llega antes de enviar. Conflictos explícitos se resuelven en Ajustes, con copias conservadas en el respaldo. Una edición abierta verifica que el registro no haya cambiado antes de guardar.
+
+## Libros completos
+
+Un documento `kind: pdf-book` conserva `fileId`, SHA256, total de páginas, etiquetas, marcadores y avisos de reconocimiento. Un curso apunta a `sourceDocumentId`; cada lección `kind: pdf-page` apunta a `documentId` y una `sourcePage` física inmutable. El nombre impreso no cambia esa referencia. Los módulos guardan rangos propuestos y origen de estructura.
+
+`putBatch` crea el curso y su mapa en una sola transacción local; la sincronización conserva las revisiones individuales de cada registro. Al reorganizar, actualiza módulos/páginas y materiales vinculados, incluyendo tombstones de módulos retirados, en la misma transacción. Los IDs de página se conservan para mantener notas y progreso. No hay migración SQL ni cambio de nombre de IndexedDB/auth/backup: todos los campos nuevos viajan en payloads JSONB existentes.
+
+La nube sincroniza registros de manera incremental. En un segundo dispositivo debe terminar la sincronización antes de considerar completa la descarga del curso. La fuente se almacena primero como archivo inmutable; una importación cancelada antes del lote de registros puede dejar un archivo local sin referencia, nunca un curso parcial. El archivo queda disponible para recuperación/limpieza posterior.
 
 ## Aprendizaje
 

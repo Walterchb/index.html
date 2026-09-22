@@ -138,7 +138,7 @@ async function transaction(ctx, names, mode, callback) {
   );
   let value;
   try {
-    value = await callback(stores);
+    value = await callback(stores, tx);
   } catch (error) {
     try {
       tx.abort();
@@ -236,6 +236,16 @@ export async function initStore(userId = null) {
   const generation = ++scopeGeneration;
   const scope = userId || "guest";
   if (current?.scope === scope) return status();
+  // A book import belongs to the scope where it started. Abort its entire
+  // transaction immediately when another account is requested, even while the
+  // new account's database is still opening.
+  for (const tx of current?.batchTransactions || []) {
+    try {
+      tx.abort();
+    } catch {
+      /* The transaction already completed. */
+    }
+  }
   const db = await openDatabase(scope);
   if (generation !== scopeGeneration) {
     db.close();
@@ -352,6 +362,142 @@ export async function put(kind, object) {
   await changed(ctx, { kind, id: data.id });
   return clone(data);
 }
+
+/**
+ * Save a complete import in one local transaction. Records remain in the
+ * durable outbox until the existing cloud synchronizer acknowledges each one.
+ * By default all identifiers must be new, including previously deleted IDs.
+ * For reorganization, { createOnly: false, remove: [{ kind, id }] } also writes
+ * deletion tombstones atomically. Returned values include only the upserts.
+ */
+export async function putBatch(items, { createOnly = true, remove = [] } = {}) {
+  const ctx = context();
+  const generation = scopeGeneration;
+  if (
+    !Array.isArray(items) ||
+    !Array.isArray(remove) ||
+    (!items.length && !remove.length) ||
+    items.length + remove.length > 3000
+  )
+    throw new Error("La importación debe contener entre 1 y 3000 registros.");
+  if (typeof createOnly !== "boolean")
+    throw new Error("La opción createOnly debe ser verdadera o falsa.");
+  if (createOnly && remove.length)
+    throw new Error("Para eliminar registros debes indicar createOnly: false.");
+
+  const seen = new Set();
+  const prepared = items.map((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item))
+      throw new Error("Cada registro debe indicar su tipo y sus datos.");
+    validateKind(item.kind);
+    const data = dataValue(item.data);
+    const entityKey = key(item.kind, data.id);
+    if (seen.has(entityKey))
+      throw new Error("La importación contiene identificadores repetidos.");
+    seen.add(entityKey);
+    return { kind: item.kind, data, entityKey, deleted: false };
+  });
+  for (const item of remove) {
+    if (!item || typeof item !== "object" || Array.isArray(item))
+      throw new Error("Cada eliminación debe indicar su tipo e identificador.");
+    validateKind(item.kind);
+    validateId(item.id);
+    const entityKey = key(item.kind, item.id);
+    if (seen.has(entityKey))
+      throw new Error(
+        "Un registro no puede guardarse o eliminarse más de una vez en la misma operación.",
+      );
+    seen.add(entityKey);
+    prepared.push({
+      kind: item.kind,
+      data: { id: item.id, updatedAt: now() },
+      entityKey,
+      deleted: true,
+    });
+  }
+  const checkContext = () => {
+    if (
+      !sameContext(ctx) ||
+      generation !== scopeGeneration ||
+      (ctx.userId && getClient() && getUser()?.id !== ctx.userId)
+    )
+      throw new Error(
+        "La cuenta cambió. Vuelve a importar desde la cuenta correcta.",
+      );
+  };
+
+  let batchTransaction;
+  checkContext();
+  try {
+    await transaction(
+      ctx,
+      ["records", "outbox", "conflicts"],
+      "readwrite",
+      async (s, tx) => {
+        batchTransaction = tx;
+        (ctx.batchTransactions ||= new Set()).add(tx);
+        const previous = await Promise.all(
+          prepared.map(async ({ entityKey }) => ({
+            record: await request(s.records.get(entityKey)),
+            conflict: await request(s.conflicts.get(entityKey)),
+          })),
+        );
+        checkContext();
+        if (
+          createOnly &&
+          previous.some(({ record, conflict }) => record || conflict)
+        )
+          throw new Error(
+            "Uno de los registros de la importación ya existe. No se ha guardado ningún cambio.",
+          );
+
+        for (let index = 0; index < prepared.length; index++) {
+          const { kind, data, entityKey, deleted } = prepared[index];
+          const { record, conflict } = previous[index];
+          const revision = record?.revision || 0;
+          s.records.put({
+            key: entityKey,
+            kind,
+            id: data.id,
+            data,
+            deleted,
+            revision,
+          });
+          s.outbox.put({
+            key: entityKey,
+            kind,
+            id: data.id,
+            data,
+            deleted,
+            expectedRevision: revision,
+            operationId: uuid(),
+          });
+          if (conflict) {
+            conflict.local = data;
+            conflict.localDeleted = deleted;
+            s.conflicts.put(conflict);
+          }
+        }
+      },
+    );
+  } catch (error) {
+    checkContext();
+    throw error;
+  } finally {
+    ctx.batchTransactions?.delete(batchTransaction);
+  }
+  // Completion can precede a subsequent account switch. Never refresh the new
+  // account with this import's state or schedule its work in another scope.
+  if (sameContext(ctx))
+    await changed(ctx, {
+      changed: prepared.length,
+      kinds: [...new Set(prepared.map(({ kind }) => kind))],
+    });
+  return prepared
+    .filter(({ deleted }) => !deleted)
+    .map(({ data }) => clone(data));
+}
+
 export async function remove(kind, id) {
   validateKind(kind);
   validateId(id);

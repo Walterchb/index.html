@@ -1,6 +1,6 @@
 /* Cache only this application's public shell. Private records/files stay in scoped IndexedDB. */
 const PREFIX = "study-atlas-v3-";
-const CACHE = PREFIX + "20260922-1";
+const CACHE = PREFIX + "reader-v4-20260922";
 const SHELL = [
   "./",
   "./index.html",
@@ -13,6 +13,10 @@ const SHELL = [
   "./app/seed.js",
   "./app/legacy.js",
   "./app/importer.js",
+  "./app/book-importer.js",
+  "./app/book-course.js",
+  "./app/pdf-reader.js",
+  "./app/pdf-reader.css",
   "./app/ai.js",
   "./vendor/purify.js",
   "./vendor/supabase.js",

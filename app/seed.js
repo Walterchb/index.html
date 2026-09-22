@@ -23,7 +23,7 @@ export async function seedWelcome(store) {
   const items = [
     [
       "Organiza tu punto de partida",
-      "Tu biblioteca puede tener varios cursos. Cada curso contiene módulos y cada módulo contiene lecciones.\n\nAbre Gestionar para crear tu propio curso, añadir módulos y escribir o importar lecciones. El curso original está en el archivo migration/curso-original.json del ZIP: impórtalo desde Gestionar → Importar respaldo / curso.\n\nUsa el mismo dominio de tu web anterior para recuperar su avance desde Ajustes → Recuperar avance anterior.",
+      "Carga un libro con el botón Cargar PDF. Se creará un curso con módulos y una lectura por cada página física. El PDF original conserva sus gráficos, fórmulas, tablas y anexos.\n\nAbre Ver índice y cobertura para revisar la organización. Puedes cambiar títulos y rangos sin perder tus notas ni avance. Gestionar también permite crear cursos, módulos y lecciones manualmente. El curso original está en el archivo migration/curso-original.json del ZIP: impórtalo desde Gestionar → Importar respaldo / curso.\n\nUsa el mismo dominio de tu web anterior para recuperar su avance desde Ajustes → Recuperar avance anterior.",
     ],
     [
       "Estudia para poder explicarlo",
@@ -31,7 +31,7 @@ export async function seedWelcome(store) {
     ],
     [
       "Convierte el repaso en una rutina",
-      "En Práctica responde antes de consultar la explicación. Si fallas, vuelve a la fuente y razona por qué la alternativa correcta sí responde la pregunta.\n\nEn Repasar, intenta recordar la respuesta antes de revelarla. Después elige Otra vez, Difícil, Bien o Fácil. El siguiente repaso se programa según tu evaluación.\n\nConfigura tu meta diaria y tu fecha objetivo en Ajustes. Usa sesiones de enfoque para registrar tiempo real de estudio.",
+      "En Práctica responde antes de consultar la explicación. Si fallas, vuelve a la fuente y razona por qué la alternativa correcta sí responde la pregunta.\n\nEn Glosario y repaso, intenta recordar la respuesta antes de revelarla. Después elige Otra vez, Difícil, Bien o Fácil. El siguiente repaso se programa según tu evaluación.\n\nConfigura tu meta diaria y tu fecha objetivo en Ajustes. Usa sesiones de enfoque para registrar tiempo real de estudio.",
     ],
   ];
   for (let i = 0; i < items.length; i++)

@@ -1,6 +1,6 @@
-# Study Atlas
+# CFA Study Reader · v4
 
-Plataforma personal de aprendizaje: biblioteca de cursos y módulos, lector, notas, preguntas con una o varias respuestas, tarjetas con repaso espaciado, documentos privados y avance sincronizado.
+Lector de estudio con el diseño editorial de la versión original. Carga un PDF y crea automáticamente un curso completo: índice editable, módulos, una lectura por página, notas vinculadas, preguntas y repasos. El visor muestra el archivo original para conservar gráficos, tablas, fórmulas y anexos.
 
 **Empieza por [`docs/GUIA_CONFIGURACION.html`](docs/GUIA_CONFIGURACION.html)**. Es una guía visual paso a paso que puedes abrir directamente desde el ZIP.
 
@@ -8,12 +8,12 @@ Plataforma personal de aprendizaje: biblioteca de cursos y módulos, lector, not
 
 1. Guarda un respaldo de tu repositorio actual.
 2. Copia el contenido de esta carpeta a tu repositorio local `index.html`, conservando su carpeta `.git` y tu `CNAME` si usas dominio propio.
-3. Configura Supabase con `supabase/schema.sql`; completa solo las dos claves públicas indicadas en `config.js`.
+3. `config.js` ya incluye la URL y la clave pública de Supabase proporcionadas por Walter. Si la versión anterior ya sincronizaba, no ejecutes más SQL ni crees otro proyecto. Para una instalación inicial, sigue la guía.
 4. En GitHub Desktop, haz Commit y Push. En GitHub → Settings → Pages elige **GitHub Actions**.
-5. Abre tu web, inicia sesión e importa `migration/curso-original.json` desde **Gestionar → Importar respaldo / curso**.
-6. En el mismo navegador y dominio anterior, usa **Ajustes → Recuperar avance anterior**.
+5. Abre la misma dirección de tu web, inicia sesión con la misma cuenta y pulsa **Cargar PDF**. Si aún no recuperaste tu curso anterior, importa `migration/curso-original.json` desde **Gestionar → Importar respaldo / curso**.
+6. Solo si migras por primera vez desde el lector original: en el mismo navegador y dominio anterior, usa **Ajustes → Recuperar avance anterior**.
 
-La guía amplía cada paso, el alta del usuario, URLs, SMTP, recuperación de contraseña y comprobaciones en un segundo dispositivo. La nube real necesita tu proyecto y tu cuenta; no hay credenciales ni servicios externos ya aprovisionados en el ZIP.
+La guía amplía cada paso, el alta del usuario, URLs, SMTP, recuperación de contraseña y comprobaciones en un segundo dispositivo. La configuración pública ya está incluida; la cuenta real y el despliegue siguen bajo tu control. No se han modificado ni comprobado tus datos remotos durante esta entrega.
 
 ## Probar en tu computadora
 
@@ -31,14 +31,20 @@ El curso anterior es **Investment Foundations — Course 1**, no un currículo c
 
 La publicación usa una lista explícita de archivos públicos. `migration/`, `supabase/`, pruebas y el corpus anterior no se copian al sitio. **Esto no vuelve privado un repositorio GitHub público ni su historial.** Los materiales importados a tu cuenta se guardan bajo políticas por usuario; el material ya publicado requiere revisar su repositorio y sus derechos por separado.
 
-## Motor de documentos
+## Motor de libros y visor
 
-- PDF con texto, TXT y Markdown; archivos PNG/JPG/WebP con OCR inglés y español.
-- Hasta 40 MB por archivo. OCR máximo 10 páginas por importación; permite rangos.
-- Bibliotecas, modelos OCR y tipografías incluidos localmente: no depende de un CDN.
-- Extracción por página, revisión editable, detección de duplicados, avisos de columnas y conservación de fuente original.
-- IA opcional para resúmenes, tarjetas y preguntas, con fuentes, validación y revisión antes de guardar. Necesita la función Supabase, clave de OpenAI en el servidor, lista de correos permitidos y límites de consumo.
-- No se garantiza interpretación exacta de fórmulas, tablas o escaneos difíciles. Contrasta con el original.
+- Curso completo desde un PDF: metadatos, marcadores internos, etiquetas impresas e índice jerárquico navegable.
+- Cuando no hay marcadores utilizables, detecta encabezados de forma conservadora o propone bloques consecutivos de 20 páginas. La estructura es editable.
+- Conserva cada página física, incluida portada, página en blanco y apéndice. El informe identifica cobertura, duplicados y páginas sin texto auxiliar.
+- El visor local PDF.js incluye zoom, ajuste al ancho o página, giro, texto seleccionable, enlaces internos, descarga y pantalla completa.
+- El original se guarda sin reconstruirlo. Las fórmulas y gráficos se leen visualmente desde ese archivo. El texto extraído se muestra literalmente y puede corregirse.
+- Importación local atómica: no deja un curso parcialmente creado. Reorganización atómica que conserva IDs de página, notas, tarjetas, preguntas y avance.
+- Hasta 40 MB y 1.000 páginas por libro; hasta 3 millones de caracteres de texto auxiliar, con aviso si se alcanza. Los límites no recortan silenciosamente las páginas.
+- OCR inglés/español a petición por página, con revisión antes de guardar. Los libros escaneados no se reconocen íntegramente por OCR de forma automática.
+- TXT, Markdown e imágenes siguen disponibles en «Otros materiales». IA opcional para borradores de estudio; requiere configuración separada.
+- Bibliotecas, fuentes y modelos OCR incluidos localmente. Login, datos por cuenta y sincronización Supabase conservan el esquema y los espacios de la versión 3.
+
+Consulta [la guía del lector](docs/LECTOR_PDF.md). La cobertura completa verifica inclusión de páginas; no garantiza reconocimiento semántico perfecto ni dominio académico.
 
 ## Desarrollo y mantenimiento
 

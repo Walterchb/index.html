@@ -43,9 +43,13 @@ async function poll(condition, message, timeout = 60000) {
   }
 }
 async function nav(view) {
-  if (page.viewportSize().width <= 760 && !await page.evaluate(() => document.body.classList.contains('menu-open'))) await click('menu');
-  await page.locator(`.sidebar a.nav-item[href="#${view}"]`).click();
-  await page.waitForFunction(v => document.querySelector('.breadcrumb strong')?.textContent === ({admin:'Gestionar',reader:'Lectura',practice:'Práctica',review:'Repasar',notes:'Mis notas',home:'Mi espacio',settings:'Ajustes',library:'Mis cursos'})[v], view);
+  const tab = page.locator(`.reader-tabs a[href="#${view}"]`);
+  if (await tab.count()) await tab.click();
+  else {
+    if (page.viewportSize().width <= 760 && !await page.evaluate(() => document.body.classList.contains('menu-open'))) await click('menu');
+    await page.locator(`.sidebar a.nav-item[href="#${view}"]`).click();
+  }
+  await page.waitForFunction(v => location.hash === `#${v}` && !!document.querySelector(`a[href="#${v}"].active`), view);
 }
 async function saveForm() {
   await page.locator('#editor-form button[type="submit"]').click();
@@ -61,8 +65,11 @@ async function create(kind, values) {
   await saveForm();
 }
 async function selectCourse(id) {
-  await page.locator('#course-select').selectOption(id);
-  await page.waitForFunction(id => document.querySelector('#course-select')?.value === id, id);
+  const selector = await page.locator('#course-select').count() ? '#course-select' : '#sidebar-course-select';
+  if (selector === '#sidebar-course-select' && page.viewportSize().width <= 760 && !await page.evaluate(() => document.body.classList.contains('menu-open'))) await click('menu');
+  await page.locator(selector).selectOption(id);
+  await page.waitForFunction(({id,selector}) => document.querySelector(selector)?.value === id, {id,selector});
+  if (selector === '#sidebar-course-select' && page.viewportSize().width <= 760 && await page.evaluate(() => document.body.classList.contains('menu-open'))) await click('menu');
 }
 async function importFile(file) {
   const packet = JSON.parse(await fs.readFile(file, 'utf8'));
@@ -99,7 +106,7 @@ try {
   await page.locator(`[data-action="edit"][data-kind="lessons"][data-id="${lesson.id}"]`).click();
   await page.locator('#editor-form [name="title"]').fill('Valor temporal revisado');
   await saveForm();
-  await page.locator(`[data-action="open-lesson"][data-id="${lesson.id}"]`).click();
+  await page.locator(`.lesson-row [data-action="open-lesson"][data-id="${lesson.id}"]`).click();
   await page.locator('#reading-content').waitFor();
   assert.match(await page.locator('#reading-content').innerText(), /110.*10%.*100/);
   assert.equal(await page.evaluate(() => globalThis.smokeInjected), undefined);
